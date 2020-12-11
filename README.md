@@ -19,8 +19,8 @@ Enviando códigos para o git.
 Linux:
 1. Antes de realizar qualquer alteração execute o comando "git pull" dentro do diretório do projeto.
 2. Para enviar uma alteração execute os comandos: 
-   git add .
-   git commit -m "Coloque um comentário que caracterize a mudança"
+   git add . \n
+   git commit -m "Coloque um comentário que caracterize a mudança" \n
    git push
    
 
