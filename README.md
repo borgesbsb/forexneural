@@ -21,7 +21,7 @@ git clone https://meulogin@github.com/borgesbsb/forexneural.git
  git pull
  ```
 
-### Enviando códigos para o git.
+### Enviando códigos para o github.
 
 Linux:
 1. Antes de realizar qualquer alteração execute o comando "git pull" dentro do diretório do projeto.
