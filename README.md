@@ -11,17 +11,20 @@ Linux:
 Atualizando o repositório.
  
  Linux
- 1. Entre no diretório e digite: git pull
- 
+ 1. Entre no diretório e digite: 
+ ```
+ git pull
+ ```
 
 Enviando códigos para o git.
 
 Linux:
 1. Antes de realizar qualquer alteração execute o comando "git pull" dentro do diretório do projeto.
 2. Para enviar uma alteração execute os comandos: 
-   2.1   git add . \n
-   2.2   git commit -m "Coloque um comentário que caracterize a mudança" \n
-   2.3   git push
-   
+   ```
+   git add . \n
+   git commit -m "Coloque um comentário que caracterize a mudança" \n
+   git push
+   ```
 
  
