@@ -1,6 +1,6 @@
 # Rede Neural para Previsão no Mercado Forex
 
-Como eu faço para baixar os códigos?
+###Como eu faço para baixar os códigos?
 
 Linux:
 1. Instale o git com o comando: 
@@ -13,7 +13,7 @@ apt install git
 git clone https://meulogin@github.com/borgesbsb/forexneural.git
 ```
 
-Atualizando o repositório.
+###Atualizando o repositório.
  
  Linux
  1. Entre no diretório e digite: 
@@ -21,7 +21,7 @@ Atualizando o repositório.
  git pull
  ```
 
-Enviando códigos para o git.
+###Enviando códigos para o git.
 
 Linux:
 1. Antes de realizar qualquer alteração execute o comando "git pull" dentro do diretório do projeto.
