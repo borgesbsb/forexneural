@@ -58,7 +58,7 @@ input string             pausatermino2       = "";         // Horário de Térmi
 //input double             maxganhodiario      = 250.00;      // Máx ganho diário p/ ativar modo seguro
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 string                   shortname;
-
+bool                     teste
 //--- Variáveis temporárias e de carater geral
 double                   volumecompra        = 0.0;
 double                   volumevenda         = 0.0;
