@@ -18,7 +18,8 @@ Windows:
 https://desktop.github.com/
 ```
 
-2. Com a conta criada e logada no app Github Clone o repositório: 
+2. Com a conta criada e logada no app Github Clone o repositório.
+
 
 
 ### Atualizando o repositório.
