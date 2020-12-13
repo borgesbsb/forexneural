@@ -12,6 +12,14 @@ apt install git
 ```
 git clone https://meulogin@github.com/borgesbsb/forexneural.git
 ```
+Windows:
+1. Instale o aplicativo GitHub Desktop disponível no site: 
+```
+https://desktop.github.com/
+```
+
+2. Com a conta criada e logada no app Github Clone o repositório: 
+
 
 ### Atualizando o repositório.
  
