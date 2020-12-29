@@ -1,46 +1,39 @@
 import socket
-from tensorflow import keras
+import tensorflow as tf
 
 
-class socketserver:
-    def __init__(self, address = '', port = 9090):
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.address = address
-        self.port = port
-        self.sock.bind((self.address, self.port))
-        self.cummdata = ''
-        
-    def recvmsg(self):
-        self.sock.listen(1)
-        self.conn, self.addr = self.sock.accept()
-        print('connected to', self.addr)
-        self.cummdata = ''
+def server(host = '127.0.0.1', port=8082):
+    data_payload = 1000 #The maximum amount of data to be received at once
+    # Create a TCP socket
+    sock = socket.socket(socket.AF_INET,  socket.SOCK_STREAM)
+    # Enable reuse address/port 
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    # Bind the socket to the port
+    server_address = (host, port)
+    print ("Starting up echo server  on %s port %s" % server_address)
+    sock.bind(server_address)
+    # Listen to clients, argument specifies the max no. of queued connections
+    sock.listen(5) 
+    client, address = sock.accept()
+    #Carreando o modelo neural
+    model = tf.keras.models.load_model('LSTM')
+    try:
+        while True: 
+            print ("Aguardando dados")
+            valores = []
+            data = client.recv(data_payload).decode('UTF-8') 
+            if data:
+                valores = data.split(",")
+                predict = predicao(valores)
+                client.sendall(data.encode('utf-8'))
+    except KeyboardInterrupt:
+        print("Encerrando Servidor de Previsões")
+        pass            
 
-        while True:
-            data = self.conn.recv(10000)
-            self.cummdata+=data.decode("utf-8")
-                        
-            if not data:
-                break
-            msgsrv = 'Mensagem vindo do servidor'    
-            self.conn.send(msgsrv.decode('utf-8'))
-            return self.cummdata
-            
-    def __del__(self):
-        self.sock.close()
-
-def calcregr(msg = ''):
-    model = keras.models.load_model('LSTM')
-    
-    
-    return str("Teste")
-
-
-
-serv = socketserver('127.0.0.1', 9090)
-while True:  
-    msg = serv.recvmsg()
+def predicao(valores):
     
 
 
+
+server()
 
