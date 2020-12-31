@@ -1,5 +1,11 @@
 import socket
 import tensorflow as tf
+from tensorflow.keras.models import load_model
+import numpy as np
+import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
+
+
 
 
 def server(host = '127.0.0.1', port=8082):
@@ -16,7 +22,13 @@ def server(host = '127.0.0.1', port=8082):
     sock.listen(5) 
     client, address = sock.accept()
     #Carreando o modelo neural
-    model = tf.keras.models.load_model('LSTM')
+    model = tf.keras.models.load_model('LSTM',compile = False)
+    df = pd.read_csv('EURUSD.csv', sep=';', header=0)
+    df = df.iloc[ 0:int(len(df)*0.8),2:5]
+    sc = MinMaxScaler()
+    df = sc.fit_transform(df)
+    
+
     try:
         while True: 
             print ("Aguardando dados")
@@ -31,9 +43,10 @@ def server(host = '127.0.0.1', port=8082):
         pass            
 
 def predicao(valores):
+    x_test = np.array(valores)
+    print(x_test)
     
 
 
 
 server()
-
