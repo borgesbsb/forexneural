@@ -4,6 +4,7 @@ from tensorflow.keras.models import load_model
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
+#Refatorar o codigo assim que possivel
 
 def server(host = '127.0.0.1', port=8082):
     model = tf.keras.models.load_model('LSTM',compile = False)
