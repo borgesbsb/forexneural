@@ -1,8 +1,23 @@
 import socket
 import tensorflow as tf
-
+from tensorflow.keras.models import load_model
+import numpy as np
+import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
 
 def server(host = '127.0.0.1', port=8082):
+    model = tf.keras.models.load_model('LSTM',compile = False)
+    sc = MinMaxScaler()
+    sc1 = MinMaxScaler()
+    df = pd.read_csv('EURUSD.csv', sep=';', header=0)
+    
+    df = df.iloc[ 0:int(len(df)*0.8),2:5]
+    df_y = df.copy()
+    
+    df = sc.fit_transform(df)
+    df_y = sc1.fit_transform(df_y.iloc[:,2].values.reshape(-1,1))
+    
+
     data_payload = 1000 #The maximum amount of data to be received at once
     # Create a TCP socket
     sock = socket.socket(socket.AF_INET,  socket.SOCK_STREAM)
@@ -17,24 +32,29 @@ def server(host = '127.0.0.1', port=8082):
     client, address = sock.accept()
     #Carreando o modelo neural
     
-    model = tf.keras.models.load_model('LSTM')
+
     try:
         while True: 
-            print ("Aguardando dados")
             valores = []
             data = client.recv(data_payload).decode('UTF-8') 
             if data:
                 valores = data.split(",")
-                predict = predicao(valores)
-                client.sendall(data.encode('utf-8'))
+                predict = predicao(valores,sc,sc1,model)
+                client.sendall(predict.encode('utf-8'))
     except KeyboardInterrupt:
         print("Encerrando Servidor de Previsões")
         pass            
 
-def predicao(valores):
-
-
-
+def predicao(valores,sc,sc1,model):
+    x_test = []
+    for i in valores:
+        x_test.append(float(i))
+    x_test = np.array(x_test)
+    x_test = np.reshape(x_test,(2,3))
+    x_test = sc.transform(x_test)
+    x_test = np.reshape(x_test,(1,2,3))
+    predict = model.predict(x_test)
+    predict =  sc1.inverse_transform(predict)
+    return str(predict[0][0])
 
 server()
-
