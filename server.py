@@ -37,7 +37,7 @@ def server(host = '127.0.0.1', port=8082):
     try:
         while True: 
             valores = []
-            data = client.recv(data_payload).decode('UTF-8') 
+            data = client.recv(data_payload).decode('utf-8') 
             if data:
                 valores = data.split(",")
                 predict = predicao(valores,sc,sc1,model)
@@ -56,6 +56,8 @@ def predicao(valores,sc,sc1,model):
     x_test = np.reshape(x_test,(1,2,3))
     predict = model.predict(x_test)
     predict =  sc1.inverse_transform(predict)
+    print(str(valores))
+    print(str(predict))
     return str(predict[0][0])
 
 server()
