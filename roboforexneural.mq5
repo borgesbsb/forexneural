@@ -23,7 +23,7 @@ input int                periodorsi          = 10;         // QTDE DE CANDLES P/
 //input double             rsicompra           = 30;         // VALOR DO RSI P/ COMPRA
 //input double             rsivenda            = 70;         // VALOR DO RSI P/ VENDA
 input string             endereco            = "localhost";// IP/SITE DO SERVIDOR NEURAL
-input uint               porta               = 8000;       // PORTA DO SERVIDOR NEURAL
+input int                porta               = 8000;       // PORTA DO SERVIDOR NEURAL
 input bool               ExtTLS              = false;      // ATIVA ENVIO POR HTTPS
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 input ulong              magicrobo           = 940;        // MAGIC NUMBER DO ROBÔ
@@ -166,6 +166,60 @@ void OnTick()
      {
       if(NB1.IsNewBar(_Symbol,_Period)) //VERIFICA SE É UM NOVO CANDLE
         {
+         low1 = DoubleToString(candle[2].low,5);
+         low2 = DoubleToString(candle[1].low,5);
+         high1 = DoubleToString(candle[2].high,5);
+         high2 = DoubleToString(candle[1].high,5);
+         close1 = DoubleToString(candle[2].close,5);
+         close2 = DoubleToString(candle[1].close,5);
+
+         envioneural = low1+","+high1+","+close1+","+low2+","+high2+","+close2;
+
+         Comment("low1: ",low1,"\n","high1: ",high1,"\n","close1: ",close1,"\n","low1: ",low1,"\n","high1: ",high1,"\n","close1: ",close1);
+
+         if(socketneural!=INVALID_HANDLE)
+           {
+            Print("Confirmação de soquete criado, este é o número dele: ",socketneural);
+            SocketConnect(socketneural,endereco,porta,1000);
+            if(SocketIsConnected(socketneural))
+              {
+               enviado = socksend(socketneural,envioneural);
+               Alert("Dados enviados: ",envioneural);
+              }
+            else
+               Print("soquete para envio não conectado!");
+
+            Sleep(100);
+
+            SocketConnect(socketneural,endereco,porta,100);
+            if(SocketIsConnected(socketneural))
+              {
+               recebido = socketreceive(socketneural,1000);
+               Alert("Dados recebidos: ",recebido);
+              }
+            else
+               Print("soquete para recebimento não conectado!");
+
+            SocketClose(socketneural);
+           }
+         if(recebido!="")
+           {
+
+            //                     if(recebido>tick.ask)
+            //                     {
+            //                    Alert("recebido: ",recebido);
+            //trade.Buy(lotecompra,_Symbol,tick.ask,candle[1].low,recebido,"NEURAL COMPRA");
+            //                 }
+            //             else
+            //             {
+            //            Alert("recebido: ",recebido);
+            //trade.Sell(lotevenda,_Symbol,tick.bid,candle[1].high,recebido,"NEURAL VENDA");
+            //         }
+           }
+        }
+      /*
+      if(NB1.IsNewBar(_Symbol,_Period)) //VERIFICA SE É UM NOVO CANDLE
+        {
          open1 = DoubleToString(candle[1].open,5);
          open2 = DoubleToString(candle[2].open,5);
          low1 = DoubleToString(candle[1].low,5);
@@ -177,6 +231,8 @@ void OnTick()
          envioneural = open1+","+high1+","+low1+","+close1+","+open2+","+high2+","+low2+","+close2;
          Comment("open1: ",open1,"\n","high1: ",high1,"\n","low1: ",low1,"\n","close1: ",close1,"\n","open2: ",open2,"\n","high2: ",high2,"\n"//
                  ,"low2: ",low2,"\n","close2: ",close2,"\n",envioneural);
+
+
 
          if(socketneural!=INVALID_HANDLE)
            {
@@ -197,26 +253,28 @@ void OnTick()
          Bid=SymbolInfoDouble(Symbol(),SYMBOL_BID);
          Spread=SymbolInfoInteger(Symbol(),SYMBOL_SPREAD);
          //--- Exibe valores em 3 linhas
-         Comment(StringFormat("Mostrar preços\nAsk = %G\nBid = %G\nSpread = %d",Ask,Bid,Spread));*/
+         Comment(StringFormat("Mostrar preços\nAsk = %G\nBid = %G\nSpread = %d",Ask,Bid,Spread));
 
 
-        }
      }
+   */
+
+  }
 //+------------------------------------------------------------------+
 //| OPERAÇÃO DO EA DENTRO DO HORÁRIO PRÉ DEFINIDO                    |
 //+------------------------------------------------------------------+
-   if(HorarioEntrada()) //VERIFICAÇÃO DE HORÁRIO PARA FUNCIONAMENTO DO EA
+if(HorarioEntrada()) //VERIFICAÇÃO DE HORÁRIO PARA FUNCIONAMENTO DO EA
+  {
+   if(!(HorarioPausa1() || HorarioPausa2()))
      {
-      if(!(HorarioPausa1() || HorarioPausa2()))
+      if(ativaentradaea==true) //ATIVA AS COMPRAS PELO EA DENTRO DO HORARIO DO FUNCIONAMENTO
         {
-         if(ativaentradaea==true) //ATIVA AS COMPRAS PELO EA DENTRO DO HORARIO DO FUNCIONAMENTO
+         if(percent_margem>nivelcompra||saldo==capital) //PERMITE OU NÃO A OPERAÇÃO EM FUNÇÃO DO NÍVEL DE MARGEM DE MARGEM LIVRE
            {
-            if(percent_margem>nivelcompra||saldo==capital) //PERMITE OU NÃO A OPERAÇÃO EM FUNÇÃO DO NÍVEL DE MARGEM DE MARGEM LIVRE
-              {
-              }
            }
         }
      }
+  }
   }
 //+------------------------------------------------------------------------------------------+
 ////////////////////////////
