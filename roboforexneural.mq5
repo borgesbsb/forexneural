@@ -12,6 +12,7 @@
 #include <Trade/PositionInfo.mqh>
 #include <Trade/HistoryOrderInfo.mqh>
 #include <IsNewBar.mqh>
+#include <Dictionary.mqh>
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 input group              "ENVIO P/ REDE NEURAL"
 input bool               ativaenvioneural    = true;       // ATIVA ENVIO DE DADOS
@@ -22,8 +23,8 @@ input bool               ativaenviorsi       = false;      // ATIVA ENVIO DE RSI
 input int                periodorsi          = 10;         // QTDE DE CANDLES P/ RSI
 //input double             rsicompra           = 30;         // VALOR DO RSI P/ COMPRA
 //input double             rsivenda            = 70;         // VALOR DO RSI P/ VENDA
-input string             endereco            = "localhost";// IP/SITE DO SERVIDOR NEURAL
-input int                porta               = 8000;       // PORTA DO SERVIDOR NEURAL
+input string             endereco            = "127.0.0.1";// IP/SITE DO SERVIDOR NEURAL
+input int                porta               = 8082;       // PORTA DO SERVIDOR NEURAL
 input bool               ExtTLS              = false;      // ATIVA ENVIO POR HTTPS
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 input ulong              magicrobo           = 940;        // MAGIC NUMBER DO ROBÔ
@@ -70,7 +71,7 @@ double                   takevenda           = 0.0;
 double                   percent_margem, saldo, capital;
 
 //--- Variáveis p/ envio de dados à rede neural
-int                      socketneural        = SocketCreate();
+
 string                   recebido            = "";
 string                   open1               = "";
 string                   open2               = "";
@@ -94,13 +95,42 @@ MqlDateTime horario_inicio, horario_termino,/* horario_fechamento,*/ //
 
 //--- Usa a classe responsável pela execução das ordens - Ctrade
 CTrade                   trade;
+CDictionary *dict = new CDictionary();
+
 
 //+--------------------------------+
 //| Expert initialization function |
 //+--------------------------------+
+void ReadFileToDictCSV(string FileName)
+  {
+   int h=FileOpen(FileName,FILE_READ|FILE_ANSI|FILE_CSV|FILE_COMMON);
+   string result[];
+   string sep=",";
+   ushort u_sep;
+   
+    u_sep=StringGetCharacter(sep,0);
+   
+   if(h==INVALID_HANDLE)
+     {
+      Alert("Error opening file",GetLastError());
+      return;
+     }
+   while(!FileIsEnding(h))
+     {
+         //Print(FileReadString(h));
+         StringSplit(FileReadString(h),u_sep,result);
+         dict.Set<string>(result[1],result[4]);
+      }
+      
+     
+   FileClose(h);
+}
+
+
 int OnInit()
   {
-
+    
+   
 //--- Seta o magic number do robô
    trade.SetExpertMagicNumber(magicrobo);
 
@@ -114,9 +144,16 @@ int OnInit()
    TimeToStruct(StringToTime(pausatermino1),horario_termino_pausa1);
    TimeToStruct(StringToTime(pausainicio2),horario_inicio_pausa2);
    TimeToStruct(StringToTime(pausatermino2),horario_termino_pausa2);
-
+   ReadFileToDictCSV("previsoes.csv");
    return(INIT_SUCCEEDED);
   }
+
+
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+
+
 
 //+------------------------------------------------------------------------------------------+
 //+----------------------------------+
@@ -137,6 +174,7 @@ void OnDeinit(const int reason)
 ///////////////////////////////
 void OnTick()
   {
+   int          socketneural        = SocketCreate();
    CopyRates(_Symbol,_Period,0,30,candle);
    if(CopyRates(_Symbol,_Period,0,30,candle)<0)
      {
@@ -166,6 +204,7 @@ void OnTick()
      {
       if(NB1.IsNewBar(_Symbol,_Period)) //VERIFICA SE É UM NOVO CANDLE
         {
+         
          low1 = DoubleToString(candle[2].low,5);
          low2 = DoubleToString(candle[1].low,5);
          high1 = DoubleToString(candle[2].high,5);
@@ -174,24 +213,25 @@ void OnTick()
          close2 = DoubleToString(candle[1].close,5);
 
          envioneural = low1+","+high1+","+close1+","+low2+","+high2+","+close2;
-
-         Comment("low1: ",low1,"\n","high1: ",high1,"\n","close1: ",close1,"\n","low1: ",low1,"\n","high1: ",high1,"\n","close1: ",close1);
-
+         
+         Print(dict.Get<string>(TimeCurrent()+3600));
+         
          if(socketneural!=INVALID_HANDLE)
            {
             Print("Confirmação de soquete criado, este é o número dele: ",socketneural);
             SocketConnect(socketneural,endereco,porta,1000);
+
             if(SocketIsConnected(socketneural))
               {
                enviado = socksend(socketneural,envioneural);
                Alert("Dados enviados: ",envioneural);
               }
             else
-               Print("soquete para envio não conectado!");
+               Print("Falhou conexão a ",endereco,":",porta,", erro ",GetLastError());
 
-            Sleep(100);
+            //Sleep(100);
 
-            SocketConnect(socketneural,endereco,porta,100);
+            SocketConnect(socketneural,endereco,porta,1000);
             if(SocketIsConnected(socketneural))
               {
                recebido = socketreceive(socketneural,1000);
@@ -231,9 +271,6 @@ void OnTick()
          envioneural = open1+","+high1+","+low1+","+close1+","+open2+","+high2+","+low2+","+close2;
          Comment("open1: ",open1,"\n","high1: ",high1,"\n","low1: ",low1,"\n","close1: ",close1,"\n","open2: ",open2,"\n","high2: ",high2,"\n"//
                  ,"low2: ",low2,"\n","close2: ",close2,"\n",envioneural);
-
-
-
          if(socketneural!=INVALID_HANDLE)
            {
             SocketConnect(socketneural,endereco,porta,1000);
@@ -245,7 +282,6 @@ void OnTick()
             Print(recebido);
             SocketClose(socketneural);
            }
-
          //Comment("Open1 = %G\nHigh1 = %G\nLow1 = %G\nClose1 = %G\nOpen2 = %G\nHigh2 = %G\nLow2 = %G\nClose2 = %G",open1,high1,low1,close1,open2,high2,low2,close2);
          /*double Ask,Bid;
          int Spread;
@@ -254,27 +290,25 @@ void OnTick()
          Spread=SymbolInfoInteger(Symbol(),SYMBOL_SPREAD);
          //--- Exibe valores em 3 linhas
          Comment(StringFormat("Mostrar preços\nAsk = %G\nBid = %G\nSpread = %d",Ask,Bid,Spread));
-
+      }
+      */
 
      }
-   */
-
-  }
 //+------------------------------------------------------------------+
 //| OPERAÇÃO DO EA DENTRO DO HORÁRIO PRÉ DEFINIDO                    |
 //+------------------------------------------------------------------+
-if(HorarioEntrada()) //VERIFICAÇÃO DE HORÁRIO PARA FUNCIONAMENTO DO EA
-  {
-   if(!(HorarioPausa1() || HorarioPausa2()))
+   if(HorarioEntrada()) //VERIFICAÇÃO DE HORÁRIO PARA FUNCIONAMENTO DO EA
      {
-      if(ativaentradaea==true) //ATIVA AS COMPRAS PELO EA DENTRO DO HORARIO DO FUNCIONAMENTO
+      if(!(HorarioPausa1() || HorarioPausa2()))
         {
-         if(percent_margem>nivelcompra||saldo==capital) //PERMITE OU NÃO A OPERAÇÃO EM FUNÇÃO DO NÍVEL DE MARGEM DE MARGEM LIVRE
+         if(ativaentradaea==true) //ATIVA AS COMPRAS PELO EA DENTRO DO HORARIO DO FUNCIONAMENTO
            {
+            if(percent_margem>nivelcompra||saldo==capital) //PERMITE OU NÃO A OPERAÇÃO EM FUNÇÃO DO NÍVEL DE MARGEM DE MARGEM LIVRE
+              {
+              }
            }
         }
      }
-  }
   }
 //+------------------------------------------------------------------------------------------+
 ////////////////////////////
@@ -432,4 +466,5 @@ bool HorarioPausa2() //VERIFICA SE ESTÁ NO HORÁRIO DE PAUSA DO ROBÔ
 // Hora dentro do horário de entradas(fora do intervalo acima)
    return false;
   }
-//+------------------------------------------------------------------------------------------+
+//+-------
+//+------------------------------------------------------------------+
