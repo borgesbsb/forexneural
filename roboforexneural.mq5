@@ -30,8 +30,8 @@ input bool               ExtTLS              = false;      // ATIVA ENVIO POR HT
 input ulong              magicrobo           = 940;        // MAGIC NUMBER DO ROBÔ
 input group              "ABERTURA DE POSIÇÕES"
 input bool               ativaentradaea      = true;       // ATIVA ABERTURA DE POSIÇÕES PELO EA
-input double             lotecompra          = 0.01;       // TAMANHO DO LOTE PADRÃO P/ COMPRA
-input double             lotevenda           = 0.01;       // TAMANHO DO LOTE PADRÃO P/ VENDA
+input double             lotecompra          = 1.0;       // TAMANHO DO LOTE PADRÃO P/ COMPRA
+input double             lotevenda           = 1.0;       // TAMANHO DO LOTE PADRÃO P/ VENDA
 input double             nivelcompra         = 3000;       // % MINIMO P/ NOVAS ORDENS
 input int                multiplicador       = 2;          // MULTIPLICADOR MARTINGALE
 //input double             pontosmart          = 3000;       // DISTÂNCIA EM PONTOS P/ NOVAS ORDENS(MARTINGALE)
@@ -69,6 +69,8 @@ double                   stopvenda           = 0.0;
 double                   takecompra          = 0.0;
 double                   takevenda           = 0.0;
 double                   previsao_temp       = 0.0;
+double                   posicao_vendida     = 0.0;
+double                   posicao_compra      = 0.0;
 
 double                   percent_margem, saldo, capital;
 
@@ -85,7 +87,9 @@ string                   high1               = "";
 string                   high2               = "";
 string                   envioneural         = "";//string contendo os dados a serem enviados para o servidor
 bool                     enviado;
-
+bool                     aciona_mg_compra           = false;
+bool                     aciona_mg_venda            = false;
+int                      barras              = 0;
 //--- Variáveis p/ ticks e candles
 MqlTick                  tick;
 MqlRates                 candle[];
@@ -177,13 +181,68 @@ void OnTick()
 //+------------------------------------------------------------------+
    if(ativaenvioneural==true && (percent_margem>nivelcompra||saldo==capital))
      {
+      
+      if(PossuiPosCompra() && !aciona_mg_compra) {
+            
+           if ( NormalizeDouble(posicao_compra - tick.ask, 5) >= 0.00070 ) {
+                FechaTodasPosicoesAbertas();
+                trade.Buy(lotecompra,_Symbol,tick.ask,0,tick.ask+0.00050,"COMPRA MARTINGALE");
+                posicao_compra = tick.ask;
+                aciona_mg_compra = true;
+                barras =   0;
+           }  
+      }
+      
+      if ( PossuiPosVenda() && !aciona_mg_venda ) {
+      
+        if ( NormalizeDouble(tick.bid - posicao_vendida, 5) >= 0.00070 ) {
+                FechaTodasPosicoesAbertas();
+                trade.Sell(lotevenda,_Symbol,tick.bid,0,tick.bid-0.00050,"VENDA MARTINGALE");
+                posicao_vendida = tick.bid;
+                aciona_mg_venda = true;
+                barras =   0;
+           }  
+      
+      
+      }
+      
+      
+     
       if(NB1.IsNewBar(_Symbol,_Period))  //VERIFICA SE É UM NOVO CANDLE
         {
          previsao_temp = NormalizeDouble(StringToDouble(dict.Get<string>(TimeCurrent())),5);
          Print("a previsão é: ",previsao_temp);
          Print("O valor atual é: ",tick.ask);
-
-         if(PossuiPosCompra() && previsao_temp>tick.ask)
+         
+         
+         if (barras == 2) {
+            FechaTodasPosicoesAbertas();
+            aciona_mg_compra = false;
+            
+            
+         }
+         
+         if (previsao_temp != 0.0) {
+            if ( previsao_temp > tick.ask && ( !PossuiPosCompra() && !PossuiPosVenda() ) ) {
+               trade.Buy(lotecompra,_Symbol,tick.ask,0,previsao_temp,"COMPRA");
+               posicao_compra = tick.ask;
+               barras = 0;
+               aciona_mg_compra = false;
+              
+            }
+            
+            if ( previsao_temp < tick.bid && ( !PossuiPosCompra() && !PossuiPosVenda() ) ) {
+                trade.Sell(lotevenda,_Symbol,tick.bid,0,previsao_temp,"VENDA");
+                posicao_vendida  = tick.bid;
+                barras = 0;
+                aciona_mg_venda = false;
+            }
+            
+            barras = barras + 1;
+             
+         }
+         
+         /*if(PossuiPosCompra() && previsao_temp>tick.ask)
             trade.Buy(lotecompra+VolumePosCompra(),_Symbol,tick.ask,0,previsao_temp,"COMPRA MARTINGALE");
          if(PossuiPosCompra() && previsao_temp<tick.bid)
             FechaTodasPosicoesAbertas();
@@ -196,8 +255,9 @@ void OnTick()
          if(!PossuiPosCompra() && !PossuiPosVenda() && previsao_temp>tick.ask)
             trade.Buy(lotecompra,_Symbol,tick.ask,0,previsao_temp,"COMPRA");
 
-         if(!PossuiPosVenda() &&!PossuiPosCompra() && previsao_temp<tick.bid)
-            trade.Sell(lotevenda,_Symbol,tick.bid,0,previsao_temp,"VENDA");
+        // if(!PossuiPosVenda() &&!PossuiPosCompra() && previsao_temp<tick.bid)
+           // trade.Sell(lotevenda,_Symbol,tick.bid,0,previsao_temp,"VENDA");
+           */
 
          /*
                   if(previsao_temp>tick.ask)
