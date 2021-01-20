@@ -12,9 +12,10 @@
 #include <Trade/PositionInfo.mqh>
 #include <Trade/HistoryOrderInfo.mqh>
 #include <IsNewBar.mqh>
+#include <Dictionary.mqh>
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 input group              "ENVIO P/ REDE NEURAL"
-input bool               ativaenvioneural    = true;       // ATIVA ENVIO DE DADOS
+input bool               ativaenvioneural    = false;      // ATIVA ENVIO DE DADOS P/ SERVIDOR
 input bool               ativaenviomedia     = false;      // ATIVA ENVIO DE MÉDIA MÓVEL
 input ENUM_MA_METHOD     tipomedia           = MODE_SMA;   // TIPO DE MÉDIA
 input int                periodomedia        = 200;        // QTDE DE CANDLES P/ MÉDIA
@@ -22,18 +23,18 @@ input bool               ativaenviorsi       = false;      // ATIVA ENVIO DE RSI
 input int                periodorsi          = 10;         // QTDE DE CANDLES P/ RSI
 //input double             rsicompra           = 30;         // VALOR DO RSI P/ COMPRA
 //input double             rsivenda            = 70;         // VALOR DO RSI P/ VENDA
-input string             endereco            = "localhost";// IP/SITE DO SERVIDOR NEURAL
-input int                porta               = 8000;       // PORTA DO SERVIDOR NEURAL
+input string             endereco            = "127.0.0.1";// IP/SITE DO SERVIDOR NEURAL
+input int                porta               = 8082;       // PORTA DO SERVIDOR NEURAL
 input bool               ExtTLS              = false;      // ATIVA ENVIO POR HTTPS
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 input ulong              magicrobo           = 940;        // MAGIC NUMBER DO ROBÔ
 input group              "ABERTURA DE POSIÇÕES"
-input bool               ativaentradaea      = true;       // ATIVA ENTRADA PELO ROBÔ
+input bool               ativaentradaea      = true;       // ATIVA ABERTURA DE POSIÇÕES PELO EA
 input double             lotecompra          = 0.01;       // TAMANHO DO LOTE PADRÃO P/ COMPRA
 input double             lotevenda           = 0.01;       // TAMANHO DO LOTE PADRÃO P/ VENDA
-input double             nivelcompra         = 2000;       // % MINIMO P/ NOVAS ORDENS
+input double             nivelcompra         = 3000;       // % MINIMO P/ NOVAS ORDENS
 input int                multiplicador       = 2;          // MULTIPLICADOR MARTINGALE
-input double             pontosmart          = 3000;       // DISTÂNCIA EM PONTOS P/ NOVAS ORDENS(MARTINGALE)
+//input double             pontosmart          = 3000;       // DISTÂNCIA EM PONTOS P/ NOVAS ORDENS(MARTINGALE)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 input group              "BREAKEVEN E TRAILING STOP"
 input bool               ativaBE             = false;      // ATIVA BREAKEVEN
@@ -43,11 +44,11 @@ input double             pontosTS            = 2000;       // PONTOS P/ ATIVAÇ�
 input double             avancoTS            = 1000;       // AVANÇO DO STOP EM PONTOS
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 input group              "FECHAMENTO DE POSIÇÕES"
-input bool               ativasaidaea        = false;      // ATIVA SAÍDA PELO ROBÔ
+input bool               ativasaidaea        = false;      // ATIVA FECHAMENTO DE POSIÇÕES PELO EA
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 input group              "HORáRIO DE FUNCIONAMENTO DO EA"
-input string             inicio              = "01:10";    // Horário de Início (entradas)
-input string             termino             = "23:50";    // Horário de Término (entradas)
+input string             inicio              = "00:05";    // Horário de Início (entradas)
+input string             termino             = "22:50";    // Horário de Término (entradas)
 //input string             fechamento          = "23:45";     // Horário de Fechamento (posições)
 input string             pausainicio1        = "";         // Horário de Início da Pausa 1(Notícias)
 input string             pausatermino1       = "";         // Horário de Término da Pausa 1(Notícias)
@@ -59,6 +60,7 @@ input string             pausatermino2       = "";         // Horário de Térmi
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 string                   shortname;
 
+
 //--- Variáveis temporárias e de carater geral
 double                   volumecompra        = 0.0;
 double                   volumevenda         = 0.0;
@@ -66,12 +68,13 @@ double                   stopcompra          = 0.0;
 double                   stopvenda           = 0.0;
 double                   takecompra          = 0.0;
 double                   takevenda           = 0.0;
+double                   previsao_temp       = 0.0;
 
 double                   percent_margem, saldo, capital;
 
 //--- Variáveis p/ envio de dados à rede neural
-int                      socketneural        = SocketCreate();
-string                   recebido            = "";
+int                      socketneural        = SocketCreate();//quando chamado, cria o soquete para conexão ao servidor de previsões
+string                   recebido            = "";//string para receber a previsão do servidor
 string                   open1               = "";
 string                   open2               = "";
 string                   close1              = "";
@@ -80,7 +83,7 @@ string                   low1                = "";
 string                   low2                = "";
 string                   high1               = "";
 string                   high2               = "";
-string                   envioneural         = "";
+string                   envioneural         = "";//string contendo os dados a serem enviados para o servidor
 bool                     enviado;
 
 //--- Variáveis p/ ticks e candles
@@ -95,16 +98,24 @@ MqlDateTime horario_inicio, horario_termino,/* horario_fechamento,*/ //
 //--- Usa a classe responsável pela execução das ordens - Ctrade
 CTrade                   trade;
 
+//--- Usa a classe responsável pela leitura dos dados do arquivo contendo as previsões
+CDictionary *dict = new CDictionary();
+
+
 //+--------------------------------+
 //| Expert initialization function |
 //+--------------------------------+
+
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
 int OnInit()
   {
 
 //--- Seta o magic number do robô
    trade.SetExpertMagicNumber(magicrobo);
 
-   ArraySetAsSeries(candle,true);
+   ArraySetAsSeries(candle,true);//
 
 //--- Criação das structs de tempo
    TimeToStruct(StringToTime(inicio),horario_inicio);
@@ -114,6 +125,8 @@ int OnInit()
    TimeToStruct(StringToTime(pausatermino1),horario_termino_pausa1);
    TimeToStruct(StringToTime(pausainicio2),horario_inicio_pausa2);
    TimeToStruct(StringToTime(pausatermino2),horario_termino_pausa2);
+
+   ReadFileToDictCSV("previsoes.csv");
 
    return(INIT_SUCCEEDED);
   }
@@ -137,8 +150,8 @@ void OnDeinit(const int reason)
 ///////////////////////////////
 void OnTick()
   {
-   CopyRates(_Symbol,_Period,0,30,candle);
-   if(CopyRates(_Symbol,_Period,0,30,candle)<0)
+   CopyRates(_Symbol,_Period,0,5,candle);
+   if(CopyRates(_Symbol,_Period,0,5,candle)<0)
      {
       Alert("Erro ao obter informações de Mqlrates: ", GetLastError());
       return;
@@ -162,11 +175,45 @@ void OnTick()
 //+------------------------------------------------------------------+
 //| ENVIO DE SINAIS P/ REDE NEURAL                                   |
 //+------------------------------------------------------------------+
-   if(ativaenvioneural==true)
+   if(ativaenvioneural==true && (percent_margem>nivelcompra||saldo==capital))
      {
-      if(NB1.IsNewBar(_Symbol,_Period)) //VERIFICA SE É UM NOVO CANDLE
+      if(NB1.IsNewBar(_Symbol,_Period))  //VERIFICA SE É UM NOVO CANDLE
         {
-         low1 = DoubleToString(candle[2].low,5);
+         previsao_temp = NormalizeDouble(StringToDouble(dict.Get<string>(TimeCurrent())),5);
+         Print("a previsão é: ",previsao_temp);
+         Print("O valor atual é: ",tick.ask);
+
+         if(PossuiPosCompra() && previsao_temp>tick.ask)
+            trade.Buy(lotecompra+VolumePosCompra(),_Symbol,tick.ask,0,previsao_temp,"COMPRA MARTINGALE");
+         if(PossuiPosCompra() && previsao_temp<tick.bid)
+            FechaTodasPosicoesAbertas();
+
+         if(PossuiPosVenda() && previsao_temp<tick.bid)
+            trade.Sell(lotevenda+VolumePosVenda(),_Symbol,tick.bid,0,previsao_temp,"VENDA MARTINGALE");
+         if(PossuiPosVenda() && previsao_temp>tick.ask)
+            FechaTodasPosicoesAbertas();
+
+         if(!PossuiPosCompra() && !PossuiPosVenda() && previsao_temp>tick.ask)
+            trade.Buy(lotecompra,_Symbol,tick.ask,0,previsao_temp,"COMPRA");
+
+         if(!PossuiPosVenda() &&!PossuiPosCompra() && previsao_temp<tick.bid)
+            trade.Sell(lotevenda,_Symbol,tick.bid,0,previsao_temp,"VENDA");
+
+         /*
+                  if(previsao_temp>tick.ask)
+                    {
+                     FechaTodasPosicoesAbertas();
+                     trade.Buy(lotecompra,_Symbol,tick.ask,0,previsao_temp,"COMPRA");
+                    }
+
+                  if(previsao_temp<tick.bid)
+                    {
+                     FechaTodasPosicoesAbertas();
+                     trade.Sell(lotevenda,_Symbol,tick.bid,0,previsao_temp,"VENDA");
+                    }
+         */
+
+         /*low1 = DoubleToString(candle[2].low,5);
          low2 = DoubleToString(candle[1].low,5);
          high1 = DoubleToString(candle[2].high,5);
          high2 = DoubleToString(candle[1].high,5);
@@ -175,95 +222,56 @@ void OnTick()
 
          envioneural = low1+","+high1+","+close1+","+low2+","+high2+","+close2;
 
-         Comment("low1: ",low1,"\n","high1: ",high1,"\n","close1: ",close1,"\n","low1: ",low1,"\n","high1: ",high1,"\n","close1: ",close1);
-
          if(socketneural!=INVALID_HANDLE)
            {
             Print("Confirmação de soquete criado, este é o número dele: ",socketneural);
             SocketConnect(socketneural,endereco,porta,1000);
+
             if(SocketIsConnected(socketneural))
               {
                enviado = socksend(socketneural,envioneural);
                Alert("Dados enviados: ",envioneural);
               }
             else
-               Print("soquete para envio não conectado!");
+               Print("Falhou conexão a ",endereco,":",porta,", erro ",GetLastError());
 
-            Sleep(100);
+            //Sleep(100);
 
-            SocketConnect(socketneural,endereco,porta,100);
+            SocketConnect(socketneural,endereco,porta,1000);
             if(SocketIsConnected(socketneural))
               {
                recebido = socketreceive(socketneural,1000);
                Alert("Dados recebidos: ",recebido);
+               //"1.00005"
               }
             else
                Print("soquete para recebimento não conectado!");
 
             SocketClose(socketneural);
            }
+
+
          if(recebido!="")
            {
-
-            //                     if(recebido>tick.ask)
-            //                     {
-            //                    Alert("recebido: ",recebido);
-            //trade.Buy(lotecompra,_Symbol,tick.ask,candle[1].low,recebido,"NEURAL COMPRA");
-            //                 }
-            //             else
-            //             {
-            //            Alert("recebido: ",recebido);
-            //trade.Sell(lotevenda,_Symbol,tick.bid,candle[1].high,recebido,"NEURAL VENDA");
-            //         }
-           }
+            double recebido2=StringToDouble(recebido);
+            if(recebido2>tick.ask)
+              {
+               //Alert("recebido: ",recebido);
+               trade.Buy(lotecompra,_Symbol,tick.ask,candle[1].low,recebido2,"NEURAL COMPRA");
+              }
+            else
+              {
+               //Alert("recebido: ",recebido);
+               trade.Sell(lotevenda,_Symbol,tick.bid,candle[1].high,recebido2,"NEURAL VENDA");
+              }
+           } */
         }
-      /*
-      if(NB1.IsNewBar(_Symbol,_Period)) //VERIFICA SE É UM NOVO CANDLE
-        {
-         open1 = DoubleToString(candle[1].open,5);
-         open2 = DoubleToString(candle[2].open,5);
-         low1 = DoubleToString(candle[1].low,5);
-         low2 = DoubleToString(candle[2].low,5);
-         close1 = DoubleToString(candle[1].close,5);
-         close2 = DoubleToString(candle[2].close,5);
-         high1 = DoubleToString(candle[1].high,5);
-         high2 = DoubleToString(candle[2].high,5);
-         envioneural = open1+","+high1+","+low1+","+close1+","+open2+","+high2+","+low2+","+close2;
-         Comment("open1: ",open1,"\n","high1: ",high1,"\n","low1: ",low1,"\n","close1: ",close1,"\n","open2: ",open2,"\n","high2: ",high2,"\n"//
-                 ,"low2: ",low2,"\n","close2: ",close2,"\n",envioneural);
-
-
-
-         if(socketneural!=INVALID_HANDLE)
-           {
-            SocketConnect(socketneural,endereco,porta,1000);
-            Print("Conectado a ",endereco,":",porta);
-            enviado = socksend(socketneural,envioneural);
-            SocketConnect(socketneural,endereco,porta,1000);
-            Print("Conectado a ",endereco,":",porta);
-            recebido = socketreceive(socketneural,1000);
-            Print(recebido);
-            SocketClose(socketneural);
-           }
-
-         //Comment("Open1 = %G\nHigh1 = %G\nLow1 = %G\nClose1 = %G\nOpen2 = %G\nHigh2 = %G\nLow2 = %G\nClose2 = %G",open1,high1,low1,close1,open2,high2,low2,close2);
-         /*double Ask,Bid;
-         int Spread;
-         Ask=SymbolInfoDouble(Symbol(),SYMBOL_ASK);
-         Bid=SymbolInfoDouble(Symbol(),SYMBOL_BID);
-         Spread=SymbolInfoInteger(Symbol(),SYMBOL_SPREAD);
-         //--- Exibe valores em 3 linhas
-         Comment(StringFormat("Mostrar preços\nAsk = %G\nBid = %G\nSpread = %d",Ask,Bid,Spread));
-
-
      }
-   */
-
   }
 //+------------------------------------------------------------------+
 //| OPERAÇÃO DO EA DENTRO DO HORÁRIO PRÉ DEFINIDO                    |
 //+------------------------------------------------------------------+
-if(HorarioEntrada()) //VERIFICAÇÃO DE HORÁRIO PARA FUNCIONAMENTO DO EA
+/*if(HorarioEntrada()) //VERIFICAÇÃO DE HORÁRIO PARA FUNCIONAMENTO DO EA
   {
    if(!(HorarioPausa1() || HorarioPausa2()))
      {
@@ -274,8 +282,7 @@ if(HorarioEntrada()) //VERIFICAÇÃO DE HORÁRIO PARA FUNCIONAMENTO DO EA
            }
         }
      }
-  }
-  }
+  } */
 //+------------------------------------------------------------------------------------------+
 ////////////////////////////
 //| FIM DA FUNÇÃO ONTICK |//
@@ -284,7 +291,7 @@ if(HorarioEntrada()) //VERIFICAÇÃO DE HORÁRIO PARA FUNCIONAMENTO DO EA
 //| INÍCIO DAS FUNÇÕES AUXILIARES |//
 /////////////////////////////////////
 //+------------------------------------------------------------------+
-//| Enviando comandos para o servidor                                |
+//| ENVIA OS DADOS PARA O SERVIDOR DE PREVISÕES                      |
 //+------------------------------------------------------------------+
 bool socksend(int socket,string request)
   {
@@ -299,7 +306,7 @@ bool socksend(int socket,string request)
    return(SocketSend(socket,req,len)==len);
   }
 //+------------------------------------------------------------------+
-//| Lendo a resposta do servidor                                     |
+//| RECEBE AS PREVISÕES DO SERVIDOR                                  |
 //+------------------------------------------------------------------+
 string socketreceive(int socket,uint timeout)
   {
@@ -320,13 +327,127 @@ string socketreceive(int socket,uint timeout)
          rsp_len=SocketRead(socket,rsp,len,timeout);
          //--- analisa a resposta
          if(rsp_len>0)
-            result+=CharArrayToString(rsp,0,rsp_len);
+            result+=CharArrayToString(rsp,0,rsp_len,CP_UTF8);
         }
      }
    while(GetTickCount()<timeout_check && !IsStopped());
    return(result);
   }
 //+------------------------------------------------------------------------------------------+
+//+--------------------------------------------------------+
+//| VERIFICA SE HÁ PELO MENOS UMA POSIÇÃO DE COMPRA ABERTA |
+//+--------------------------------------------------------+
+bool PossuiPosCompra()
+  {
+   for(int i=PositionsTotal()-1; i >= 0; i--)
+     {
+      ulong ticket=PositionGetTicket(i);
+      string position_symbol = PositionGetString(POSITION_SYMBOL);
+      //ulong  magic = PositionGetInteger(POSITION_MAGIC);
+      ENUM_POSITION_TYPE TipoPosicao=(ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
+      if(TipoPosicao==POSITION_TYPE_BUY && position_symbol==_Symbol /*&& magic == magicrobo*/)
+        {
+         return true;
+         break;
+        }
+     }
+   return false;
+  }
+//+------------------------------------------------------------------------------------------+
+//+-------------------------------------------------------+
+//| VERIFICA SE HÁ PELO MENOS UMA POSIÇÃO DE VENDA ABERTA |
+//+-------------------------------------------------------+
+bool PossuiPosVenda()
+  {
+   for(int i=PositionsTotal()-1; i >= 0; i--)
+     {
+      ulong ticket=PositionGetTicket(i);
+      string position_symbol = PositionGetString(POSITION_SYMBOL);
+      //ulong  magic = PositionGetInteger(POSITION_MAGIC);
+      ENUM_POSITION_TYPE TipoPosicao=(ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
+      if(TipoPosicao==POSITION_TYPE_SELL && position_symbol==_Symbol /*&& magic == magicrobo*/)
+        {
+         return true;
+         break;
+        }
+     }
+   return false;
+  }
+//+----------------------------------------------------------------------------------------------+
+//+----------------------------------------------+
+//| RETORNA O VOLUME DA POSIÇÃO DE COMPRA ABERTA |
+//+----------------------------------------------+
+double VolumePosCompra()
+  {
+   int posabertas = PositionsTotal();
+   for(int i = posabertas-1; i >= 0; i--)
+     {
+      ulong ticket = PositionGetTicket(i);
+      string position_symbol = PositionGetString(POSITION_SYMBOL);
+      //ulong  magic = PositionGetInteger(POSITION_MAGIC);
+      double volume = PositionGetDouble(POSITION_VOLUME);
+      ENUM_POSITION_TYPE tipo =(ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
+      if(tipo == POSITION_TYPE_BUY && position_symbol==_Symbol /*&& magic == magicrobo*/)
+        {
+         return volume;
+         break;
+        }
+     }
+   return -1;
+  }
+//+------------------------------------------------------------------------------------------+
+//+---------------------------------------------+
+//| RETORNA O VOLUME DA POSIÇÃO DE VENDA ABERTA |
+//+---------------------------------------------+
+double VolumePosVenda()
+  {
+   int posabertas = PositionsTotal();
+   for(int i = posabertas-1; i >= 0; i--)
+     {
+      ulong ticket = PositionGetTicket(i);
+      string position_symbol = PositionGetString(POSITION_SYMBOL);
+      //ulong  magic = PositionGetInteger(POSITION_MAGIC);
+      double volume = PositionGetDouble(POSITION_VOLUME);
+      ENUM_POSITION_TYPE tipo =(ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
+      if(tipo == POSITION_TYPE_SELL && position_symbol==_Symbol /*&& magic == magicrobo*/)
+        {
+         return volume;
+         break;
+        }
+     }
+   return -1;
+  }
+//+------------------------------------------------------------------------------------------+
+//+---------------------------------+
+//| FECHA TODAS AS POSIÇÕES ABERTAS |
+//+---------------------------------+
+void FechaTodasPosicoesAbertas()
+  {
+   for(int i=PositionsTotal()-1; i >= 0; i--)
+     {
+      ulong ticket=PositionGetTicket(i);
+      string position_symbol = PositionGetString(POSITION_SYMBOL);
+      ulong  magic = PositionGetInteger(POSITION_MAGIC);
+      ENUM_POSITION_TYPE TipoPosicao=(ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
+      if((TipoPosicao==POSITION_TYPE_SELL||TipoPosicao==POSITION_TYPE_BUY) && position_symbol==_Symbol /*&& magic == magicrobo*/)
+        {
+         //--- everyrging is ready, trying to modify a buy position
+         if(!trade.PositionClose(ticket))
+           {
+            //--- failure message
+            Print("PositionClose() method failed. Return code=",trade.ResultRetcode(),
+                  ". Descrição do código: ",trade.ResultRetcodeDescription());
+           }
+         else
+           {
+            Print("PositionClose() method executed successfully. Return code=",trade.ResultRetcode(),
+                  " (",trade.ResultRetcodeDescription(),")");
+           }
+        }
+     }
+  }
+//+------------------------------------------------------------------------------------------+
+
 //+------------------------------------------------------------------+
 //| FUNÇÃO DE VERIFICAÇÃO DE HORÁRIO DE PARA ABERTURA DE ORDENS      |
 //+------------------------------------------------------------------+
@@ -432,4 +553,33 @@ bool HorarioPausa2() //VERIFICA SE ESTÁ NO HORÁRIO DE PAUSA DO ROBÔ
 // Hora dentro do horário de entradas(fora do intervalo acima)
    return false;
   }
-//+------------------------------------------------------------------------------------------+
+//+-------
+//+------------------------------------------------------------------+
+//+----------------------------------------------+
+//| FUNÇÃO PARA LER OS ARQUIVOS E SUAS PREVISÕES |
+//+----------------------------------------------+
+void ReadFileToDictCSV(string FileName)
+  {
+   int h=FileOpen(FileName,FILE_READ|FILE_ANSI|FILE_CSV|FILE_COMMON);
+   string result[];
+   string sep=",";
+   ushort u_sep;
+
+   u_sep=StringGetCharacter(sep,0);
+
+   if(h==INVALID_HANDLE)
+     {
+      Alert("Error opening file",GetLastError());
+      return;
+     }
+   while(!FileIsEnding(h))
+     {
+      //Print(FileReadString(h));
+      StringSplit(FileReadString(h),u_sep,result);
+      dict.Set<string>(result[1],result[4]);
+     }
+
+
+   FileClose(h);
+  }
+//+------------------------------------------------------------------+
