@@ -41,7 +41,7 @@ def server(host = '127.0.0.1', port=8082):
             if data:
                 valores = data.split(",")
                 predict = predicao(valores,sc,sc1,model)
-                client.sendall(predict.encode('utf-8'))
+                client.send(bytes(predict), "utf-8")
     except KeyboardInterrupt:
         print("Encerrando Servidor de Previsões")
         pass            
