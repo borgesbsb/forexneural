@@ -16,27 +16,30 @@ class Connection:
          self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
          self.server_address = (self.host, self.port)
          self.sock.bind(self.server_address)
-         self.sock.listen(5)
-         self.client, self.address = self.sock.accept() 
          
     def forecasts(self,prediction):
-        try:
-            while True: 
+        while True:
+            print("Servidor Pronto, aguardando conexões")
+            self.sock.listen(5)
+            self.client, self.address = self.sock.accept()
+            print("Cliente conectado!, Servidor aguardando dados para previsao")
+            clientconnect = True
+            while clientconnect:
                 valores = []
-                data = self.client.recv(self.data_payload).decode('utf-8') 
+                data = self.client.recv(self.data_payload).decode('utf-8')
                 if data:
+                    print("Dados Recebidos = "+data)
                     predict = prediction.makepredictions(data)
-                    self.client.send(bytes(predict), "utf-8")
-        except KeyboardInterrupt:
-            print("Encerrando Servidor de Previsões")
-        pass 
-
-
-
+                    print("Dado Previsto = "+predict)
+                    self.client.sendall(bytes(predict, "utf-8"))
+                else:
+                    print("Cliente desconectado")
+                    clientconnect = False
+    
 ###########################################Classe de Prfedição#######################################
 class Predictions:   
     def __init__(self):
-        self.model = load_model('LSTM',compile = False)
+        self.model = load_model('LSTM')
         self.scaler_X  = MinMaxScaler()
         self.scaler_Y  = MinMaxScaler()
         self.df = pd.read_csv('EURUSD_RECENTE.csv', sep=';', header=0)
@@ -62,7 +65,7 @@ class Predictions:
         x_values = np.reshape(x_values,(1,2,4))
         self.predict =  self.model.predict(x_values)
         self.predict =  self.scaler_Y.inverse_transform(self.predict)
-        return self.predict
+        return  str(self.predict[0][0])
 
     def getPrediction(self):
         if (self.predict):
@@ -72,6 +75,7 @@ class Predictions:
         
     
 ##############################################################ALgoritmo################################################
+print("Carregando os Módulos, aguarde! Tenha Paciência")
 prediction = Predictions()
 brain = Connection()
 brain.listen()
