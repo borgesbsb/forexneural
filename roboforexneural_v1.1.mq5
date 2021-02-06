@@ -4,7 +4,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Gibran, Borges e James"
 #property link      "gibranvalle@gmail.com"
-#property version   "1.00"
+#property version   "1.1"
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Bibliotecas utilizadas
 #include <Trade/Trade.mqh>
@@ -16,27 +16,28 @@
 
 enum ENUM_TP_DIST
   {
-   dist1,        // [1]PONTOS FIXOS
-   dist2,        // [2]PONTOS FIBONACCI
+   dist1,        // [1]PONTOS FIBONACCI
+   dist2,        // [2]PONTOS FIXOS
   };
+
 enum ENUM_TP_MART
   {
-   mart1,        // [1]2x VOL ACUMULADO
-   mart2,        // [2]2x VOL ANTERIOR
-   mart3,        // [3]VOLUME FIBONACCI
-   mart4,        // [4]05 FIBO + 04 2x ANT
+   mart1,        // [1]VOLUME FIBONACCI
+   mart2,        // [2]05 FIBO + 04 2x ANT
+   mart3,        // [3]2x VOL ANTERIOR
+   mart4,        // [4]2x VOL ACUMULADO
   };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 input ulong              magicrobo           = 940;        // MAGIC NUMBER DO ROBÔ
 input group              "REDE NEURAL"
-input bool               ativaenvioneural    = false;      // ATIVA ENVIO DE DADOS P/ SERVIDOR
-input string             endereco            = "127.0.0.1";// IP/SITE DO SERVIDOR NEURAL
-input int                porta               = 8082;       // PORTA DO SERVIDOR NEURAL
+input bool               ativaenvioneural    = false;      // ATIVA ENVIO DE DADOS P/ REDE
+input string             endereco            = "localhost";// IP/SITE DA REDE NEURAL
+input int                porta               = 8082;       // PORTA DA REDE NEURAL
 //input bool               ExtTLS              = false;      // ATIVA ENVIO POR HTTPS
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 input group              "ABERTURA DE POSIÇÕES"
-input bool               ativaentradaea      = true;       // ATIVA ABERTURA DE POSIÇÕES PELO EA
+input bool               ativaentradaea      = true;       // ATIVA ABERTURA
 input double             loteinicial         = 0.03;       // TAMANHO DO LOTE P/ CADA $50,00
 //input double             pontostp            = 10;         // TAKE PROFIT EM PONTOS EM REL. AO PM
 input group              "MARTINGALE"
@@ -53,19 +54,27 @@ input double             pontosTS            = 40;         // PONTOS P/ ATIVAÇ�
 input double             avancoTS            = 10;         // AVANÇO DO STOP EM PONTOS
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 input group              "FECHAMENTO DE POSIÇÕES"
-input bool               ativasaidaea        = true;       // ATIVA FECHAMENTO DE POSIÇÕES PELO EA
-input double             pontosc1            = 120;        // PONTOS PARA FECHAR QUANDO 1 POSIÇÃO
-input double             pontosc2            = 140;        // PONTOS PARA FECHAR QUANDO 2 POSIÇÕES
-input double             pontosc3            = 140;        // PONTOS PARA FECHAR QUANDO 3 POSIÇÕES
-input double             pontosc4            = 100;        // PONTOS PARA FECHAR QUANDO 4 POSIÇÕES
-input double             pontosc5            = 20;         // PONTOS PARA FECHAR QUANDO 5 POSIÇÕES
-input double             pontosc6            = 20;         // PONTOS PARA FECHAR QUANDO 6 POSIÇÕES
-input double             pontosc7            = 20;         // PONTOS PARA FECHAR QUANDO 7 POSIÇÕES
-input double             pontosc8            = 30;         // PONTOS PARA FECHAR QUANDO 8 POSIÇÕES
-input double             pontosc9            = 30;         // PONTOS PARA FECHAR QUANDO 9 POSIÇÕES
+input bool               ativasaidaea        = true;       // ATIVA FECHAMENTO
+input double             pontosc1            = 120;        // PONTOS 1 POSIÇÃO
+input double             pontosc2            = 140;        // PONTOS 2 POSIÇÕES
+input double             pontosc3            = 140;        // PONTOS 3 POSIÇÕES
+input double             pontosc4            = 100;        // PONTOS 4 POSIÇÕES
+input double             pontosc5            = 20;         // PONTOS 5 POSIÇÕES
+input double             pontosc6            = 20;         // PONTOS 6 POSIÇÕES
+input double             pontosc7            = 20;         // PONTOS 7 POSIÇÕES
+input double             pontosc8            = 30;         // PONTOS 8 POSIÇÕES
+input double             pontosc9            = 30;         // PONTOS 9 POSIÇÕES
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-input group              "FECHAMENTO EMERGENCIA COM LUCRO MINIMO"
-input double             lucro               = 200;        // LUCRO MÍNIMO P/ FECHAR POS. QNDO VOLUME ALTO
+input group              "GERENCIAMENTO DE RISCO - NÃO ABRE NOVAS POSIÇÕES"
+input double             prctniveloper       = 3000;       // MARGEM MINIMA P/ ABRIR POSIÇÕES
+input double             volumeinicial       = 0.7;        // VOLUME MÁXIMO P/ ABRIR OPERAÇÕES
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+input group              "FECHAMENTO DA ULTIMA POSIÇÃO COM LUCRO MINIMO"
+input bool               ativalucrominimo    = false;      // ATIVA FECHAMENTO COM LUCRO MÍNIMO
+input double             lucrominimo         = 200;        // VALOR DO LUCRO MÍNIMO EM $
+input group              "GERENCIAMENTO DE RISCO - FECHA AS POSIÇÕES NO PREJU"
+input bool               ativastop           = false;      // ATIVA STOP FORÇADO
+input double             stopemdolar         = 250.00;     // VALOR EM $ PARA "STOPAR"
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 input group              "HORáRIO DE FUNCIONAMENTO DO EA"
 input string             inicio              = "00:05";    // HORáRIO DE INíCIO (ENTRADAS)
@@ -75,13 +84,6 @@ input string             pausainicio1        = "";         // HORáRIO DE INíCI
 input string             pausatermino1       = "";         // HORáRIO DE TéRMINO DA PAUSA 1(NOTíCIAS)
 input string             pausainicio2        = "";         // HORáRIO DE INíCIO DA PAUSA 2(NOTíCIAS)
 input string             pausatermino2       = "";         // HORáRIO DE TéRMINO DA PAUSA 2(NOTíCIAS)
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-input group              "GERENCIAMENTO DE RISCO - NÃO ABRE NOVAS POSIÇÕES"
-input double             prctniveloper       = 3000;       // MARGEM MINIMA P/ ABRIR POSIÇÕES
-input double             volumeinicial       = 0.7;        // VOLUME MÁXIMO P/ ABRIR OPERAÇÕES
-input group              "GERENCIAMENTO DE RISCO - FECHA AS POSIÇÕES NO PREJU"
-input bool               ativastop           = false;      // ATIVA STOP FORÇADO
-input double             stopemdolar         = 250.00;     // VALOR EM $ PARA "STOPAR"
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 string                   shortname;
 
@@ -158,14 +160,14 @@ int OnInit()
    TimeToStruct(StringToTime(pausainicio2),horario_inicio_pausa2);
    TimeToStruct(StringToTime(pausatermino2),horario_termino_pausa2);
 
-//ReadFileToDictCSV("previsoes.csv");
+   ReadFileToDictCSV("previsoes.csv");
 
    if(socketneural!=INVALID_HANDLE)
       Print("Confirmação de soquete criado, este é o número dele: ",socketneural);
    SocketConnect(socketneural,endereco,porta,1000);
 
 //--- Definição dos níveis fixos em pontos
-   if(tipotunelvegas==dist1)
+   if(tipotunelvegas==dist2)
      {
       lv2                = pontosmart;
       lv3                = 2*pontosmart;
@@ -177,7 +179,7 @@ int OnInit()
       lv9                = 8*pontosmart;
      }
 //--- Definição dos níveis FIBO p/ moedas normais
-   if(tipotunelvegas==dist2)
+   if(tipotunelvegas==dist1)
      {
       lv2                = pontosmart;
       lv3                = 2*pontosmart;
@@ -1763,29 +1765,7 @@ void OnTick()
      }
 
 //--- Definição dos volumes de compra e venda quando utilizar martingale
-   if(tipomartingale==mart1)//dobro do volume acumulado
-     {
-      volnv2             = volumeoper*multiplicador;//2
-      volnv3             = (volumeoper+volnv2)*multiplicador;//6
-      volnv4             = (volumeoper+volnv2+volnv3)*multiplicador;//18
-      volnv5             = (volumeoper+volnv2+volnv3+volnv4)*multiplicador;//54
-      volnv6             = (volumeoper+volnv2+volnv3+volnv4+volnv5)*multiplicador;//162
-      volnv7             = (volumeoper+volnv2+volnv3+volnv4+volnv5+volnv6)*multiplicador;//486
-      volnv8             = (volumeoper+volnv2+volnv3+volnv4+volnv5+volnv6+volnv7)*multiplicador;//1458
-      volnv9             = (volumeoper+volnv2+volnv3+volnv4+volnv5+volnv6+volnv7+volnv8)*multiplicador;//4374
-     }
-   if(tipomartingale==mart2)//dobro do volume anterior
-     {
-      volnv2             = volumeoper*multiplicador;//2
-      volnv3             = volnv2*multiplicador;//4
-      volnv4             = volnv3*multiplicador;//8
-      volnv5             = volnv4*multiplicador;//16
-      volnv6             = volnv5*multiplicador;//32
-      volnv7             = volnv6*multiplicador;//64
-      volnv8             = volnv7*multiplicador;//128
-      volnv9             = volnv8*multiplicador;//256
-     }
-   if(tipomartingale==mart3)//sequência de fibonacci p/ volume
+   if(tipomartingale==mart1)//sequência de fibonacci p/ volume
      {
       volnv2             = 2*volumeoper;//2
       volnv3             = 3*volumeoper;//3
@@ -1796,7 +1776,7 @@ void OnTick()
       volnv8             = 34*volumeoper;//34
       volnv9             = 55*volumeoper;//55
      }
-   if(tipomartingale==mart4)//mix - fibo ate a 5 ordem e o dobro do anterior nas proximas ordens
+   if(tipomartingale==mart2)//mix - fibo ate a 5 ordem e o dobro do anterior nas proximas ordens
      {
       volnv2             = 2*volumeoper;//2
       volnv3             = 3*volumeoper;//3
@@ -1806,6 +1786,28 @@ void OnTick()
       volnv7             = volnv5*multiplicador;//20
       volnv8             = volnv6*multiplicador;//30
       volnv9             = volnv7*multiplicador;//40
+     }
+   if(tipomartingale==mart3)//dobro do volume anterior
+     {
+      volnv2             = volumeoper*multiplicador;//2
+      volnv3             = volnv2*multiplicador;//4
+      volnv4             = volnv3*multiplicador;//8
+      volnv5             = volnv4*multiplicador;//16
+      volnv6             = volnv5*multiplicador;//32
+      volnv7             = volnv6*multiplicador;//64
+      volnv8             = volnv7*multiplicador;//128
+      volnv9             = volnv8*multiplicador;//256
+     }
+   if(tipomartingale==mart4)//dobro do volume acumulado
+     {
+      volnv2             = volumeoper*multiplicador;//2
+      volnv3             = (volumeoper+volnv2)*multiplicador;//6
+      volnv4             = (volumeoper+volnv2+volnv3)*multiplicador;//18
+      volnv5             = (volumeoper+volnv2+volnv3+volnv4)*multiplicador;//54
+      volnv6             = (volumeoper+volnv2+volnv3+volnv4+volnv5)*multiplicador;//162
+      volnv7             = (volumeoper+volnv2+volnv3+volnv4+volnv5+volnv6)*multiplicador;//486
+      volnv8             = (volumeoper+volnv2+volnv3+volnv4+volnv5+volnv6+volnv7)*multiplicador;//1458
+      volnv9             = (volumeoper+volnv2+volnv3+volnv4+volnv5+volnv6+volnv7+volnv8)*multiplicador;//4374
      }
 
    saldo = NormalizeDouble(AccountInfoDouble(ACCOUNT_BALANCE),2);
@@ -1868,11 +1870,13 @@ void OnTick()
          //+------------------------------------------------------------------+
          //| APÓS PREVISÃO RECEBIDA EFETUAR AS OPERAÇÕES DENTRO DA ESTRATÉGIA |
          //+------------------------------------------------------------------+
-         previsao = NormalizeDouble(StringToDouble(dict.Get<string>(TimeCurrent())),5);
-         if(ativaentradaea==true && (percent_margem>prctniveloper||saldo==capital))
+         previsao = NormalizeDouble(StringToDouble(dict.Get<string>(TimeCurrent())),5);//ATIVAR ESSA LINHA CASO FOR USAR O TESTE DE ESTRATÉGIA A PARTOR DO ARQUIVO DE PREVISÕES
+
+         if(ativaentradaea==true && (percent_margem>prctniveloper||saldo==capital) && !PossuiPosAbertaOutroAtivo())
            {
             if(previsao > tick.ask && previsao!=0.0 && rsi[0]<30 && !PossuiPosCompra() && !PossuiPosVenda())
               {
+               ExcluiOrdensPendentes();
                trade.Buy(volumeoper,_Symbol,tick.ask,0.50000,0,"C1");
                trade.BuyLimit(volnv2,prcnvl_2,_Symbol,0.50000,0,0,0,"C2");
                trade.BuyLimit(volnv3,prcnvl_3,_Symbol,0.50000,0,0,0,"C3");
@@ -1886,6 +1890,7 @@ void OnTick()
               }
             if(previsao < tick.bid && previsao!=0.0 && rsi[0]>70 && !PossuiPosCompra() && !PossuiPosVenda())
               {
+               ExcluiOrdensPendentes();
                trade.Sell(volumeoper,_Symbol,tick.bid,1.63000,0,"V1");
                trade.SellLimit(volnv2,prcnvl2,_Symbol,1.63000,0,0,0,"V2");
                trade.SellLimit(volnv3,prcnvl3,_Symbol,1.63000,0,0,0,"V3");
@@ -1900,7 +1905,7 @@ void OnTick()
            }
         }
      }
-     
+
 ////////////////////////////////////////////////////////
 //---|Fechando as ordens pendentes não utilizadas|----//
 ////////////////////////////////////////////////////////
@@ -2060,16 +2065,18 @@ void OnTick()
 //---|STOP FORÇADO |----//
 //////////////////////////
    if(ativastop==true)
-     {
-      if(MathAbs(lucro_prejuizo) > stopemdolar && saldo != capital)
+      if(lucro_prejuizo<-stopemdolar*100 && saldo!=capital)
          FechaTodasPosicoesAbertas();
-     }
-     
-     if((PossuiPosCompra() || PossuiPosVenda()) && (percent_margem<prctniveloper||VolumePos()>volumemaximo) && saldo!=capital && MathAbs(lucro_prejuizo)>=lucro)
-        FechaTodasPosicoesAbertas();
-     
+
+////////////////////////////////////////
+//---|FECHAMENTO COM LUCRO MÍNIMO|----//
+////////////////////////////////////////
+   if(ativalucrominimo==true)
+      if((PossuiPosCompra() || PossuiPosVenda()) && (percent_margem<prctniveloper||VolumePos()>volumemaximo) && saldo!=capital && lucro_prejuizo>=lucrominimo*100)
+         FechaTodasPosicoesAbertas();
+
   }
-  
+
 //+------------------------------------------------------------------------------------------+
 ////////////////////////////
 //| FIM DA FUNÇÃO ONTICK |//
@@ -2121,9 +2128,9 @@ string socketreceive(int socket,uint timeout)
    return(result);
   }
 //+------------------------------------------------------------------------------------------+
-//+--------------------------------------------------------+
-//| VERIFICA SE HÁ PELO MENOS UMA POSIÇÃO DE COMPRA ABERTA |
-//+--------------------------------------------------------+
+//+-------------------------------------------------------------------------+
+//| VERIFICA SE HÁ PELO MENOS UMA POSIÇÃO DE COMPRA ABERTA NO ATIVO CORRENTE|
+//+-------------------------------------------------------------------------+
 bool PossuiPosCompra()
   {
    for(int i=PositionsTotal()-1; i >= 0; i--)
@@ -2141,9 +2148,9 @@ bool PossuiPosCompra()
    return false;
   }
 //+------------------------------------------------------------------------------------------+
-//+-------------------------------------------------------+
-//| VERIFICA SE HÁ PELO MENOS UMA POSIÇÃO DE VENDA ABERTA |
-//+-------------------------------------------------------+
+//+------------------------------------------------------------------------+
+//| VERIFICA SE HÁ PELO MENOS UMA POSIÇÃO DE VENDA ABERTA NO ATIVO CORRENTE|
+//+------------------------------------------------------------------------+
 bool PossuiPosVenda()
   {
    for(int i=PositionsTotal()-1; i >= 0; i--)
@@ -2161,6 +2168,26 @@ bool PossuiPosVenda()
    return false;
   }
 //+----------------------------------------------------------------------------------------------+
+//+-------------------------------------------------------------+
+//| VERIFICA SE HÁ PELO MENOS UMA POSIÇÃO ABERTA EM OUTRO ATIVO |
+//+-------------------------------------------------------------+
+bool PossuiPosAbertaOutroAtivo()
+  {
+   for(int i=PositionsTotal()-1; i >= 0; i--)
+     {
+      ulong ticket=PositionGetTicket(i);
+      string position_symbol = PositionGetString(POSITION_SYMBOL);
+      //ulong  magic = PositionGetInteger(POSITION_MAGIC);
+      ENUM_POSITION_TYPE TipoPosicao=(ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
+      if((TipoPosicao==POSITION_TYPE_BUY||TipoPosicao==POSITION_TYPE_SELL) && position_symbol!=_Symbol /*&& magic == magicrobo*/)
+        {
+         return true;
+         break;
+        }
+     }
+   return false;
+  }
+//+------------------------------------------------------------------------------------------+
 //+----------------------------------------------+
 //| RETORNA O VOLUME DA POSIÇÃO DE COMPRA ABERTA |
 //+----------------------------------------------+
@@ -2727,10 +2754,4 @@ PMV4 = ((tick.bid*volumeoper+prcnvl2*volnv2+prcnvl3*volnv3+prcnvl4*volnv4+prcnvl
 PMV5 = ((tick.bid*volumeoper+prcnvl2*volnv2+prcnvl3*volnv3+prcnvl4*volnv4+prcnvl5*volnv5+prcnvl6*volnv6)/(volumeoper+volnv2+volnv3+volnv4+volnv5+volnv6))-pontostp*_Point;
 PMV6 = ((tick.bid*volumeoper+prcnvl2*volnv2+prcnvl3*volnv3+prcnvl4*volnv4+prcnvl5*volnv5+prcnvl6*volnv6+prcnvl7*volnv7)/(volumeoper+volnv2+volnv3+volnv4+volnv5+volnv6+volnv7))-pontostp*_Point;
 */
-//+------------------------------------------------------------------+
-
-//+------------------------------------------------------------------+
-
-//+------------------------------------------------------------------+
-
 //+------------------------------------------------------------------+
