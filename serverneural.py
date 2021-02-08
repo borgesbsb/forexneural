@@ -38,18 +38,20 @@ class Connection:
     
 ###########################################Classe de Prfedição#######################################
 class Predictions:   
-    def __init__(self):
-        self.model = load_model('LSTM')
+    def __init__(self,namemodel, history, timestamp, features ):
+        self.model = load_model(namemodel)
         self.scaler_X  = MinMaxScaler()
         self.scaler_Y  = MinMaxScaler()
-        self.df = pd.read_csv('EURUSD_RECENTE.csv', sep=';', header=0)
+        self.timestamp = timestamp
+        self.features  = features
+        self.df = pd.read_csv( history, sep=';', header=0)
         self.df_X = None
         self.df_Y = None
         self.predict = None
         self.setScaler()
 
     def setScaler(self):
-        self.df_X = self.df.iloc[:,1:5]
+        self.df_X = self.df[self.features]
         self.df_Y = self.df_X.copy()
         self.scaler_X.fit(self.df_X)
         self.scaler_Y.fit( self.df_Y.iloc[:,3].values.reshape(-1,1) )
@@ -60,9 +62,9 @@ class Predictions:
         for i in values:
             x_values.append(float(i))
         x_values = np.array(x_values)
-        x_values = np.reshape(x_values,(2,4))
+        x_values = np.reshape(x_values,(self.timestamp, self.features))
         x_values = self.scaler_X.transform(x_values)
-        x_values = np.reshape(x_values,(1,2,4))
+        x_values = np.reshape(x_values,(1, self.timestamp, self.features))
         self.predict =  self.model.predict(x_values)
         self.predict =  self.scaler_Y.inverse_transform(self.predict)
         return  str(self.predict[0][0])
@@ -76,7 +78,14 @@ class Predictions:
     
 ##############################################################ALgoritmo################################################
 print("Carregando os Módulos, aguarde! Tenha Paciência")
-prediction = Predictions()
+timestamp = 2
+features  = 4
+history1  = "EURUSD.csv"
+history2  = "GBPUSD.csv"
+namemodel1 = "LSTM_EURUSD"
+namemodel2 = "LSTM_GBPUSD"
+features = ['open1','high1','low1','close1']
+prediction = Predictions(namemodel1, history1, timestamp, features)
 brain = Connection()
 brain.listen()
 brain.forecasts(prediction)

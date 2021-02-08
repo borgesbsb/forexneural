@@ -32,8 +32,6 @@ def server(host = '127.0.0.1', port=8082):
     sock.listen(5) 
     client, address = sock.accept()
     #Carreando o modelo neural
-    
-
     try:
         while True: 
             valores = []
