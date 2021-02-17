@@ -39,7 +39,7 @@ input int                porta               = 8082;       // PORTA DA REDE NEUR
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 input group              "ABERTURA DE POSIÇÕES"
 input bool               ativaentradaea      = true;       // ATIVA ABERTURA
-input double             loteinicial         = 0.03;       // TAMANHO DO LOTE P/ CADA $50,00
+input double             loteinicial         = 0.03;       // TAM DO LOTE P/ CADA $50,00 DE CAPITAL
 input bool               ativarsi            = false;      // ATIVA FILTRO RSI
 input double             rsicompra           = 30;         // VALOR DO RSI P/ COMPRA
 input double             rsivenda            = 70;         // VALOR DO RSI P/ VENDA
@@ -57,13 +57,6 @@ input double             pontosmart6         = 250;        // DISTÂNCIA ENTRE C
 input double             pontosmart7         = 270;        // DISTÂNCIA ENTRE C7 E C8
 input double             pontosmart8         = 300;        // DISTÂNCIA ENTRE C8 E C9
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-input group              "BREAKEVEN E TRAILING STOP"
-input bool               ativaBE             = false;      // ATIVA BREAKEVEN
-input double             recuoBE             = 50;         // PONTOS PARA RECUO NO BREAKEVEN
-input bool               ativaTS             = false;      // ATIVA TRAILING STOP
-input double             pontosTS            = 40;         // PONTOS P/ ATIVAÇÃO TS
-input double             avancoTS            = 10;         // AVANÇO DO STOP EM PONTOS
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 input group              "FECHAMENTO DE POSIÇÕES"
 input bool               ativasaidaea        = true;       // ATIVA FECHAMENTO
 input double             pontosc1            = 120;        // PONTOS 1 POSIÇÃO
@@ -76,9 +69,16 @@ input double             pontosc7            = 20;         // PONTOS 7 POSIÇÕE
 input double             pontosc8            = 30;         // PONTOS 8 POSIÇÕES
 input double             pontosc9            = 30;         // PONTOS 9 POSIÇÕES
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+input group              "BREAKEVEN E TRAILING STOP"
+input bool               ativaBE             = false;      // ATIVA BREAKEVEN
+input double             recuoBE             = 50;         // PONTOS PARA RECUO NO BREAKEVEN
+input bool               ativaTS             = false;      // ATIVA TRAILING STOP
+input double             pontosTS            = 40;         // PONTOS P/ ATIVAÇÃO TS
+input double             avancoTS            = 10;         // AVANÇO DO STOP EM PONTOS
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 input group              "GERENCIAMENTO DE RISCO - NÃO ABRE NOVAS POSIÇÕES"
 input double             prctniveloper       = 3000;       // MARGEM MINIMA P/ ABRIR POSIÇÕES
-input double             volumeinicial       = 0.7;        // VOLUME MÁXIMO P/ ABRIR OPERAÇÕES
+input double             volumeinicial       = 0.7;        // VOL MÁX P/ CADA $50,00 DE CAPITAL
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 input group              "FECHAMENTO DA ULTIMA POSIÇÃO COM LUCRO MINIMO"
 input bool               ativalucrominimo    = false;      // ATIVA FECHAMENTO COM LUCRO MÍNIMO
@@ -104,7 +104,7 @@ double                   stopvenda           = 0.0;
 double                   takecompra          = 0.0;
 double                   takevenda           = 0.0;
 
-double                   percent_margem, saldo, capital, lucro_prejuizo, volumemaximo, volumeoper, stopemdolarajustado, previsao_temp, previsao,rsi[];
+double                   percent_margem, saldo, capital, lucro_prejuizo, volumemaximo, volumeoper, stopemdolarajustado, slcomprapadrao, slvendapadrao, previsao_temp, previsao,rsi[];
 int                      handlersi;
 
 //--- Variáveis p/ envio de dados à rede neural
@@ -214,6 +214,29 @@ int OnInit()
       lv8                = lv7+pontosmart7;
       lv9                = lv8+pontosmart8;
      }
+     
+   //--- Definição dos preços de stoploss padrão para as diversas moedas
+   if(Symbol()=="EURUSD")
+     {
+      slcomprapadrao=0.50000;
+      slvendapadrao=1.63000;
+     }
+   if(Symbol()=="GBPUSD")
+     {
+      slcomprapadrao=1.02000;
+      slvendapadrao=2.50000;
+     }
+   if(Symbol()=="EURCAD")
+     {
+      slcomprapadrao=1.10000;
+      slvendapadrao=2.00000;
+     }
+    if(Symbol()=="EURGBP")
+     {
+      slcomprapadrao=0.50000;
+      slvendapadrao=1.50000;
+     }
+
 
    return(INIT_SUCCEEDED);
   }
@@ -1946,60 +1969,60 @@ void OnTick()
            {
             if(ativarsi==true)
               {
-               if(previsao > Ask && previsao!=0.0 && rsi[0]<rsicompra && !PossuiPosCompra() && !PossuiPosVenda())
+               if(!PossuiPosCompra() && !PossuiPosVenda() && previsao > Ask && previsao!=0.0 && rsi[0]<rsicompra)
                  {
                   ExcluiOrdensPendentes();
-                  trade.Buy(volumeoper,_Symbol,tick.ask,0.50000,0,"C1");
-                  trade.BuyLimit(volnv2,prcnvl_2,_Symbol,0.50000,0,0,0,"C2");
-                  trade.BuyLimit(volnv3,prcnvl_3,_Symbol,0.50000,0,0,0,"C3");
-                  trade.BuyLimit(volnv4,prcnvl_4,_Symbol,0.50000,0,0,0,"C4");
-                  trade.BuyLimit(volnv5,prcnvl_5,_Symbol,0.50000,0,0,0,"C5");
-                  trade.BuyLimit(volnv6,prcnvl_6,_Symbol,0.50000,0,0,0,"C6");
-                  trade.BuyLimit(volnv7,prcnvl_7,_Symbol,0.50000,0,0,0,"C7");
-                  trade.BuyLimit(volnv8,prcnvl_8,_Symbol,0.50000,0,0,0,"C8");
-                  trade.BuyLimit(volnv9,prcnvl_9,_Symbol,0.50000,0,0,0,"C9");
+                  trade.Buy(volumeoper,_Symbol,tick.ask,slcomprapadrao,0,"C1");
+                  trade.BuyLimit(volnv2,prcnvl_2,_Symbol,slcomprapadrao,0,0,0,"C2");
+                  trade.BuyLimit(volnv3,prcnvl_3,_Symbol,slcomprapadrao,0,0,0,"C3");
+                  trade.BuyLimit(volnv4,prcnvl_4,_Symbol,slcomprapadrao,0,0,0,"C4");
+                  trade.BuyLimit(volnv5,prcnvl_5,_Symbol,slcomprapadrao,0,0,0,"C5");
+                  trade.BuyLimit(volnv6,prcnvl_6,_Symbol,slcomprapadrao,0,0,0,"C6");
+                  trade.BuyLimit(volnv7,prcnvl_7,_Symbol,slcomprapadrao,0,0,0,"C7");
+                  trade.BuyLimit(volnv8,prcnvl_8,_Symbol,slcomprapadrao,0,0,0,"C8");
+                  trade.BuyLimit(volnv9,prcnvl_9,_Symbol,slcomprapadrao,0,0,0,"C9");
                  }
-               if(previsao < Bid && previsao!=0.0 && rsi[0]>rsivenda && !PossuiPosCompra() && !PossuiPosVenda())
+               if(!PossuiPosCompra() && !PossuiPosVenda() && previsao < Bid && previsao!=0.0 && rsi[0]>rsivenda)
                  {
                   ExcluiOrdensPendentes();
-                  trade.Sell(volumeoper,_Symbol,tick.bid,1.63000,0,"V1");
-                  trade.SellLimit(volnv2,prcnvl2,_Symbol,1.63000,0,0,0,"V2");
-                  trade.SellLimit(volnv3,prcnvl3,_Symbol,1.63000,0,0,0,"V3");
-                  trade.SellLimit(volnv4,prcnvl4,_Symbol,1.63000,0,0,0,"V4");
-                  trade.SellLimit(volnv5,prcnvl5,_Symbol,1.63000,0,0,0,"V5");
-                  trade.SellLimit(volnv6,prcnvl6,_Symbol,1.63000,0,0,0,"V6");
-                  trade.SellLimit(volnv7,prcnvl7,_Symbol,1.63000,0,0,0,"V7");
-                  trade.SellLimit(volnv8,prcnvl8,_Symbol,1.63000,0,0,0,"V8");
-                  trade.SellLimit(volnv9,prcnvl9,_Symbol,1.63000,0,0,0,"V9");
+                  trade.Sell(volumeoper,_Symbol,tick.bid,slvendapadrao,0,"V1");
+                  trade.SellLimit(volnv2,prcnvl2,_Symbol,slvendapadrao,0,0,0,"V2");
+                  trade.SellLimit(volnv3,prcnvl3,_Symbol,slvendapadrao,0,0,0,"V3");
+                  trade.SellLimit(volnv4,prcnvl4,_Symbol,slvendapadrao,0,0,0,"V4");
+                  trade.SellLimit(volnv5,prcnvl5,_Symbol,slvendapadrao,0,0,0,"V5");
+                  trade.SellLimit(volnv6,prcnvl6,_Symbol,slvendapadrao,0,0,0,"V6");
+                  trade.SellLimit(volnv7,prcnvl7,_Symbol,slvendapadrao,0,0,0,"V7");
+                  trade.SellLimit(volnv8,prcnvl8,_Symbol,slvendapadrao,0,0,0,"V8");
+                  trade.SellLimit(volnv9,prcnvl9,_Symbol,slvendapadrao,0,0,0,"V9");
                  }
               }
             else
               {
-               if(previsao > Ask && previsao!=0.0 && !PossuiPosCompra() && !PossuiPosVenda())
+               if(!PossuiPosCompra() && !PossuiPosVenda() && previsao > Ask && previsao!=0.0 && candle[0].tick_volume>candle[1].tick_volume)
                  {
                   ExcluiOrdensPendentes();
-                  trade.Buy(volumeoper,_Symbol,tick.ask,0.50000,0,"C1");
-                  trade.BuyLimit(volnv2,prcnvl_2,_Symbol,0.50000,0,0,0,"C2");
-                  trade.BuyLimit(volnv3,prcnvl_3,_Symbol,0.50000,0,0,0,"C3");
-                  trade.BuyLimit(volnv4,prcnvl_4,_Symbol,0.50000,0,0,0,"C4");
-                  trade.BuyLimit(volnv5,prcnvl_5,_Symbol,0.50000,0,0,0,"C5");
-                  trade.BuyLimit(volnv6,prcnvl_6,_Symbol,0.50000,0,0,0,"C6");
-                  trade.BuyLimit(volnv7,prcnvl_7,_Symbol,0.50000,0,0,0,"C7");
-                  trade.BuyLimit(volnv8,prcnvl_8,_Symbol,0.50000,0,0,0,"C8");
-                  trade.BuyLimit(volnv9,prcnvl_9,_Symbol,0.50000,0,0,0,"C9");
+                  trade.Buy(volumeoper,_Symbol,tick.ask,slcomprapadrao,0,"C1");
+                  trade.BuyLimit(volnv2,prcnvl_2,_Symbol,slcomprapadrao,0,0,0,"C2");
+                  trade.BuyLimit(volnv3,prcnvl_3,_Symbol,slcomprapadrao,0,0,0,"C3");
+                  trade.BuyLimit(volnv4,prcnvl_4,_Symbol,slcomprapadrao,0,0,0,"C4");
+                  trade.BuyLimit(volnv5,prcnvl_5,_Symbol,slcomprapadrao,0,0,0,"C5");
+                  trade.BuyLimit(volnv6,prcnvl_6,_Symbol,slcomprapadrao,0,0,0,"C6");
+                  trade.BuyLimit(volnv7,prcnvl_7,_Symbol,slcomprapadrao,0,0,0,"C7");
+                  trade.BuyLimit(volnv8,prcnvl_8,_Symbol,slcomprapadrao,0,0,0,"C8");
+                  trade.BuyLimit(volnv9,prcnvl_9,_Symbol,slcomprapadrao,0,0,0,"C9");
                  }
-               if(previsao < Bid && previsao!=0.0 && !PossuiPosCompra() && !PossuiPosVenda())
+               if(!PossuiPosCompra() && !PossuiPosVenda() && previsao < Bid && previsao!=0.0 && candle[0].tick_volume>candle[1].tick_volume)
                  {
                   ExcluiOrdensPendentes();
-                  trade.Sell(volumeoper,_Symbol,tick.bid,1.63000,0,"V1");
-                  trade.SellLimit(volnv2,prcnvl2,_Symbol,1.63000,0,0,0,"V2");
-                  trade.SellLimit(volnv3,prcnvl3,_Symbol,1.63000,0,0,0,"V3");
-                  trade.SellLimit(volnv4,prcnvl4,_Symbol,1.63000,0,0,0,"V4");
-                  trade.SellLimit(volnv5,prcnvl5,_Symbol,1.63000,0,0,0,"V5");
-                  trade.SellLimit(volnv6,prcnvl6,_Symbol,1.63000,0,0,0,"V6");
-                  trade.SellLimit(volnv7,prcnvl7,_Symbol,1.63000,0,0,0,"V7");
-                  trade.SellLimit(volnv8,prcnvl8,_Symbol,1.63000,0,0,0,"V8");
-                  trade.SellLimit(volnv9,prcnvl9,_Symbol,1.63000,0,0,0,"V9");
+                  trade.Sell(volumeoper,_Symbol,tick.bid,slvendapadrao,0,"V1");
+                  trade.SellLimit(volnv2,prcnvl2,_Symbol,slvendapadrao,0,0,0,"V2");
+                  trade.SellLimit(volnv3,prcnvl3,_Symbol,slvendapadrao,0,0,0,"V3");
+                  trade.SellLimit(volnv4,prcnvl4,_Symbol,slvendapadrao,0,0,0,"V4");
+                  trade.SellLimit(volnv5,prcnvl5,_Symbol,slvendapadrao,0,0,0,"V5");
+                  trade.SellLimit(volnv6,prcnvl6,_Symbol,slvendapadrao,0,0,0,"V6");
+                  trade.SellLimit(volnv7,prcnvl7,_Symbol,slvendapadrao,0,0,0,"V7");
+                  trade.SellLimit(volnv8,prcnvl8,_Symbol,slvendapadrao,0,0,0,"V8");
+                  trade.SellLimit(volnv9,prcnvl9,_Symbol,slvendapadrao,0,0,0,"V9");
                  }
               }
            }
