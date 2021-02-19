@@ -1998,7 +1998,7 @@ void OnTick()
               }
             else
               {
-               if(!PossuiPosCompra() && !PossuiPosVenda() && previsao > Ask && previsao!=0.0 && candle[0].tick_volume>candle[1].tick_volume)
+               if(!PossuiPosCompra() && !PossuiPosVenda() && previsao > Ask && previsao!=0.0)
                  {
                   ExcluiOrdensPendentes();
                   trade.Buy(volumeoper,_Symbol,tick.ask,slcomprapadrao,0,"C1");
@@ -2011,7 +2011,7 @@ void OnTick()
                   trade.BuyLimit(volnv8,prcnvl_8,_Symbol,slcomprapadrao,0,0,0,"C8");
                   trade.BuyLimit(volnv9,prcnvl_9,_Symbol,slcomprapadrao,0,0,0,"C9");
                  }
-               if(!PossuiPosCompra() && !PossuiPosVenda() && previsao < Bid && previsao!=0.0 && candle[0].tick_volume>candle[1].tick_volume)
+               if(!PossuiPosCompra() && !PossuiPosVenda() && previsao < Bid && previsao!=0.0)
                  {
                   ExcluiOrdensPendentes();
                   trade.Sell(volumeoper,_Symbol,tick.bid,slvendapadrao,0,"V1");
