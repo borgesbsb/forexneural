@@ -9,9 +9,9 @@ for mes in range(1,12):
     best_neurons = 0
     best_epochs  = 0
     best_accuracy = 0
-    for neurons_i  in range(5,6):
-        for epochs_i  in range(5,6):
-            for loop_epochs in range(2):
+    for neurons_i  in range(13,15):
+        for epochs_i  in range(25,29):
+            for loop_epochs in range(5):
                 import warnings
                 warnings.simplefilter(action='ignore', category=FutureWarning)
                 import pandas as pd
@@ -239,13 +239,13 @@ for mes in range(1,12):
                 
                
                 print('Mes = '+str(mes)+' Neurons = '+str(neurons_i)+' -  Epochs = '+str(epochs_i)+' - Loop = '+str(loop_epochs) )    
-                begining_training = '2012-'+str(mes)+'-01 00:00:00'
-                end_training      = '2018-'+str(mes)+'-01 00:00:00'
-                begin_validate    = '2018-'+str(mes+1)+'-01 00:00:00'
+                begining_training = '2014-'+str(mes)+'-01 00:00:00'
+                end_training      = '2020-'+str(mes)+'-01 00:00:00'
+                begin_validate    = '2020-'+str(mes+1)+'-01 00:00:00'
                 if mes+2 < 13:
-                    end_validate      = '2018-'+str(mes+2)+'-01 00:00:00'
+                    end_validate      = '2020-'+str(mes+2)+'-01 00:00:00'
                 else:
-                    end_validate      = '2018-'+'12'+'-30 00:00:00'
+                    end_validate      = '2020-'+'12'+'-30 00:00:00'
                 currency          = 'EURUSD_17032021'
                 features          = ['open1','max1','min1','open2','max2','min2','open3','max3','min3','open4','max4','min4','close4']
                 target            = 'close4'
