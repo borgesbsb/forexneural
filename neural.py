@@ -239,13 +239,10 @@ for mes in range(1,12):
                 
                
                 print('Mes = '+str(mes)+' Neurons = '+str(neurons_i)+' -  Epochs = '+str(epochs_i)+' - Loop = '+str(loop_epochs) )    
-                begining_training = '2014-'+str(mes)+'-01 00:00:00'
-                end_training      = '2020-'+str(mes)+'-01 00:00:00'
-                begin_validate    = '2020-'+str(mes+1)+'-01 00:00:00'
-                if mes+2 < 13:
-                    end_validate      = '2020-'+str(mes+2)+'-01 00:00:00'
-                else:
-                    end_validate      = '2020-'+'12'+'-30 00:00:00'
+                begining_training = '2012-'+str(mes)+'-01 00:00:00'
+                end_training      = '2017-'+str(mes)+'-01 00:00:00'
+                begin_validate    = '2017-'+str(mes+1)+'-01 00:00:00'
+                end_validate      = '2017-'+str(mes+2)+'-01 00:00:00'
                 currency          = 'EURUSD_17032021'
                 features          = ['open1','max1','min1','open2','max2','min2','open3','max3','min3','open4','max4','min4','close4']
                 target            = 'close4'
