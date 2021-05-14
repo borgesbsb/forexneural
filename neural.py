@@ -5,7 +5,7 @@ best_accuracy = 0
 save_to_csv   = None
 variables_saves = ['best_neurons','best_epochs','best_accuracy','loop_epochs' , 'neurons_i','epochs_i','variables_saves','save_to_csv','mes']
 
-for mes in range(5,12):
+for mes in range(1,5):
     best_neurons = 0
     best_epochs  = 0
     best_accuracy = 0
