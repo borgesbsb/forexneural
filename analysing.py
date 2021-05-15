@@ -18,7 +18,7 @@ for i in df['acertos']:
     else:
         sequencia = 0
     if sequencia >= maior_sequencia:
-        if maior_sequencia == sequencia and maior_sequencia == 1:
+        if maior_sequencia == sequencia and maior_sequencia == 6:
             qtd_maior_serquencia = qtd_maior_serquencia+1
         maior_sequencia = sequencia
         
