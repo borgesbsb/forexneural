@@ -52,7 +52,7 @@ for mes in range(1,5):
                         self.splitData()
                     
                     def importDataset(self):
-                        parser = lambda x: pd.datetime.strptime(x, "%Y.%m.%d %H:%M:%S")
+                        parser = lambda x: pd.datetime.strptime(x, "%d.%m.%Y %H:%M:%S")
                         df = pd.read_csv( 'arquivos_de_coleta/'+self.currency+'.csv', sep=';', header=0, parse_dates=['time'],date_parser=parser) 
                         return df
                     
