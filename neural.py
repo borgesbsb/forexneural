@@ -5,7 +5,7 @@ best_accuracy = 0
 save_to_csv   = None
 variables_saves = ['best_neurons','best_epochs','best_accuracy','loop_epochs' , 'neurons_i','epochs_i','variables_saves','save_to_csv','mes']
 
-for mes in range(1,12):
+for mes in range(1,2):
     best_neurons = 0
     best_epochs  = 0
     best_accuracy = 0
@@ -52,8 +52,8 @@ for mes in range(1,12):
                         self.splitData()
                     
                     def importDataset(self):
-                        parser = lambda x: pd.datetime.strptime(x, "%d.%m.%Y %H:%M:%S")
-                        df = pd.read_csv( 'arquivos_de_coleta/'+self.currency+'.csv', sep=';', header=0, parse_dates=['time'],date_parser=parser) 
+                        parser = lambda x: pd.datetime.strptime(x, "%Y-%m-%d %H:%M:%S")
+                        df = pd.read_csv( 'arquivos_de_coleta/'+self.currency+'.csv', sep=',', header=0, parse_dates=['time'],date_parser=parser) 
                         return df
                     
                     def selectInterval(self, start, end):
@@ -182,6 +182,7 @@ for mes in range(1,12):
                         self.minima_validate  = np.round(self.minima_validate,4) 
                         frames_to_csv       = [ self.time, self.maxima, self.minima, self.prevision ]
                         frames_to_csv_validate       = [ self.time_validate, self.maxima_validate, self.minima_validate, self.prevision_validate ]
+                        print(frames_to_csv_validate)
                         self.result_to_csv  = pd.concat( frames_to_csv, axis=1, join='inner')
                         self.result_to_csv_validate  = pd.concat( frames_to_csv_validate, axis=1, join='inner')
                         
@@ -246,7 +247,7 @@ for mes in range(1,12):
                     end_validate      = '2018-'+str(mes+2)+'-01 00:00:00'
                 else:
                     end_validate      = '2018-'+'12'+'-30 00:00:00'
-                currency          = 'EURUSD_15m'
+                currency          = 'EURUSD-15M-1H'
                 features          = ['open1','max1','min1','open2','max2','min2','open3','max3','min3','open4','max4','min4','close4']
                 target            = 'close4'
                 timestamp = 2
