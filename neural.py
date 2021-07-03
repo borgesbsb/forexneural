@@ -182,7 +182,6 @@ for mes in range(1,2):
                         self.minima_validate  = np.round(self.minima_validate,4) 
                         frames_to_csv       = [ self.time, self.maxima, self.minima, self.prevision ]
                         frames_to_csv_validate       = [ self.time_validate, self.maxima_validate, self.minima_validate, self.prevision_validate ]
-                        print(frames_to_csv_validate)
                         self.result_to_csv  = pd.concat( frames_to_csv, axis=1, join='inner')
                         self.result_to_csv_validate  = pd.concat( frames_to_csv_validate, axis=1, join='inner')
                         
