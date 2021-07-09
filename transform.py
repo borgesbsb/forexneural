@@ -16,7 +16,7 @@ lines = []
 
 #print(df.iloc[0,1:])
 
-for i in range(len(df)-4):
+for i in range(0,len(df)-4,4):
     lines_tmp = []
     for columns_  in  range(0,6):
         lines_tmp.append(df.iloc[i,columns_])
@@ -29,4 +29,4 @@ for i in range(len(df)-4):
     lines.append(lines_tmp)        
         
 df = pd.DataFrame(lines)      
-df.to_csv('transform_collection.csv', header=False, index=False)
+df.to_csv('transform_collection.csv', header=False, index=False,float_format='%.5f')
