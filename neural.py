@@ -238,14 +238,24 @@ for mes in range(1,2):
                         return portcentagem
                 
                
-                print('Mes = '+str(mes)+' Neurons = '+str(neurons_i)+' -  Epochs = '+str(epochs_i)+' - Loop = '+str(loop_epochs) )    
-                begining_training = '2012-'+str(mes)+'-01 00:00:00'
-                end_training      = '2018-'+str(mes)+'-01 00:00:00'
-                begin_validate    = '2018-'+str(mes+1)+'-01 00:00:00'
-                if mes+2 < 13:
-                    end_validate      = '2018-'+str(mes+2)+'-01 00:00:00'
-                else:
-                    end_validate      = '2018-'+'12'+'-30 00:00:00'
+                # print('Mes = '+str(mes)+' Neurons = '+str(neurons_i)+' -  Epochs = '+str(epochs_i)+' - Loop = '+str(loop_epochs) )    
+                # begining_training = '2015-'+str(mes)+'-01 00:00:00'
+                # end_training      = '2021-'+str(mes)+'-01 00:00:00'
+                # begin_validate    = '2021-'+str(mes+1)+'-01 00:00:00'
+                # if mes+2 < 13:
+                #     end_validate      = '2021-'+str(mes+2)+'-01 00:00:00'
+                # else:
+                #     end_validate      = '2021-'+'12'+'-30 00:00:00'
+
+                #habilite para contar os meses
+                #print('Mes = '+str(mes)+' Neurons = '+str(neurons_i)+' -  Epochs = '+str(epochs_i)+' - Loop = '+str(loop_epochs) )    
+                begining_training = '2015-'+'01'+'-01 00:00:00'
+                end_training      = '2020-'+'12'+'-30 00:00:00'
+                begin_validate    = '2021-'+'02'+'-01 00:00:00'
+                end_validate      = '2021-'+'03'+'-01 00:00:00'
+              
+
+                
                 currency          = 'EURUSD-15M-1H'
                 features          = ['open1','max1','min1','open2','max2','min2','open3','max3','min3','open4','max4','min4','close4']
                 target            = 'close4'
