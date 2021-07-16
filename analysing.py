@@ -2,10 +2,11 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-parser = lambda x: pd.datetime.strptime(x, "%Y-%m-%d %H:%M:%S")
-df = pd.read_csv( 'previsoes_EURUSD_17032021', sep=',', header=0, parse_dates=['time'],date_parser=parser) 
 
-#print(df)
+parser = lambda x: pd.datetime.strptime(x, "%Y-%m-%d %H:%M:%S")
+df = pd.read_csv( 'previsoes_EURUSD-15M-1H', sep=',', header=0, parse_dates=['time'],date_parser=parser) 
+
+
 
 df['acertos'] =  np.where( ( df['prevision'] > df['min']) & (df['prevision'] < df['max']),1,0)
 
