@@ -322,15 +322,15 @@ void OnTick()
 //   double margem_livre = NormalizeDouble(AccountInfoDouble(ACCOUNT_FREEMARGIN),2);
    percent_margem = NormalizeDouble(AccountInfoDouble(ACCOUNT_MARGIN_LEVEL),2);
 
-if(NB1.IsNewBar(_Symbol,_Period)) //VERIFICA SE É UM NOVO CANDLE
-
-/*   if((horario_atual.min == "0" && horario_atual.sec =="0")     ||
-      (horario_atual.min == "15" && horario_atual.sec =="0")    ||
-      (horario_atual.min == "30" && horario_atual.sec =="0")    ||
-      (horario_atual.min == "45" && horario_atual.sec =="0")
-     ) */
+   //if(NB1.IsNewBar(_Symbol,_Period)) //VERIFICA SE É UM NOVO CANDLE
+     
+     if (   (horario_atual.min == "0" && horario_atual.sec =="0")     || 
+            (horario_atual.min == "15" && horario_atual.sec =="0")    || 
+            (horario_atual.min == "30" && horario_atual.sec =="0")    || 
+            (horario_atual.min == "45" && horario_atual.sec =="0" )
+         )
      {
-
+       
       /*
        if(capital>=5000 && capital<10000)
           stopemdolarajustado=stopemdolar;
@@ -2049,112 +2049,125 @@ if(NB1.IsNewBar(_Symbol,_Period)) //VERIFICA SE É UM NOVO CANDLE
             */
 
             //if(NB2.IsNewBar(_Symbol,_Period)) //VERIFICA SE É UM NOVO CANDLE
-            if((horario_atual.min == "0" && horario_atual.sec =="0")     ||
-               (horario_atual.min == "15" && horario_atual.sec =="0")    ||
-               (horario_atual.min == "30" && horario_atual.sec =="0")    ||
-               (horario_atual.min == "45" && horario_atual.sec =="0")
-              )
+              if (   (horario_atual.min == "0" && horario_atual.sec =="0")     || 
+                     (horario_atual.min == "15" && horario_atual.sec =="0")    || 
+                     (horario_atual.min == "30" && horario_atual.sec =="0")    || 
+                     (horario_atual.min == "45" && horario_atual.sec =="0" )
+                )
               {
-               if(previsao > Ask && previsao!=0.0 && (percent_margem>prctniveloper||VolumePos()<volumemaximo))
+
+               if(!PossuiPosCompra() && !PossuiPosVenda() && previsao > Ask && previsao!=0.0 && (percent_margem>prctniveloper||VolumePos()<volumemaximo))
                  {
-                  if(PossuiPosVenda())
-                    {
-                     FechaTodasPosicoesAbertas();
-                    }
-                  if(!PossuiPosCompra())
-                    {
-                     trade.Buy(loteinicial,_Symbol,tick.ask,slcomprapadrao,previsao,"C1");
-                     return;
-                    }
-                  if(PossuiPosCompraComentada("C1") && !PossuiPosCompraComentada("C2"))
-                    {
-                     trade.Buy(volnv2,_Symbol,tick.ask,slcomprapadrao,previsao,"C2");
-                     return;
-                    }
-                  if(PossuiPosCompraComentada("C2") && !PossuiPosCompraComentada("C3"))
-                    {
-                     trade.Buy(volnv3,_Symbol,tick.ask,slcomprapadrao,previsao,"C3");
-                     return;
-                    }
-                  if(PossuiPosCompraComentada("C3") && !PossuiPosCompraComentada("C4"))
-                    {
-                     trade.Buy(volnv4,_Symbol,tick.ask,slcomprapadrao,previsao,"C4");
-                     return;
-                    }
-                  if(PossuiPosCompraComentada("C4") && !PossuiPosCompraComentada("C5"))
-                    {
-                     trade.Buy(volnv5,_Symbol,tick.ask,slcomprapadrao,previsao,"C5");
-                     return;
-                    }
-                  if(PossuiPosCompraComentada("C5") && !PossuiPosCompraComentada("C6"))
-                    {
-                     trade.Buy(volnv6,_Symbol,tick.ask,slcomprapadrao,previsao,"C6");
-                     return;
-                    }
-                  if(PossuiPosCompraComentada("C6") && !PossuiPosCompraComentada("C7"))
-                    {
-                     trade.Buy(volnv7,_Symbol,tick.ask,slcomprapadrao,previsao,"C7");
-                     return;
-                    }
-                  if(PossuiPosCompraComentada("C7") && !PossuiPosCompraComentada("C8"))
-                    {
-                     trade.Buy(volnv8,_Symbol,tick.ask,slcomprapadrao,previsao,"C8");
-                     return;
-                    }
+                  trade.Buy(loteinicial,_Symbol,tick.ask,0,previsao,"C1");
+                  return;
+                 }
+               if(PossuiPosCompraComentada("C1") && !PossuiPosCompraComentada("C2") && previsao > Ask && previsao!=0.0 && (percent_margem>prctniveloper||VolumePos()<volumemaximo) 
+                 )
+                 {
+                  trade.Buy(volnv2,_Symbol,tick.ask,0,previsao,"C2");
+                  return;
+                 }
+               if(PossuiPosCompraComentada("C2") && !PossuiPosCompraComentada("C3") && previsao > Ask && previsao!=0.0 && (percent_margem>prctniveloper||VolumePos()<volumemaximo)
+                 )
+                 {
+                  trade.Buy(volnv3,_Symbol,tick.ask,0,previsao,"C3");
+                  return;
+                 }
+               if(PossuiPosCompraComentada("C3") && !PossuiPosCompraComentada("C4") && previsao > Ask && previsao!=0.0 && (percent_margem>prctniveloper||VolumePos()<volumemaximo)
+                 )
+                 {
+                  trade.Buy(volnv4,_Symbol,tick.ask,0,previsao,"C4");
+                  return;
+                 }
+               if(PossuiPosCompraComentada("C4") && !PossuiPosCompraComentada("C5") && previsao > Ask && previsao!=0.0 && (percent_margem>prctniveloper||VolumePos()<volumemaximo)
+                 )
+                 {
+                  trade.Buy(volnv5,_Symbol,tick.ask,0,previsao,"C5");
+                  return;
+                 }
+               if(PossuiPosCompraComentada("C5") && !PossuiPosCompraComentada("C6") && previsao > Ask && previsao!=0.0 && (percent_margem>prctniveloper||VolumePos()<volumemaximo)
+                 )
+                 {
+                  trade.Buy(volnv6,_Symbol,tick.ask,0,previsao,"C6");
+                  return;
+                 }
+               if(PossuiPosCompraComentada("C6") && !PossuiPosCompraComentada("C7") && previsao > Ask && previsao!=0.0 && (percent_margem>prctniveloper||VolumePos()<volumemaximo)
+                 )
+                 {
+                  trade.Buy(volnv7,_Symbol,tick.ask,0,previsao,"C7");
+                  return;
+                 }
+               if(PossuiPosCompraComentada("C7") && !PossuiPosCompraComentada("C8") && previsao > Ask && previsao!=0.0 && (percent_margem>prctniveloper||VolumePos()<volumemaximo)
+                 )
+                 {
+                  trade.Buy(volnv8,_Symbol,tick.ask,0,previsao,"C8");
+                  return;
                  }
 
-               if(previsao < Bid && previsao!=0.0 && (percent_margem>prctniveloper||VolumePos()<volumemaximo))
+               if(!PossuiPosVenda() && !PossuiPosCompra() && previsao < Bid && previsao!=0.0 && (percent_margem>prctniveloper||VolumePos()<volumemaximo))
                  {
-                  if(PossuiPosCompra())
-                    {
-                     FechaTodasPosicoesAbertas();
-                    }
-                  if(!PossuiPosVenda())
-                    {
-                     trade.Sell(loteinicial,_Symbol,tick.bid,slvendapadrao,previsao,"V1");
-                     return;
-                    }
-                  if(PossuiPosVendaComentada("V1") && !PossuiPosVendaComentada("V2"))
-                    {
-                     trade.Sell(volnv2,_Symbol,tick.bid,slvendapadrao,previsao,"V2");
-                     return;
-                    }
-                  if(PossuiPosVendaComentada("V2") && !PossuiPosVendaComentada("V3"))
-                    {
-                     trade.Sell(volnv3,_Symbol,tick.bid,slvendapadrao,previsao,"V3");
-                     return;
-                    }
-                  if(PossuiPosVendaComentada("V3") && !PossuiPosVendaComentada("V4"))
-                    {
-                     trade.Sell(volnv4,_Symbol,tick.bid,slvendapadrao,previsao,"V4");
-                     return;
-                    }
-                  if(PossuiPosVendaComentada("V4") && !PossuiPosVendaComentada("V5"))
-                    {
-                     trade.Sell(volnv5,_Symbol,tick.bid,slvendapadrao,previsao,"V5");
-                     return;
-                    }
-                  if(PossuiPosVendaComentada("V5") && !PossuiPosVendaComentada("V6"))
-                    {
-                     trade.Sell(volnv6,_Symbol,tick.bid,slvendapadrao,previsao,"V6");
-                     return;
-                    }
-                  if(PossuiPosVendaComentada("V6") && !PossuiPosVendaComentada("V7"))
-                    {
-                     trade.Sell(volnv7,_Symbol,tick.bid,slvendapadrao,previsao,"V7");
-                     return;
-                    }
-                  if(PossuiPosVendaComentada("V7") && !PossuiPosVendaComentada("V8"))
-                    {
-                     trade.Sell(volnv8,_Symbol,tick.bid,slvendapadrao,previsao,"V8");
-                     return;
-                    }
+                  trade.Sell(loteinicial,_Symbol,tick.bid,0,previsao,"V1");
+                  return;
+                 }
+               if(PossuiPosVendaComentada("V1") && !PossuiPosVendaComentada("V2") && previsao < Bid && previsao!=0.0 && (percent_margem>prctniveloper||VolumePos()<volumemaximo)
+                 )
+                 {
+                  trade.Sell(volnv2,_Symbol,tick.bid,0,previsao,"V2");
+                  return;
+                 }
+               if(PossuiPosVendaComentada("V2") && !PossuiPosVendaComentada("V3") && previsao < Bid && previsao!=0.0 && (percent_margem>prctniveloper||VolumePos()<volumemaximo)
+                 )
+                 {
+                  trade.Sell(volnv3,_Symbol,tick.bid,0,previsao,"V3");
+                  return;
+                 }
+               if(PossuiPosVendaComentada("V3") && !PossuiPosVendaComentada("V4") && previsao < Bid && previsao!=0.0 && (percent_margem>prctniveloper||VolumePos()<volumemaximo)
+                 )
+                 {
+                  trade.Sell(volnv4,_Symbol,tick.bid,0,previsao,"V4");
+                  return;
+                 }
+               if(PossuiPosVendaComentada("V4") && !PossuiPosVendaComentada("V5") && previsao < Bid && previsao!=0.0 && (percent_margem>prctniveloper||VolumePos()<volumemaximo)
+                 )
+                 {
+                  trade.Sell(volnv5,_Symbol,tick.bid,0,previsao,"V5");
+                  return;
+                 }
+               if(PossuiPosVendaComentada("V5") && !PossuiPosVendaComentada("V6") && previsao < Bid && previsao!=0.0 && (percent_margem>prctniveloper||VolumePos()<volumemaximo)
+                 )
+                 {
+                  trade.Sell(volnv6,_Symbol,tick.bid,0,previsao,"V6");
+                  return;
+                 }
+               if(PossuiPosVendaComentada("V6") && !PossuiPosVendaComentada("V7") && previsao < Bid && previsao!=0.0 && (percent_margem>prctniveloper||VolumePos()<volumemaximo)
+                 )
+                 {
+                  trade.Sell(volnv7,_Symbol,tick.bid,0,previsao,"V7");
+                  return;
+                 }
+               if(PossuiPosVendaComentada("V7") && !PossuiPosVendaComentada("V8") && previsao < Bid && previsao!=0.0 && (percent_margem>prctniveloper||VolumePos()<volumemaximo)
+                 )
+                 {
+                  trade.Sell(volnv8,_Symbol,tick.bid,0,previsao,"V8");
+                  return;
                  }
               }
            }
         }
      }
-     
+
+////////////////////////////////////////////////////////
+//---|Fechando as ordens pendentes não utilizadas|----//
+////////////////////////////////////////////////////////
+   if(!PossuiPosCompra() && !PossuiPosVenda() && PossuiOrdemPendente())
+      ExcluiOrdensPendentes();
+
+///////////////////////////////////////////////////////////////
+//---|Fechando as ordens pendentes quando margem pequena|----//
+///////////////////////////////////////////////////////////////
+   if((PossuiPosCompra() || PossuiPosVenda()) && PossuiOrdemPendente() && (percent_margem<prctniveloper||VolumePos()>volumemaximo) && saldo!=capital)
+      ExcluiOrdensPendentes();
+
 ////////////////////////////////////
 //---|Fechamento das posições|----//
 ////////////////////////////////////
