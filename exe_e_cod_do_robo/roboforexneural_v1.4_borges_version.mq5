@@ -2048,12 +2048,7 @@ if(NB1.IsNewBar(_Symbol,_Period)) //VERIFICA SE É UM NOVO CANDLE
               }
             */
 
-            //if(NB2.IsNewBar(_Symbol,_Period)) //VERIFICA SE É UM NOVO CANDLE
-            if((horario_atual.min == "0" && horario_atual.sec =="0")     ||
-               (horario_atual.min == "15" && horario_atual.sec =="0")    ||
-               (horario_atual.min == "30" && horario_atual.sec =="0")    ||
-               (horario_atual.min == "45" && horario_atual.sec =="0")
-              )
+            if(NB2.IsNewBar(_Symbol,_Period)) //VERIFICA SE É UM NOVO CANDLE
               {
                if(previsao > Ask && previsao!=0.0 && (percent_margem>prctniveloper||VolumePos()<volumemaximo))
                  {
