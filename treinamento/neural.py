@@ -5,13 +5,13 @@ best_accuracy = 0
 save_to_csv   = None
 variables_saves = ['best_neurons','best_epochs','best_accuracy','loop_epochs' , 'neurons_i','epochs_i','variables_saves','save_to_csv','mes']
 
-for mes in range(1,12):
+for mes in range(1,2):
     best_neurons = 0
     best_epochs  = 0
     best_accuracy = 0
-    for neurons_i  in range(13,15):
-        for epochs_i  in range(25,29):
-            for loop_epochs in range(5):
+    for neurons_i  in range(13,14):
+        for epochs_i  in range(25,26):
+            for loop_epochs in range(1):
                 import warnings
                 warnings.simplefilter(action='ignore', category=FutureWarning)
                 import pandas as pd
@@ -53,7 +53,7 @@ for mes in range(1,12):
                     
                     def importDataset(self):
                         parser = lambda x: pd.datetime.strptime(x, "%Y-%m-%d %H:%M:%S")
-                        df = pd.read_csv( 'arquivos_de_coleta/'+self.currency+'.csv', sep=',', header=0, parse_dates=['time'],date_parser=parser) 
+                        df = pd.read_csv( '../arquivos_de_coleta/'+self.currency+'.csv', sep=',', header=0, parse_dates=['time'],date_parser=parser) 
                         return df
                     
                     def selectInterval(self, start, end):
@@ -247,7 +247,7 @@ for mes in range(1,12):
                 else:
                     end_validate      = '2018-'+'12'+'-30 00:00:00'
 
-                #habilite para contar os meses
+                #habilite para contar os meses de dezembro
                 # #print('Mes = '+str(mes)+' Neurons = '+str(neurons_i)+' -  Epochs = '+str(epochs_i)+' - Loop = '+str(loop_epochs) )    
                 # begining_training = '2012-'+'01'+'-01 00:00:00'
                 # end_training      = '2020-'+'12'+'-30 00:00:00'
