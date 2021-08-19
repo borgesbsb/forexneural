@@ -4,7 +4,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Gibran, Borges e James"
 #property link      "gibranvalle@gmail.com"
-#property version   "1.1"
+#property version   "1.5"
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Bibliotecas utilizadas
 #include <Trade/Trade.mqh>
@@ -13,13 +13,6 @@
 #include <Trade/HistoryOrderInfo.mqh>
 #include <IsNewBar.mqh>
 #include <Dictionary.mqh>
-
-enum ENUM_TP_DIST
-  {
-   dist1,        // [1]PONTOS FIBONACCI
-   dist2,        // [2]PONTOS FIXOS
-   dist3,        // [3]PERSONALIZADO
-  };
 
 enum ENUM_TP_MART
   {
@@ -40,22 +33,9 @@ input int                porta               = 8082;       // PORTA DA REDE NEUR
 input group              "ABERTURA DE POSIÇÕES"
 input bool               ativaentradaea      = true;       // ATIVA ABERTURA
 input double             loteinicial         = 0.03;       // TAM DO LOTE P/ CADA $50,00 DE CAPITAL
-input bool               ativarsi            = false;      // ATIVA FILTRO RSI
-input double             rsicompra           = 30;         // VALOR DO RSI P/ COMPRA
-input double             rsivenda            = 70;         // VALOR DO RSI P/ VENDA
-input int                rsiperiodo          = 10;         // QTDE DE CANDLES P/ RSI
 input group              "MARTINGALE"
 input ENUM_TP_MART       tipomartingale      = mart1;      // TIPO DE VOLUME MARTINGALE
-input ENUM_TP_DIST       tipotunelvegas      = dist1;      // TIPO DE DISTÂNCIA MARTINGALE
 input int                multiplicador       = 2;          // MULTIPLICADOR P/ MARTINGALE
-input double             pontosmart          = 60;         // DISTÂNCIA ENTRE C1 E C2
-input double             pontosmart2         = 100;        // DISTÂNCIA ENTRE C2 E C3
-input double             pontosmart3         = 140;        // DISTÂNCIA ENTRE C3 E C4
-input double             pontosmart4         = 170;        // DISTÂNCIA ENTRE C4 E C5
-input double             pontosmart5         = 200;        // DISTÂNCIA ENTRE C5 E C6
-input double             pontosmart6         = 250;        // DISTÂNCIA ENTRE C6 E C7
-input double             pontosmart7         = 270;        // DISTÂNCIA ENTRE C7 E C8
-input double             pontosmart8         = 300;        // DISTÂNCIA ENTRE C8 E C9
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 input group              "FECHAMENTO DE POSIÇÕES"
 input bool               ativasaidaea        = true;       // ATIVA FECHAMENTO
@@ -127,8 +107,6 @@ double                   volnv_2,volnv_3,volnv_4,volnv_5,volnv_6,volnv_7,volnv_8
 double                   prejuizo;
 //--- Definição das variáveis dos níveis do túnel de vegas
 double                   lv2,lv3,lv4,lv45,lv5,lv55,lv6,lv65,lv7,lv75,lv8,lv85,lv9,lv95;//qtde de pontos a partir da média para cada nível do túnel de vegas
-double                   prcnvl2,prcnvl3,prcnvl4,prcnvl45,prcnvl5,prcnvl55,prcnvl6,prcnvl65,prcnvl7,prcnvl75,prcnvl8,prcnvl85,prcnvl9,prcnvl95;
-double                   prcnvl_2,prcnvl_3,prcnvl_4,prcnvl_45,prcnvl_5,prcnvl_55,prcnvl_6,prcnvl_65,prcnvl_7,prcnvl_75,prcnvl_8,prcnvl_85,prcnvl_9;
 
 //--- Variáveis p/ ticks e candles
 MqlTick                  tick;
@@ -145,7 +123,7 @@ CTrade                   trade;
 //--- Usa a classe responsável pela leitura dos dados do arquivo contendo as previsões
 CDictionary *dict = new CDictionary();
 
-bool               virarmaovendida      = false;       // ATIVA ABERTURA
+bool               virarmaovendida      = false;
 bool               virarmaocomprada     = false;
 //+--------------------------------+
 //| Expert initialization function |
@@ -160,8 +138,6 @@ int OnInit()
 //--- Seta o magic number do robô
    trade.SetExpertMagicNumber(magicrobo);
 
-   handlersi = iRSI(_Symbol,_Period,rsiperiodo,PRICE_CLOSE);
-   ArraySetAsSeries(rsi,true);
    ArraySetAsSeries(candle,true);
 
 //--- Criação das structs de tempo
@@ -179,43 +155,6 @@ int OnInit()
       Print("Confirmação de soquete criado, este é o número dele: ",socketneural);
 
    SocketConnect(socketneural,endereco,porta,1000);
-
-//--- Definição dos níveis FIBO p/ moedas normais
-   if(tipotunelvegas==dist1)
-     {
-      lv2                = pontosmart;
-      lv3                = 2*pontosmart;
-      lv4                = 4*pontosmart;
-      lv5                = 7*pontosmart;
-      lv6                = 12*pontosmart;
-      lv7                = 20*pontosmart;
-      lv8                = 33*pontosmart;
-      lv9                = 54*pontosmart;
-     }
-//--- Definição dos níveis fixos em pontos
-   if(tipotunelvegas==dist2)
-     {
-      lv2                = pontosmart;
-      lv3                = 2*pontosmart;
-      lv4                = 3*pontosmart;
-      lv5                = 4*pontosmart;
-      lv6                = 5*pontosmart;
-      lv7                = 6*pontosmart;
-      lv8                = 7*pontosmart;
-      lv9                = 8*pontosmart;
-     }
-//--- Definição dos níveis personalizados nos inputs
-   if(tipotunelvegas==dist3)
-     {
-      lv2                = pontosmart;
-      lv3                = lv2+pontosmart2;
-      lv4                = lv3+pontosmart3;
-      lv5                = lv4+pontosmart4;
-      lv6                = lv5+pontosmart5;
-      lv7                = lv6+pontosmart6;
-      lv8                = lv7+pontosmart7;
-      lv9                = lv8+pontosmart8;
-     }
 
 //--- Definição dos preços de stoploss padrão para as diversas moedas
    if(Symbol()=="EURUSD")
@@ -289,33 +228,8 @@ void OnTick()
       Alert("Erro ao obter informações de Mqlrates: ", GetLastError());
       return;
      }
-   CopyBuffer(handlersi,0,0,5,rsi);
-   if(CopyBuffer(handlersi,0,0,5,rsi)<0)
-     {
-      Alert("Erro ao copiar dados de RSI: ", GetLastError());
-      return;
-     }
 
    static CIsNewBar NB1,NB2/*,NB3,NB4,NB5,NB6,NB7,NB8,NB9,NB10,NB11,NB12,NB13,NB14,NB15,NB16,NB17,NB18,NB19,NB20,NB21,NB22*/;
-
-//---Atualização dos preços dos níveis tick a tick
-   prcnvl9 = tick.bid+lv9*_Point;
-   prcnvl8 = tick.bid+lv8*_Point;
-   prcnvl7 = tick.bid+lv7*_Point;
-   prcnvl6 = tick.bid+lv6*_Point;
-   prcnvl5 = tick.bid+lv5*_Point;
-   prcnvl4 = tick.bid+lv4*_Point;
-   prcnvl3 = tick.bid+lv3*_Point;
-   prcnvl2 = tick.bid+lv2*_Point;
-   prcnvl_2= tick.ask-lv2*_Point;
-   prcnvl_3 = tick.ask-lv3*_Point;
-   prcnvl_4 = tick.ask-lv4*_Point;
-   prcnvl_5 = tick.ask-lv5*_Point;
-   prcnvl_6 = tick.ask-lv6*_Point;
-   prcnvl_7 = tick.ask-lv7*_Point;
-   prcnvl_8 = tick.ask-lv8*_Point;
-   prcnvl_9 = tick.ask-lv9*_Point;
-
 
    saldo = NormalizeDouble(AccountInfoDouble(ACCOUNT_BALANCE),2);
    lucro_prejuizo = NormalizeDouble(AccountInfoDouble(ACCOUNT_PROFIT),2);
@@ -324,8 +238,8 @@ void OnTick()
 //   double margem_livre = NormalizeDouble(AccountInfoDouble(ACCOUNT_FREEMARGIN),2);
    percent_margem = NormalizeDouble(AccountInfoDouble(ACCOUNT_MARGIN_LEVEL),2);
 
-if(NB1.IsNewBar(_Symbol,_Period)) //VERIFICA SE É UM NOVO CANDLE
-{
+   if(NB1.IsNewBar(_Symbol,_Period)) //VERIFICA SE É UM NOVO CANDLE
+     {
 
       if(capital>=5000 && capital<10000)
         {
@@ -1854,7 +1768,7 @@ if(NB1.IsNewBar(_Symbol,_Period)) //VERIFICA SE É UM NOVO CANDLE
       volnv7             = 33*volumeoper;//21
       volnv8             = 34*volumeoper;//34
       volnv9             = 55*volumeoper;//55
-      
+
      }
    if(tipomartingale==mart2)//mix - fibo ate a 5 ordem e o dobro do anterior nas proximas ordens
      {
@@ -1959,22 +1873,22 @@ if(NB1.IsNewBar(_Symbol,_Period)) //VERIFICA SE É UM NOVO CANDLE
                   if(PossuiPosVenda())
                     {
                      virarmaovendida = true;
-                     prejuizo =  LucroPrejuizoPosAberta();
                      FechaTodasPosicoesAbertas();
                     }
-                    
-                   if (virarmaovendida && !PossuiPosCompra() ) {
-                      trade.Buy(loteinicial*4,_Symbol,tick.ask,slcomprapadrao,previsao,"VirarMaoVendida");
-                      virarmaovendida = false;
-                      return;
-                   }  
-                  
+
+                  if(virarmaovendida && !PossuiPosCompra())
+                    {
+                     trade.Buy(loteinicial*4,_Symbol,tick.ask,slcomprapadrao,previsao,"VirarMaoVendida");
+                     virarmaovendida = false;
+                     return;
+                    }
+
                   if(!PossuiPosCompra())
                     {
                      trade.Buy(loteinicial,_Symbol,tick.ask,slcomprapadrao,previsao,"C1");
                      return;
                     }
-                  
+
                   if(PossuiPosCompraComentada("C1") && !PossuiPosCompraComentada("C2"))
                     {
                      trade.Buy(loteinicial*4,_Symbol,tick.ask,slcomprapadrao,previsao,"C2");
@@ -2018,14 +1932,15 @@ if(NB1.IsNewBar(_Symbol,_Period)) //VERIFICA SE É UM NOVO CANDLE
                     {
                      virarmaocomprada      = true;
                      FechaTodasPosicoesAbertas();
-                     }
-                     
-                    if (virarmaocomprada && !PossuiPosVenda() ) {
-                      trade.Sell(loteinicial*4,_Symbol,tick.bid,slvendapadrao,previsao,"VirarMaoComprada");
-                      virarmaocomprada = false;
-                      return;
-                   }  
-                     
+                    }
+
+                  if(virarmaocomprada && !PossuiPosVenda())
+                    {
+                     trade.Sell(loteinicial*4,_Symbol,tick.bid,slvendapadrao,previsao,"VirarMaoComprada");
+                     virarmaocomprada = false;
+                     return;
+                    }
+
                   if(!PossuiPosVenda())
                     {
                      trade.Sell(loteinicial,_Symbol,tick.bid,slvendapadrao,previsao,"V1");
@@ -2071,7 +1986,7 @@ if(NB1.IsNewBar(_Symbol,_Period)) //VERIFICA SE É UM NOVO CANDLE
            }
         }
      }
-     
+
 ////////////////////////////////////
 //---|Fechamento das posições|----//
 ////////////////////////////////////
