@@ -37,18 +37,6 @@ input group              "MARTINGALE"
 input ENUM_TP_MART       tipomartingale      = mart1;      // TIPO DE VOLUME MARTINGALE
 input int                multiplicador       = 2;          // MULTIPLICADOR P/ MARTINGALE
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-input group              "FECHAMENTO DE POSIÇÕES"
-input bool               ativasaidaea        = true;       // ATIVA FECHAMENTO
-input double             pontosc1            = 120;        // PONTOS 1 POSIÇÃO
-input double             pontosc2            = 140;        // PONTOS 2 POSIÇÕES
-input double             pontosc3            = 140;        // PONTOS 3 POSIÇÕES
-input double             pontosc4            = 100;        // PONTOS 4 POSIÇÕES
-input double             pontosc5            = 20;         // PONTOS 5 POSIÇÕES
-input double             pontosc6            = 20;         // PONTOS 6 POSIÇÕES
-input double             pontosc7            = 20;         // PONTOS 7 POSIÇÕES
-input double             pontosc8            = 30;         // PONTOS 8 POSIÇÕES
-input double             pontosc9            = 30;         // PONTOS 9 POSIÇÕES
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 input group              "BREAKEVEN E TRAILING STOP"
 input bool               ativaBE             = false;      // ATIVA BREAKEVEN
 input double             recuoBE             = 50;         // PONTOS PARA RECUO NO BREAKEVEN
@@ -59,13 +47,13 @@ input double             avancoTS            = 10;         // AVANÇO DO STOP EM
 input group              "GERENCIAMENTO DE RISCO - NÃO ABRE NOVAS POSIÇÕES"
 input double             prctniveloper       = 3000;       // MARGEM MINIMA P/ ABRIR POSIÇÕES
 input double             volumeinicial       = 0.7;        // VOL MÁX P/ CADA $50,00 DE CAPITAL
+input group              "GERENCIAMENTO DE RISCO - FECHA AS POSIÇÕES NO PREJU"
+input bool               ativastop           = false;      // ATIVA STOP FORÇADO
+input double             stopemdolar         = 250.00;     // VALOR EM $ PARA "STOPAR"
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 input group              "FECHAMENTO DA ULTIMA POSIÇÃO COM LUCRO MINIMO"
 input bool               ativalucrominimo    = false;      // ATIVA FECHAMENTO COM LUCRO MÍNIMO
 input double             lucrominimo         = 200;        // VALOR DO LUCRO MÍNIMO EM $
-input group              "GERENCIAMENTO DE RISCO - FECHA AS POSIÇÕES NO PREJU"
-input bool               ativastop           = false;      // ATIVA STOP FORÇADO
-input double             stopemdolar         = 250.00;     // VALOR EM $ PARA "STOPAR"
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 input group              "HORáRIO DE FUNCIONAMENTO DO EA"
 input string             inicio              = "00:05";    // HORáRIO DE INíCIO (ENTRADAS)
@@ -105,8 +93,6 @@ bool                     enviado;
 double                   volnv2,volnv3,volnv4,volnv5,volnv6,volnv7,volnv8,volnv9;
 double                   volnv_2,volnv_3,volnv_4,volnv_5,volnv_6,volnv_7,volnv_8,volnv_9;
 double                   prejuizo;
-//--- Definição das variáveis dos níveis do túnel de vegas
-double                   lv2,lv3,lv4,lv45,lv5,lv55,lv6,lv65,lv7,lv75,lv8,lv85,lv9,lv95;//qtde de pontos a partir da média para cada nível do túnel de vegas
 
 //--- Variáveis p/ ticks e candles
 MqlTick                  tick;
@@ -123,15 +109,13 @@ CTrade                   trade;
 //--- Usa a classe responsável pela leitura dos dados do arquivo contendo as previsões
 CDictionary *dict = new CDictionary();
 
+//--- Definição das variáveis booleanas para "virada de mão"
 bool               virarmaovendida      = false;
 bool               virarmaocomprada     = false;
+
 //+--------------------------------+
 //| Expert initialization function |
 //+--------------------------------+
-
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
 int OnInit()
   {
 
@@ -1750,7 +1734,6 @@ void OnTick()
 //--- Definição dos volumes de compra e venda quando utilizar martingale
    if(tipomartingale==mart1)//sequência de fibonacci p/ volume
      {
-      /*
       volnv2             = 2*volumeoper;//2
       volnv3             = 3*volumeoper;//3
       volnv4             = 5*volumeoper;//5
@@ -1759,27 +1742,17 @@ void OnTick()
       volnv7             = 21*volumeoper;//21
       volnv8             = 34*volumeoper;//34
       volnv9             = 55*volumeoper;//55
-      */
-      volnv2             = 2*volumeoper;//2
-      volnv3             = 4*volumeoper;//3
-      volnv4             = 8*volumeoper;//5
-      volnv5             = 16*volumeoper;//8
-      volnv6             = 32*volumeoper;//13
-      volnv7             = 33*volumeoper;//21
-      volnv8             = 34*volumeoper;//34
-      volnv9             = 55*volumeoper;//55
-
      }
    if(tipomartingale==mart2)//mix - fibo ate a 5 ordem e o dobro do anterior nas proximas ordens
      {
       volnv2             = 2*volumeoper;//2
       volnv3             = 3*volumeoper;//3
-      volnv4             = 4*volumeoper;//4
-      volnv5             = 5*volumeoper;//5
-      volnv6             = volnv4*multiplicador;//10
-      volnv7             = volnv5*multiplicador;//20
-      volnv8             = volnv6*multiplicador;//30
-      volnv9             = volnv7*multiplicador;//40
+      volnv4             = 5*volumeoper;//5
+      volnv5             = 8*volumeoper;//8
+      volnv6             = volnv5*multiplicador;//16
+      volnv7             = volnv6*multiplicador;//32
+      volnv8             = volnv7*multiplicador;//64
+      volnv9             = volnv8*multiplicador;//128
      }
    if(tipomartingale==mart3)//dobro do volume anterior
      {
@@ -1984,149 +1957,6 @@ void OnTick()
                  }
               }
            }
-        }
-     }
-
-////////////////////////////////////
-//---|Fechamento das posições|----//
-////////////////////////////////////
-   if(ativasaidaea==true)
-     {
-      if(PossuiPosCompraComentada("C1") && tick.bid>PrecoAberturaPosCompra()+pontosc1*_Point)
-        {
-         if(ativaBE==true)
-            BreakEvenCompra();
-         else
-            FechaTodasPosicoesAbertas();
-        }
-      if(PossuiPosCompraComentada("C2") && tick.bid>PrecoAberturaPosCompra()+pontosc2*_Point)
-        {
-         if(ativaBE==true)
-            BreakEvenCompra();
-         else
-            FechaTodasPosicoesAbertas();
-        }
-      if(PossuiPosCompraComentada("C3") && tick.bid>PrecoAberturaPosCompra()+pontosc3*_Point)
-        {
-         if(ativaBE==true)
-            BreakEvenCompra();
-         else
-            FechaTodasPosicoesAbertas();
-        }
-      if(PossuiPosCompraComentada("C4") && tick.bid>PrecoAberturaPosCompra()+pontosc4*_Point)
-        {
-         if(ativaBE==true)
-            BreakEvenCompra();
-         else
-            FechaTodasPosicoesAbertas();
-        }
-      if(PossuiPosCompraComentada("C5") && tick.bid>PrecoAberturaPosCompra()+pontosc5*_Point)
-        {
-         if(ativaBE==true)
-            BreakEvenCompra();
-         else
-            FechaTodasPosicoesAbertas();
-        }
-      if(PossuiPosCompraComentada("C6") && tick.bid>PrecoAberturaPosCompra()+pontosc6*_Point)
-        {
-         if(ativaBE==true)
-            BreakEvenCompra();
-         else
-            FechaTodasPosicoesAbertas();
-        }
-      if(PossuiPosCompraComentada("C7") && tick.bid>PrecoAberturaPosCompra()+pontosc7*_Point)
-        {
-         if(ativaBE==true)
-            BreakEvenCompra();
-         else
-            FechaTodasPosicoesAbertas();
-        }
-      if(PossuiPosCompraComentada("C8") && tick.bid>PrecoAberturaPosCompra()+pontosc8*_Point)
-        {
-         if(ativaBE==true)
-            BreakEvenCompra();
-         else
-            FechaTodasPosicoesAbertas();
-        }
-      if(PossuiPosCompraComentada("C9") && tick.bid>PrecoAberturaPosCompra()+pontosc9*_Point)
-        {
-         if(ativaBE==true)
-            BreakEvenCompra();
-         else
-            FechaTodasPosicoesAbertas();
-        }
-
-      if(PossuiPosVendaComentada("V1") && tick.ask<PrecoAberturaPosVenda()-pontosc1*_Point)
-        {
-         if(ativaBE==true)
-            BreakEvenVenda();
-         else
-            FechaTodasPosicoesAbertas();
-        }
-      if(PossuiPosVendaComentada("V2") && tick.ask<PrecoAberturaPosVenda()-pontosc2*_Point)
-        {
-         if(ativaBE==true)
-            BreakEvenVenda();
-         else
-            FechaTodasPosicoesAbertas();
-        }
-      if(PossuiPosVendaComentada("V3") && tick.ask<PrecoAberturaPosVenda()-pontosc3*_Point)
-        {
-         if(ativaBE==true)
-            BreakEvenVenda();
-         else
-            FechaTodasPosicoesAbertas();
-        }
-      if(PossuiPosVendaComentada("V4") && tick.ask<PrecoAberturaPosVenda()-pontosc4*_Point)
-        {
-         if(ativaBE==true)
-            BreakEvenVenda();
-         else
-            FechaTodasPosicoesAbertas();
-        }
-      if(PossuiPosVendaComentada("V5") && tick.ask<PrecoAberturaPosVenda()-pontosc5*_Point)
-        {
-         if(ativaBE==true)
-            BreakEvenVenda();
-         else
-            FechaTodasPosicoesAbertas();
-        }
-      if(PossuiPosVendaComentada("V6") && tick.ask<PrecoAberturaPosVenda()-pontosc6*_Point)
-        {
-         if(ativaBE==true)
-            BreakEvenVenda();
-         else
-            FechaTodasPosicoesAbertas();
-        }
-      if(PossuiPosVendaComentada("V7") && tick.ask<PrecoAberturaPosVenda()-pontosc7*_Point)
-        {
-         if(ativaBE==true)
-            BreakEvenVenda();
-         else
-            FechaTodasPosicoesAbertas();
-        }
-      if(PossuiPosVendaComentada("V8") && tick.ask<PrecoAberturaPosVenda()-pontosc8*_Point)
-        {
-         if(ativaBE==true)
-            BreakEvenVenda();
-         else
-            FechaTodasPosicoesAbertas();
-        }
-      if(PossuiPosVendaComentada("V9") && tick.ask<PrecoAberturaPosVenda()-pontosc9*_Point)
-        {
-         if(ativaBE==true)
-            BreakEvenVenda();
-         else
-            FechaTodasPosicoesAbertas();
-        }
-
-      //////////////////////////
-      //---|TRAILING STOP|----//
-      //////////////////////////
-      if(ativaTS==true)
-        {
-         TrailingStopCompra();
-         TrailingStopVenda();
         }
      }
 
