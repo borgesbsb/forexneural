@@ -55,6 +55,10 @@ input group              "GERENCIAMENTO DE RISCO - FECHA AS POSIÇÕES NO PREJU"
 input bool               ativastop           = false;      // ATIVA STOP FORÇADO
 input double             stoppercent         = 10.00;     // % DO CAPITAL LIQUIDO PARA "STOPAR"
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+input group              "GERENCIAMENTO DE RISCO - NÃO ABRE NOVAS POSIÇÕES"
+input double             prctniveloper       = 3000;       // MARGEM MINIMA P/ ABRIR POSIÇÕES
+input double             volumeinicial       = 0.7;        // VOL MÁX P/ CADA $50,00 DE CAPITAL
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 input group              "HORáRIO DE FUNCIONAMENTO DO EA"
 input string             inicio              = "00:05";    // HORáRIO DE INíCIO (ENTRADAS)
 input string             termino             = "23:55";    // HORáRIO DE TéRMINO (ENTRADAS)
@@ -835,1503 +839,1502 @@ void OnTick()
          if(capital>=5000 && capital<10000)
            {
             volumeoper=loteinicial;
-            //volumemaximo=volumeinicial;
+            volumemaximo=volumeinicial;
            }
          if(capital>=10000 && capital<20000)
            {
             volumeoper=loteinicial*2;
-            ////volumemaximo=volumeinicial*2;
+            volumemaximo=volumeinicial*2;
            }
          if(capital>=20000 && capital<30000)
            {
             volumeoper=loteinicial*4;
-            //volumemaximo=volumeinicial*4;
+            volumemaximo=volumeinicial*4;
            }
          if(capital>=30000 && capital<40000)
            {
             volumeoper=loteinicial*6;
-            //volumemaximo=volumeinicial*6;
+            volumemaximo=volumeinicial*6;
            }
          if(capital>=40000 && capital<50000)
            {
             volumeoper=loteinicial*8;
-            //volumemaximo=volumeinicial*8;
+            volumemaximo=volumeinicial*8;
            }
          if(capital>=50000 && capital<60000)
            {
             volumeoper=loteinicial*10;
-            //volumemaximo=volumeinicial*10;
+            volumemaximo=volumeinicial*10;
            }
          if(capital>=60000 && capital<70000)
            {
             volumeoper=loteinicial*12;
-            //volumemaximo=volumeinicial*12;
+            volumemaximo=volumeinicial*12;
            }
          if(capital>=70000 && capital<80000)
            {
             volumeoper=loteinicial*14;
-            //volumemaximo=volumeinicial*14;
+            volumemaximo=volumeinicial*14;
            }
          if(capital>=80000 && capital<90000)
            {
             volumeoper=loteinicial*16;
-            //volumemaximo=volumeinicial*16;
+            volumemaximo=volumeinicial*16;
            }
          if(capital>=90000 && capital<100000)
            {
             volumeoper=loteinicial*18;
-            //volumemaximo=volumeinicial*18;
+            volumemaximo=volumeinicial*18;
            }
          if(capital>=100000 && capital<110000)
            {
             volumeoper=loteinicial*20;
-            //volumemaximo=volumeinicial*20;
+            volumemaximo=volumeinicial*20;
            }
          if(capital>=110000 && capital<120000)
            {
             volumeoper=loteinicial*22;
-            //volumemaximo=volumeinicial*22;
+            volumemaximo=volumeinicial*22;
            }
          if(capital>=120000 && capital<130000)
            {
             volumeoper=loteinicial*24;
-            //volumemaximo=volumeinicial*24;
+            volumemaximo=volumeinicial*24;
            }
          if(capital>=130000 && capital<140000)
            {
             volumeoper=loteinicial*26;
-            //volumemaximo=volumeinicial*26;
+            volumemaximo=volumeinicial*26;
            }
          if(capital>=140000 && capital<150000)
            {
             volumeoper=loteinicial*28;
-            //volumemaximo=volumeinicial*28;
+            volumemaximo=volumeinicial*28;
            }
          if(capital>=150000 && capital<160000)
            {
             volumeoper=loteinicial*30;
-            //volumemaximo=volumeinicial*30;
+            volumemaximo=volumeinicial*30;
            }
          if(capital>=160000 && capital<170000)
            {
             volumeoper=loteinicial*32;
-            //volumemaximo=volumeinicial*32;
+            volumemaximo=volumeinicial*32;
            }
          if(capital>=170000 && capital<180000)
            {
             volumeoper=loteinicial*34;
-            //volumemaximo=volumeinicial*34;
+            volumemaximo=volumeinicial*34;
            }
          if(capital>=180000 && capital<190000)
            {
             volumeoper=loteinicial*36;
-            //volumemaximo=volumeinicial*36;
+            volumemaximo=volumeinicial*36;
            }
          if(capital>=190000 && capital<200000)
            {
             volumeoper=loteinicial*38;
-            //volumemaximo=volumeinicial*38;
+            volumemaximo=volumeinicial*38;
            }
          if(capital>=200000 && capital<210000)
            {
             volumeoper=loteinicial*40;
-            //volumemaximo=volumeinicial*40;
+            volumemaximo=volumeinicial*40;
            }
          if(capital>=210000 && capital<220000)
            {
             volumeoper=loteinicial*42;
-            //volumemaximo=volumeinicial*42;
+            volumemaximo=volumeinicial*42;
            }
          if(capital>=220000 && capital<230000)
            {
             volumeoper=loteinicial*44;
-            //volumemaximo=volumeinicial*44;
+            volumemaximo=volumeinicial*44;
            }
          if(capital>=230000 && capital<240000)
            {
             volumeoper=loteinicial*46;
-            //volumemaximo=volumeinicial*46;
+            volumemaximo=volumeinicial*46;
            }
          if(capital>=240000 && capital<250000)
            {
             volumeoper=loteinicial*48;
-            //volumemaximo=volumeinicial*48;
+            volumemaximo=volumeinicial*48;
            }
          if(capital>=250000 && capital<260000)
            {
             volumeoper=loteinicial*50;
-            //volumemaximo=volumeinicial*50;
+            volumemaximo=volumeinicial*50;
            }
          if(capital>=260000 && capital<270000)
            {
             volumeoper=loteinicial*52;
-            //volumemaximo=volumeinicial*52;
+            volumemaximo=volumeinicial*52;
            }
          if(capital>=270000 && capital<280000)
            {
             volumeoper=loteinicial*54;
-            //volumemaximo=volumeinicial*54;
+            volumemaximo=volumeinicial*54;
            }
          if(capital>=280000 && capital<290000)
            {
             volumeoper=loteinicial*56;
-            //volumemaximo=volumeinicial*56;
+            volumemaximo=volumeinicial*56;
            }
          if(capital>=290000 && capital<300000)
            {
             volumeoper=loteinicial*58;
-            //volumemaximo=volumeinicial*58;
+            volumemaximo=volumeinicial*58;
            }
          if(capital>=300000 && capital<310000)
            {
             volumeoper=loteinicial*60;
-            //volumemaximo=volumeinicial*60;
+            volumemaximo=volumeinicial*60;
            }
          if(capital>=310000 && capital<320000)
            {
             volumeoper=loteinicial*62;
-            //volumemaximo=volumeinicial*62;
+            volumemaximo=volumeinicial*62;
            }
          if(capital>=320000 && capital<330000)
            {
             volumeoper=loteinicial*64;
-            //volumemaximo=volumeinicial*64;
+            volumemaximo=volumeinicial*64;
            }
          if(capital>=330000 && capital<340000)
            {
             volumeoper=loteinicial*66;
-            //volumemaximo=volumeinicial*66;
+            volumemaximo=volumeinicial*66;
            }
          if(capital>=340000 && capital<350000)
            {
             volumeoper=loteinicial*68;
-            //volumemaximo=volumeinicial*68;
+            volumemaximo=volumeinicial*68;
            }
          if(capital>=350000 && capital<360000)
            {
             volumeoper=loteinicial*70;
-            //volumemaximo=volumeinicial*70;
+            volumemaximo=volumeinicial*70;
            }
          if(capital>=360000 && capital<370000)
            {
             volumeoper=loteinicial*72;
-            //volumemaximo=volumeinicial*72;
+            volumemaximo=volumeinicial*72;
            }
          if(capital>=370000 && capital<380000)
            {
             volumeoper=loteinicial*74;
-            //volumemaximo=volumeinicial*74;
+            volumemaximo=volumeinicial*74;
            }
          if(capital>=380000 && capital<390000)
            {
             volumeoper=loteinicial*76;
-            //volumemaximo=volumeinicial*76;
+            volumemaximo=volumeinicial*76;
            }
          if(capital>=390000 && capital<400000)
            {
             volumeoper=loteinicial*78;
-            //volumemaximo=volumeinicial*78;
+            volumemaximo=volumeinicial*78;
            }
          if(capital>=400000 && capital<410000)
            {
             volumeoper=loteinicial*80;
-            //volumemaximo=volumeinicial*80;
+            volumemaximo=volumeinicial*80;
            }
          if(capital>=410000 && capital<420000)
            {
             volumeoper=loteinicial*82;
-            //volumemaximo=volumeinicial*82;
+            volumemaximo=volumeinicial*82;
            }
          if(capital>=420000 && capital<430000)
            {
             volumeoper=loteinicial*84;
-            //volumemaximo=volumeinicial*84;
+            volumemaximo=volumeinicial*84;
            }
          if(capital>=430000 && capital<440000)
            {
             volumeoper=loteinicial*86;
-            //volumemaximo=volumeinicial*86;
+            volumemaximo=volumeinicial*86;
            }
          if(capital>=440000 && capital<450000)
            {
             volumeoper=loteinicial*88;
-            //volumemaximo=volumeinicial*88;
+            volumemaximo=volumeinicial*88;
            }
          if(capital>=450000 && capital<460000)
            {
             volumeoper=loteinicial*90;
-            //volumemaximo=volumeinicial*90;
+            volumemaximo=volumeinicial*90;
            }
          if(capital>=460000 && capital<470000)
            {
             volumeoper=loteinicial*92;
-            //volumemaximo=volumeinicial*92;
+            volumemaximo=volumeinicial*92;
            }
          if(capital>=470000 && capital<480000)
            {
             volumeoper=loteinicial*94;
-            //volumemaximo=volumeinicial*94;
+            volumemaximo=volumeinicial*94;
            }
          if(capital>=480000 && capital<490000)
            {
             volumeoper=loteinicial*96;
-            //volumemaximo=volumeinicial*96;
+            volumemaximo=volumeinicial*96;
            }
          if(capital>=490000 && capital<500000)
            {
             volumeoper=loteinicial*98;
-            //volumemaximo=volumeinicial*98;
+            volumemaximo=volumeinicial*98;
            }
          if(capital>=500000 && capital<510000)
            {
             volumeoper=loteinicial*100;
-            //volumemaximo=volumeinicial*100;
+            volumemaximo=volumeinicial*100;
            }
          if(capital>=510000 && capital<520000)
            {
             volumeoper=loteinicial*102;
-            //volumemaximo=volumeinicial*102;
+            volumemaximo=volumeinicial*102;
            }
          if(capital>=520000 && capital<530000)
            {
             volumeoper=loteinicial*104;
-            //volumemaximo=volumeinicial*104;
+            volumemaximo=volumeinicial*104;
            }
          if(capital>=530000 && capital<540000)
            {
             volumeoper=loteinicial*106;
-            //volumemaximo=volumeinicial*106;
+            volumemaximo=volumeinicial*106;
            }
          if(capital>=540000 && capital<550000)
            {
             volumeoper=loteinicial*108;
-            //volumemaximo=volumeinicial*108;
+            volumemaximo=volumeinicial*108;
            }
          if(capital>=550000 && capital<560000)
            {
             volumeoper=loteinicial*110;
-            //volumemaximo=volumeinicial*110;
+            volumemaximo=volumeinicial*110;
            }
          if(capital>=560000 && capital<570000)
            {
             volumeoper=loteinicial*112;
-            //volumemaximo=volumeinicial*112;
+            volumemaximo=volumeinicial*112;
            }
          if(capital>=570000 && capital<580000)
            {
             volumeoper=loteinicial*114;
-            //volumemaximo=volumeinicial*114;
+            volumemaximo=volumeinicial*114;
            }
          if(capital>=580000 && capital<590000)
            {
             volumeoper=loteinicial*116;
-            //volumemaximo=volumeinicial*116;
+            volumemaximo=volumeinicial*116;
            }
          if(capital>=590000 && capital<600000)
            {
             volumeoper=loteinicial*118;
-            //volumemaximo=volumeinicial*118;
+            volumemaximo=volumeinicial*118;
            }
          if(capital>=600000 && capital<610000)
            {
             volumeoper=loteinicial*120;
-            //volumemaximo=volumeinicial*120;
+            volumemaximo=volumeinicial*120;
            }
          if(capital>=610000 && capital<620000)
            {
             volumeoper=loteinicial*122;
-            //volumemaximo=volumeinicial*122;
+            volumemaximo=volumeinicial*122;
            }
          if(capital>=620000 && capital<630000)
            {
             volumeoper=loteinicial*124;
-            //volumemaximo=volumeinicial*124;
+            volumemaximo=volumeinicial*124;
            }
          if(capital>=630000 && capital<640000)
            {
             volumeoper=loteinicial*126;
-            //volumemaximo=volumeinicial*126;
+            volumemaximo=volumeinicial*126;
            }
          if(capital>=640000 && capital<650000)
            {
             volumeoper=loteinicial*128;
-            //volumemaximo=volumeinicial*128;
+            volumemaximo=volumeinicial*128;
            }
          if(capital>=650000 && capital<660000)
            {
             volumeoper=loteinicial*130;
-            //volumemaximo=volumeinicial*130;
+            volumemaximo=volumeinicial*130;
            }
          if(capital>=660000 && capital<670000)
            {
             volumeoper=loteinicial*132;
-            //volumemaximo=volumeinicial*132;
+            volumemaximo=volumeinicial*132;
            }
          if(capital>=670000 && capital<680000)
            {
             volumeoper=loteinicial*134;
-            //volumemaximo=volumeinicial*134;
+            volumemaximo=volumeinicial*134;
            }
          if(capital>=680000 && capital<690000)
            {
             volumeoper=loteinicial*136;
-            //volumemaximo=volumeinicial*136;
+            volumemaximo=volumeinicial*136;
            }
          if(capital>=690000 && capital<700000)
            {
             volumeoper=loteinicial*138;
-            //volumemaximo=volumeinicial*138;
+            volumemaximo=volumeinicial*138;
            }
          if(capital>=700000 && capital<710000)
            {
             volumeoper=loteinicial*140;
-            //volumemaximo=volumeinicial*140;
+            volumemaximo=volumeinicial*140;
            }
          if(capital>=710000 && capital<720000)
            {
             volumeoper=loteinicial*142;
-            //volumemaximo=volumeinicial*142;
+            volumemaximo=volumeinicial*142;
            }
          if(capital>=720000 && capital<730000)
            {
             volumeoper=loteinicial*144;
-            //volumemaximo=volumeinicial*144;
+            volumemaximo=volumeinicial*144;
            }
          if(capital>=730000 && capital<740000)
            {
             volumeoper=loteinicial*146;
-            //volumemaximo=volumeinicial*146;
+            volumemaximo=volumeinicial*146;
            }
          if(capital>=740000 && capital<750000)
            {
             volumeoper=loteinicial*148;
-            //volumemaximo=volumeinicial*148;
+            volumemaximo=volumeinicial*148;
            }
          if(capital>=750000 && capital<760000)
            {
             volumeoper=loteinicial*150;
-            //volumemaximo=volumeinicial*150;
+            volumemaximo=volumeinicial*150;
            }
          if(capital>=760000 && capital<770000)
            {
             volumeoper=loteinicial*152;
-            //volumemaximo=volumeinicial*152;
+            volumemaximo=volumeinicial*152;
            }
          if(capital>=770000 && capital<780000)
            {
             volumeoper=loteinicial*154;
-            //volumemaximo=volumeinicial*154;
+            volumemaximo=volumeinicial*154;
            }
          if(capital>=780000 && capital<790000)
            {
             volumeoper=loteinicial*156;
-            //volumemaximo=volumeinicial*156;
+            volumemaximo=volumeinicial*156;
            }
          if(capital>=790000 && capital<800000)
            {
             volumeoper=loteinicial*158;
-            //volumemaximo=volumeinicial*158;
+            volumemaximo=volumeinicial*158;
            }
          if(capital>=800000 && capital<810000)
            {
             volumeoper=loteinicial*160;
-            //volumemaximo=volumeinicial*160;
+            volumemaximo=volumeinicial*160;
            }
          if(capital>=810000 && capital<820000)
            {
             volumeoper=loteinicial*162;
-            //volumemaximo=volumeinicial*162;
+            volumemaximo=volumeinicial*162;
            }
          if(capital>=820000 && capital<830000)
            {
             volumeoper=loteinicial*164;
-            //volumemaximo=volumeinicial*164;
+            volumemaximo=volumeinicial*164;
            }
          if(capital>=830000 && capital<840000)
            {
             volumeoper=loteinicial*166;
-            //volumemaximo=volumeinicial*166;
+            volumemaximo=volumeinicial*166;
            }
          if(capital>=840000 && capital<850000)
            {
             volumeoper=loteinicial*168;
-            //volumemaximo=volumeinicial*168;
+            volumemaximo=volumeinicial*168;
            }
          if(capital>=850000 && capital<860000)
            {
             volumeoper=loteinicial*170;
-            //volumemaximo=volumeinicial*170;
+            volumemaximo=volumeinicial*170;
            }
          if(capital>=860000 && capital<870000)
            {
             volumeoper=loteinicial*172;
-            //volumemaximo=volumeinicial*172;
+            volumemaximo=volumeinicial*172;
            }
          if(capital>=870000 && capital<880000)
            {
             volumeoper=loteinicial*174;
-            //volumemaximo=volumeinicial*174;
+            volumemaximo=volumeinicial*174;
            }
          if(capital>=880000 && capital<890000)
            {
             volumeoper=loteinicial*176;
-            //volumemaximo=volumeinicial*176;
+            volumemaximo=volumeinicial*176;
            }
          if(capital>=890000 && capital<900000)
            {
             volumeoper=loteinicial*178;
-            //volumemaximo=volumeinicial*178;
+            volumemaximo=volumeinicial*178;
            }
          if(capital>=900000 && capital<910000)
            {
             volumeoper=loteinicial*180;
-            //volumemaximo=volumeinicial*80;
+            volumemaximo=volumeinicial*80;
            }
          if(capital>=910000 && capital<920000)
            {
             volumeoper=loteinicial*182;
-            //volumemaximo=volumeinicial*182;
+            volumemaximo=volumeinicial*182;
            }
          if(capital>=920000 && capital<930000)
            {
             volumeoper=loteinicial*184;
-            //volumemaximo=volumeinicial*184;
+            volumemaximo=volumeinicial*184;
            }
          if(capital>=930000 && capital<940000)
            {
             volumeoper=loteinicial*186;
-            //volumemaximo=volumeinicial*186;
+            volumemaximo=volumeinicial*186;
            }
          if(capital>=940000 && capital<950000)
            {
             volumeoper=loteinicial*188;
-            //volumemaximo=volumeinicial*188;
+            volumemaximo=volumeinicial*188;
            }
          if(capital>=950000 && capital<960000)
            {
             volumeoper=loteinicial*190;
-            //volumemaximo=volumeinicial*190;
+            volumemaximo=volumeinicial*190;
            }
          if(capital>=960000 && capital<970000)
            {
             volumeoper=loteinicial*192;
-            //volumemaximo=volumeinicial*192;
+            volumemaximo=volumeinicial*192;
            }
          if(capital>=970000 && capital<980000)
            {
             volumeoper=loteinicial*194;
-            //volumemaximo=volumeinicial*194;
+            volumemaximo=volumeinicial*194;
            }
          if(capital>=980000 && capital<990000)
            {
             volumeoper=loteinicial*196;
-            //volumemaximo=volumeinicial*196;
+            volumemaximo=volumeinicial*196;
            }
          if(capital>=990000 && capital<1000000)
            {
             volumeoper=loteinicial*198;
-            //volumemaximo=volumeinicial*198;
+            volumemaximo=volumeinicial*198;
            }
          if(capital>=1000000 && capital<1010000)
            {
             volumeoper=loteinicial*200;
-            //volumemaximo=volumeinicial*200;
+            volumemaximo=volumeinicial*200;
            }
          if(capital>=1010000 && capital<1020000)
            {
             volumeoper=loteinicial*202;
-            //volumemaximo=volumeinicial*202;
+            volumemaximo=volumeinicial*202;
            }
          if(capital>=1020000 && capital<1030000)
            {
             volumeoper=loteinicial*204;
-            //volumemaximo=volumeinicial*204;
+            volumemaximo=volumeinicial*204;
            }
          if(capital>=1030000 && capital<1040000)
            {
             volumeoper=loteinicial*206;
-            //volumemaximo=volumeinicial*206;
+            volumemaximo=volumeinicial*206;
            }
          if(capital>=1040000 && capital<1050000)
            {
             volumeoper=loteinicial*208;
-            //volumemaximo=volumeinicial*208;
+            volumemaximo=volumeinicial*208;
            }
          if(capital>=1050000 && capital<1060000)
            {
             volumeoper=loteinicial*210;
-            //volumemaximo=volumeinicial*210;
+            volumemaximo=volumeinicial*210;
            }
          if(capital>=1060000 && capital<1070000)
            {
             volumeoper=loteinicial*212;
-            //volumemaximo=volumeinicial*212;
+            volumemaximo=volumeinicial*212;
            }
          if(capital>=1070000 && capital<1080000)
            {
             volumeoper=loteinicial*214;
-            //volumemaximo=volumeinicial*214;
+            volumemaximo=volumeinicial*214;
            }
          if(capital>=1080000 && capital<1090000)
            {
             volumeoper=loteinicial*216;
-            //volumemaximo=volumeinicial*216;
+            volumemaximo=volumeinicial*216;
            }
          if(capital>=1090000 && capital<1100000)
            {
             volumeoper=loteinicial*218;
-            //volumemaximo=volumeinicial*218;
+            volumemaximo=volumeinicial*218;
            }
          if(capital>=1100000 && capital<1110000)
            {
             volumeoper=loteinicial*220;
-            //volumemaximo=volumeinicial*220;
+            volumemaximo=volumeinicial*220;
            }
          if(capital>=1110000 && capital<1120000)
            {
             volumeoper=loteinicial*222;
-            //volumemaximo=volumeinicial*222;
+            volumemaximo=volumeinicial*222;
            }
          if(capital>=1120000 && capital<1130000)
            {
             volumeoper=loteinicial*224;
-            //volumemaximo=volumeinicial*224;
+            volumemaximo=volumeinicial*224;
            }
          if(capital>=1130000 && capital<1140000)
            {
             volumeoper=loteinicial*226;
-            //volumemaximo=volumeinicial*226;
+            volumemaximo=volumeinicial*226;
            }
          if(capital>=1140000 && capital<1150000)
            {
             volumeoper=loteinicial*228;
-            //volumemaximo=volumeinicial*228;
+            volumemaximo=volumeinicial*228;
            }
          if(capital>=1150000 && capital<1160000)
            {
             volumeoper=loteinicial*230;
-            //volumemaximo=volumeinicial*230;
+            volumemaximo=volumeinicial*230;
            }
          if(capital>=1160000 && capital<1170000)
            {
             volumeoper=loteinicial*232;
-            //volumemaximo=volumeinicial*232;
+            volumemaximo=volumeinicial*232;
            }
          if(capital>=1170000 && capital<1180000)
            {
             volumeoper=loteinicial*234;
-            //volumemaximo=volumeinicial*234;
+            volumemaximo=volumeinicial*234;
            }
          if(capital>=1180000 && capital<1190000)
            {
             volumeoper=loteinicial*236;
-            //volumemaximo=volumeinicial*236;
+            volumemaximo=volumeinicial*236;
            }
          if(capital>=1190000 && capital<1200000)
            {
             volumeoper=loteinicial*238;
-            //volumemaximo=volumeinicial*238;
+            volumemaximo=volumeinicial*238;
            }
          if(capital>=1200000 && capital<1210000)
            {
             volumeoper=loteinicial*240;
-            //volumemaximo=volumeinicial*240;
+            volumemaximo=volumeinicial*240;
            }
          if(capital>=1210000 && capital<1220000)
            {
             volumeoper=loteinicial*242;
-            //volumemaximo=volumeinicial*242;
+            volumemaximo=volumeinicial*242;
            }
          if(capital>=1220000 && capital<1230000)
            {
             volumeoper=loteinicial*244;
-            //volumemaximo=volumeinicial*244;
+            volumemaximo=volumeinicial*244;
            }
          if(capital>=1230000 && capital<1240000)
            {
             volumeoper=loteinicial*246;
-            //volumemaximo=volumeinicial*246;
+            volumemaximo=volumeinicial*246;
            }
          if(capital>=1240000 && capital<1250000)
            {
             volumeoper=loteinicial*248;
-            //volumemaximo=volumeinicial*248;
+            volumemaximo=volumeinicial*248;
            }
          if(capital>=1250000 && capital<1260000)
            {
             volumeoper=loteinicial*250;
-            //volumemaximo=volumeinicial*250;
+            volumemaximo=volumeinicial*250;
            }
          if(capital>=1260000 && capital<1270000)
            {
             volumeoper=loteinicial*252;
-            //volumemaximo=volumeinicial*252;
+            volumemaximo=volumeinicial*252;
            }
          if(capital>=1270000 && capital<1280000)
            {
             volumeoper=loteinicial*254;
-            //volumemaximo=volumeinicial*254;
+            volumemaximo=volumeinicial*254;
            }
          if(capital>=1280000 && capital<1290000)
            {
             volumeoper=loteinicial*256;
-            //volumemaximo=volumeinicial*256;
+            volumemaximo=volumeinicial*256;
            }
          if(capital>=1290000 && capital<1300000)
            {
             volumeoper=loteinicial*258;
-            //volumemaximo=volumeinicial*258;
+            volumemaximo=volumeinicial*258;
            }
          if(capital>=1300000 && capital<1310000)
            {
             volumeoper=loteinicial*260;
-            //volumemaximo=volumeinicial*260;
+            volumemaximo=volumeinicial*260;
            }
          if(capital>=1310000 && capital<1320000)
            {
             volumeoper=loteinicial*262;
-            //volumemaximo=volumeinicial*262;
+            volumemaximo=volumeinicial*262;
            }
          if(capital>=1320000 && capital<1330000)
            {
             volumeoper=loteinicial*264;
-            //volumemaximo=volumeinicial*264;
+            volumemaximo=volumeinicial*264;
            }
          if(capital>=1330000 && capital<1340000)
            {
             volumeoper=loteinicial*266;
-            //volumemaximo=volumeinicial*266;
+            volumemaximo=volumeinicial*266;
            }
          if(capital>=1340000 && capital<1350000)
            {
             volumeoper=loteinicial*268;
-            //volumemaximo=volumeinicial*268;
+            volumemaximo=volumeinicial*268;
            }
          if(capital>=1350000 && capital<1360000)
            {
             volumeoper=loteinicial*270;
-            //volumemaximo=volumeinicial*270;
+            volumemaximo=volumeinicial*270;
            }
          if(capital>=1360000 && capital<1370000)
            {
             volumeoper=loteinicial*272;
-            //volumemaximo=volumeinicial*272;
+            volumemaximo=volumeinicial*272;
            }
          if(capital>=1370000 && capital<1380000)
            {
             volumeoper=loteinicial*274;
-            //volumemaximo=volumeinicial*274;
+            volumemaximo=volumeinicial*274;
            }
          if(capital>=1380000 && capital<1390000)
            {
             volumeoper=loteinicial*276;
-            //volumemaximo=volumeinicial*276;
+            volumemaximo=volumeinicial*276;
            }
          if(capital>=1390000 && capital<1400000)
            {
             volumeoper=loteinicial*278;
-            //volumemaximo=volumeinicial*278;
+            volumemaximo=volumeinicial*278;
            }
          if(capital>=1400000 && capital<1410000)
            {
             volumeoper=loteinicial*280;
-            //volumemaximo=volumeinicial*280;
+            volumemaximo=volumeinicial*280;
            }
          if(capital>=1410000 && capital<1420000)
            {
             volumeoper=loteinicial*282;
-            //volumemaximo=volumeinicial*282;
+            volumemaximo=volumeinicial*282;
            }
          if(capital>=1420000 && capital<1430000)
            {
             volumeoper=loteinicial*284;
-            //volumemaximo=volumeinicial*284;
+            volumemaximo=volumeinicial*284;
            }
          if(capital>=1430000 && capital<1440000)
            {
             volumeoper=loteinicial*286;
-            //volumemaximo=volumeinicial*286;
+            volumemaximo=volumeinicial*286;
            }
          if(capital>=1440000 && capital<1450000)
            {
             volumeoper=loteinicial*288;
-            //volumemaximo=volumeinicial*288;
+            volumemaximo=volumeinicial*288;
            }
          if(capital>=1450000 && capital<1460000)
            {
             volumeoper=loteinicial*290;
-            //volumemaximo=volumeinicial*290;
+            volumemaximo=volumeinicial*290;
            }
          if(capital>=1460000 && capital<1470000)
            {
             volumeoper=loteinicial*292;
-            //volumemaximo=volumeinicial*292;
+            volumemaximo=volumeinicial*292;
            }
          if(capital>=1470000 && capital<1480000)
            {
             volumeoper=loteinicial*294;
-            //volumemaximo=volumeinicial*294;
+            volumemaximo=volumeinicial*294;
            }
          if(capital>=1480000 && capital<1490000)
            {
             volumeoper=loteinicial*296;
-            //volumemaximo=volumeinicial*296;
+            volumemaximo=volumeinicial*296;
            }
          if(capital>=1490000 && capital<1500000)
            {
             volumeoper=loteinicial*298;
-            //volumemaximo=volumeinicial*298;
+            volumemaximo=volumeinicial*298;
            }
          if(capital>=1500000 && capital<1510000)
            {
             volumeoper=loteinicial*300;
-            //volumemaximo=volumeinicial*300;
+            volumemaximo=volumeinicial*300;
            }
          if(capital>=1510000 && capital<1520000)
            {
             volumeoper=loteinicial*302;
-            //volumemaximo=volumeinicial*302;
+            volumemaximo=volumeinicial*302;
            }
          if(capital>=1520000 && capital<1530000)
            {
             volumeoper=loteinicial*304;
-            //volumemaximo=volumeinicial*304;
+            volumemaximo=volumeinicial*304;
            }
          if(capital>=1530000 && capital<1540000)
            {
             volumeoper=loteinicial*306;
-            //volumemaximo=volumeinicial*306;
+            volumemaximo=volumeinicial*306;
            }
          if(capital>=1540000 && capital<1550000)
            {
             volumeoper=loteinicial*308;
-            //volumemaximo=volumeinicial*308;
+            volumemaximo=volumeinicial*308;
            }
          if(capital>=1550000 && capital<1560000)
            {
             volumeoper=loteinicial*310;
-            //volumemaximo=volumeinicial*310;
+            volumemaximo=volumeinicial*310;
            }
          if(capital>=1560000 && capital<1570000)
            {
             volumeoper=loteinicial*312;
-            //volumemaximo=volumeinicial*312;
+            volumemaximo=volumeinicial*312;
            }
          if(capital>=1570000 && capital<1580000)
            {
             volumeoper=loteinicial*314;
-            //volumemaximo=volumeinicial*314;
+            volumemaximo=volumeinicial*314;
            }
          if(capital>=1580000 && capital<1590000)
            {
             volumeoper=loteinicial*316;
-            //volumemaximo=volumeinicial*316;
+            volumemaximo=volumeinicial*316;
            }
          if(capital>=1590000 && capital<1600000)
            {
             volumeoper=loteinicial*318;
-            //volumemaximo=volumeinicial*318;
+            volumemaximo=volumeinicial*318;
            }
          if(capital>=1600000 && capital<1610000)
            {
             volumeoper=loteinicial*320;
-            //volumemaximo=volumeinicial*320;
+            volumemaximo=volumeinicial*320;
            }
          if(capital>=1610000 && capital<1620000)
            {
             volumeoper=loteinicial*322;
-            //volumemaximo=volumeinicial*322;
+            volumemaximo=volumeinicial*322;
            }
          if(capital>=1620000 && capital<1630000)
            {
             volumeoper=loteinicial*324;
-            //volumemaximo=volumeinicial*324;
+            volumemaximo=volumeinicial*324;
            }
          if(capital>=1630000 && capital<1640000)
            {
             volumeoper=loteinicial*326;
-            //volumemaximo=volumeinicial*326;
+            volumemaximo=volumeinicial*326;
            }
          if(capital>=1640000 && capital<1650000)
            {
             volumeoper=loteinicial*328;
-            //volumemaximo=volumeinicial*328;
+            volumemaximo=volumeinicial*328;
            }
          if(capital>=1650000 && capital<1660000)
            {
             volumeoper=loteinicial*330;
-            //volumemaximo=volumeinicial*330;
+            volumemaximo=volumeinicial*330;
            }
          if(capital>=1660000 && capital<1670000)
            {
             volumeoper=loteinicial*332;
-            //volumemaximo=volumeinicial*332;
+            volumemaximo=volumeinicial*332;
            }
          if(capital>=1670000 && capital<1680000)
            {
             volumeoper=loteinicial*334;
-            //volumemaximo=volumeinicial*334;
+            volumemaximo=volumeinicial*334;
            }
          if(capital>=1680000 && capital<1690000)
            {
             volumeoper=loteinicial*336;
-            //volumemaximo=volumeinicial*336;
+            volumemaximo=volumeinicial*336;
            }
          if(capital>=1690000 && capital<1700000)
            {
             volumeoper=loteinicial*338;
-            //volumemaximo=volumeinicial*338;
+            volumemaximo=volumeinicial*338;
            }
          if(capital>=1700000 && capital<1710000)
            {
             volumeoper=loteinicial*340;
-            //volumemaximo=volumeinicial*340;
+            volumemaximo=volumeinicial*340;
            }
          if(capital>=1710000 && capital<1720000)
            {
             volumeoper=loteinicial*342;
-            //volumemaximo=volumeinicial*342;
+            volumemaximo=volumeinicial*342;
            }
          if(capital>=1720000 && capital<1730000)
            {
             volumeoper=loteinicial*344;
-            //volumemaximo=volumeinicial*344;
+            volumemaximo=volumeinicial*344;
            }
          if(capital>=1730000 && capital<1740000)
            {
             volumeoper=loteinicial*346;
-            //volumemaximo=volumeinicial*346;
+            volumemaximo=volumeinicial*346;
            }
          if(capital>=1740000 && capital<1750000)
            {
             volumeoper=loteinicial*348;
-            //volumemaximo=volumeinicial*348;
+            volumemaximo=volumeinicial*348;
            }
          if(capital>=1750000 && capital<1760000)
            {
             volumeoper=loteinicial*350;
-            //volumemaximo=volumeinicial*350;
+            volumemaximo=volumeinicial*350;
            }
          if(capital>=1760000 && capital<1770000)
            {
             volumeoper=loteinicial*352;
-            //volumemaximo=volumeinicial*352;
+            volumemaximo=volumeinicial*352;
            }
          if(capital>=1770000 && capital<1780000)
            {
             volumeoper=loteinicial*354;
-            //volumemaximo=volumeinicial*354;
+            volumemaximo=volumeinicial*354;
            }
          if(capital>=1780000 && capital<1790000)
            {
             volumeoper=loteinicial*356;
-            //volumemaximo=volumeinicial*356;
+            volumemaximo=volumeinicial*356;
            }
          if(capital>=1790000 && capital<1800000)
            {
             volumeoper=loteinicial*358;
-            //volumemaximo=volumeinicial*358;
+            volumemaximo=volumeinicial*358;
            }
          if(capital>=1800000 && capital<1810000)
            {
             volumeoper=loteinicial*360;
-            //volumemaximo=volumeinicial*360;
+            volumemaximo=volumeinicial*360;
            }
          if(capital>=1810000 && capital<1820000)
            {
             volumeoper=loteinicial*362;
-            //volumemaximo=volumeinicial*362;
+            volumemaximo=volumeinicial*362;
            }
          if(capital>=1820000 && capital<1830000)
            {
             volumeoper=loteinicial*364;
-            //volumemaximo=volumeinicial*364;
+            volumemaximo=volumeinicial*364;
            }
          if(capital>=1830000 && capital<1840000)
            {
             volumeoper=loteinicial*366;
-            //volumemaximo=volumeinicial*366;
+            volumemaximo=volumeinicial*366;
            }
          if(capital>=1840000 && capital<1850000)
            {
             volumeoper=loteinicial*368;
-            //volumemaximo=volumeinicial*368;
+            volumemaximo=volumeinicial*368;
            }
          if(capital>=1850000 && capital<1860000)
            {
             volumeoper=loteinicial*370;
-            //volumemaximo=volumeinicial*370;
+            volumemaximo=volumeinicial*370;
            }
          if(capital>=1860000 && capital<1870000)
            {
             volumeoper=loteinicial*372;
-            //volumemaximo=volumeinicial*372;
+            volumemaximo=volumeinicial*372;
            }
          if(capital>=1870000 && capital<1880000)
            {
             volumeoper=loteinicial*374;
-            //volumemaximo=volumeinicial*374;
+            volumemaximo=volumeinicial*374;
            }
          if(capital>=1880000 && capital<1890000)
            {
             volumeoper=loteinicial*376;
-            //volumemaximo=volumeinicial*376;
+            volumemaximo=volumeinicial*376;
            }
          if(capital>=1890000 && capital<1900000)
            {
             volumeoper=loteinicial*378;
-            //volumemaximo=volumeinicial*378;
+            volumemaximo=volumeinicial*378;
            }
          if(capital>=1900000 && capital<1910000)
            {
             volumeoper=loteinicial*380;
-            //volumemaximo=volumeinicial*80;
+            volumemaximo=volumeinicial*80;
            }
          if(capital>=1910000 && capital<1920000)
            {
             volumeoper=loteinicial*382;
-            //volumemaximo=volumeinicial*382;
+            volumemaximo=volumeinicial*382;
            }
          if(capital>=1920000 && capital<1930000)
            {
             volumeoper=loteinicial*384;
-            //volumemaximo=volumeinicial*384;
+            volumemaximo=volumeinicial*384;
            }
          if(capital>=1930000 && capital<1940000)
            {
             volumeoper=loteinicial*386;
-            //volumemaximo=volumeinicial*386;
+            volumemaximo=volumeinicial*386;
            }
          if(capital>=1940000 && capital<1950000)
            {
             volumeoper=loteinicial*388;
-            //volumemaximo=volumeinicial*388;
+            volumemaximo=volumeinicial*388;
            }
          if(capital>=1950000 && capital<1960000)
            {
             volumeoper=loteinicial*390;
-            //volumemaximo=volumeinicial*390;
+            volumemaximo=volumeinicial*390;
            }
          if(capital>=1960000 && capital<1970000)
            {
             volumeoper=loteinicial*392;
-            //volumemaximo=volumeinicial*392;
+            volumemaximo=volumeinicial*392;
            }
          if(capital>=1970000 && capital<1980000)
            {
             volumeoper=loteinicial*394;
-            //volumemaximo=volumeinicial*394;
+            volumemaximo=volumeinicial*394;
            }
          if(capital>=1980000 && capital<1990000)
            {
             volumeoper=loteinicial*396;
-            //volumemaximo=volumeinicial*396;
+            volumemaximo=volumeinicial*396;
            }
          if(capital>=1990000 && capital<2000000)
            {
             volumeoper=loteinicial*398;
-            //volumemaximo=volumeinicial*398;
+            volumemaximo=volumeinicial*398;
            }
-
          if(capital>=2000000 && capital<2010000)
            {
             volumeoper=loteinicial*400;
-            //volumemaximo=volumeinicial*400;
+            volumemaximo=volumeinicial*400;
            }
          if(capital>=2010000 && capital<2020000)
            {
             volumeoper=loteinicial*402;
-            //volumemaximo=volumeinicial*402;
+            volumemaximo=volumeinicial*402;
            }
          if(capital>=2020000 && capital<2030000)
            {
             volumeoper=loteinicial*404;
-            //volumemaximo=volumeinicial*404;
+            volumemaximo=volumeinicial*404;
            }
          if(capital>=2030000 && capital<2040000)
            {
             volumeoper=loteinicial*406;
-            //volumemaximo=volumeinicial*406;
+            volumemaximo=volumeinicial*406;
            }
          if(capital>=2040000 && capital<2050000)
            {
             volumeoper=loteinicial*408;
-            //volumemaximo=volumeinicial*408;
+            volumemaximo=volumeinicial*408;
            }
          if(capital>=2050000 && capital<2060000)
            {
             volumeoper=loteinicial*410;
-            //volumemaximo=volumeinicial*410;
+            volumemaximo=volumeinicial*410;
            }
          if(capital>=2060000 && capital<2070000)
            {
             volumeoper=loteinicial*412;
-            //volumemaximo=volumeinicial*412;
+            volumemaximo=volumeinicial*412;
            }
          if(capital>=2070000 && capital<2080000)
            {
             volumeoper=loteinicial*414;
-            //volumemaximo=volumeinicial*414;
+            volumemaximo=volumeinicial*414;
            }
          if(capital>=2080000 && capital<2090000)
            {
             volumeoper=loteinicial*416;
-            //volumemaximo=volumeinicial*416;
+            volumemaximo=volumeinicial*416;
            }
          if(capital>=2090000 && capital<2100000)
            {
             volumeoper=loteinicial*418;
-            //volumemaximo=volumeinicial*418;
+            volumemaximo=volumeinicial*418;
            }
          if(capital>=2100000 && capital<2110000)
            {
             volumeoper=loteinicial*420;
-            //volumemaximo=volumeinicial*420;
+            volumemaximo=volumeinicial*420;
            }
          if(capital>=2110000 && capital<2120000)
            {
             volumeoper=loteinicial*422;
-            //volumemaximo=volumeinicial*422;
+            volumemaximo=volumeinicial*422;
            }
          if(capital>=2120000 && capital<2130000)
            {
             volumeoper=loteinicial*424;
-            //volumemaximo=volumeinicial*424;
+            volumemaximo=volumeinicial*424;
            }
          if(capital>=2130000 && capital<2140000)
            {
             volumeoper=loteinicial*426;
-            //volumemaximo=volumeinicial*426;
+            volumemaximo=volumeinicial*426;
            }
          if(capital>=2140000 && capital<2150000)
            {
             volumeoper=loteinicial*428;
-            //volumemaximo=volumeinicial*428;
+            volumemaximo=volumeinicial*428;
            }
          if(capital>=2150000 && capital<2160000)
            {
             volumeoper=loteinicial*430;
-            //volumemaximo=volumeinicial*430;
+            volumemaximo=volumeinicial*430;
            }
          if(capital>=2160000 && capital<2170000)
            {
             volumeoper=loteinicial*432;
-            //volumemaximo=volumeinicial*432;
+            volumemaximo=volumeinicial*432;
            }
          if(capital>=2170000 && capital<2180000)
            {
             volumeoper=loteinicial*434;
-            //volumemaximo=volumeinicial*434;
+            volumemaximo=volumeinicial*434;
            }
          if(capital>=2180000 && capital<2190000)
            {
             volumeoper=loteinicial*436;
-            //volumemaximo=volumeinicial*436;
+            volumemaximo=volumeinicial*436;
            }
          if(capital>=2190000 && capital<2200000)
            {
             volumeoper=loteinicial*438;
-            //volumemaximo=volumeinicial*438;
+            volumemaximo=volumeinicial*438;
            }
          if(capital>=2200000 && capital<2210000)
            {
             volumeoper=loteinicial*440;
-            //volumemaximo=volumeinicial*440;
+            volumemaximo=volumeinicial*440;
            }
          if(capital>=2210000 && capital<2220000)
            {
             volumeoper=loteinicial*442;
-            //volumemaximo=volumeinicial*442;
+            volumemaximo=volumeinicial*442;
            }
          if(capital>=2220000 && capital<2230000)
            {
             volumeoper=loteinicial*444;
-            //volumemaximo=volumeinicial*444;
+            volumemaximo=volumeinicial*444;
            }
          if(capital>=2230000 && capital<2240000)
            {
             volumeoper=loteinicial*446;
-            //volumemaximo=volumeinicial*446;
+            volumemaximo=volumeinicial*446;
            }
          if(capital>=2240000 && capital<2250000)
            {
             volumeoper=loteinicial*448;
-            //volumemaximo=volumeinicial*448;
+            volumemaximo=volumeinicial*448;
            }
          if(capital>=2250000 && capital<2260000)
            {
             volumeoper=loteinicial*450;
-            //volumemaximo=volumeinicial*450;
+            volumemaximo=volumeinicial*450;
            }
          if(capital>=2260000 && capital<2270000)
            {
             volumeoper=loteinicial*452;
-            //volumemaximo=volumeinicial*452;
+            volumemaximo=volumeinicial*452;
            }
          if(capital>=2270000 && capital<2280000)
            {
             volumeoper=loteinicial*454;
-            //volumemaximo=volumeinicial*454;
+            volumemaximo=volumeinicial*454;
            }
          if(capital>=2280000 && capital<2290000)
            {
             volumeoper=loteinicial*456;
-            //volumemaximo=volumeinicial*456;
+            volumemaximo=volumeinicial*456;
            }
          if(capital>=2290000 && capital<2300000)
            {
             volumeoper=loteinicial*458;
-            //volumemaximo=volumeinicial*458;
+            volumemaximo=volumeinicial*458;
            }
          if(capital>=2300000 && capital<2310000)
            {
             volumeoper=loteinicial*460;
-            //volumemaximo=volumeinicial*460;
+            volumemaximo=volumeinicial*460;
            }
          if(capital>=2310000 && capital<2320000)
            {
             volumeoper=loteinicial*462;
-            //volumemaximo=volumeinicial*462;
+            volumemaximo=volumeinicial*462;
            }
          if(capital>=2320000 && capital<2330000)
            {
             volumeoper=loteinicial*464;
-            //volumemaximo=volumeinicial*464;
+            volumemaximo=volumeinicial*464;
            }
          if(capital>=2330000 && capital<2340000)
            {
             volumeoper=loteinicial*466;
-            //volumemaximo=volumeinicial*466;
+            volumemaximo=volumeinicial*466;
            }
          if(capital>=2340000 && capital<2350000)
            {
             volumeoper=loteinicial*468;
-            //volumemaximo=volumeinicial*468;
+            volumemaximo=volumeinicial*468;
            }
          if(capital>=2350000 && capital<2360000)
            {
             volumeoper=loteinicial*470;
-            //volumemaximo=volumeinicial*470;
+            volumemaximo=volumeinicial*470;
            }
          if(capital>=2360000 && capital<2370000)
            {
             volumeoper=loteinicial*472;
-            //volumemaximo=volumeinicial*472;
+            volumemaximo=volumeinicial*472;
            }
          if(capital>=2370000 && capital<2380000)
            {
             volumeoper=loteinicial*474;
-            //volumemaximo=volumeinicial*474;
+            volumemaximo=volumeinicial*474;
            }
          if(capital>=2380000 && capital<2390000)
            {
             volumeoper=loteinicial*476;
-            //volumemaximo=volumeinicial*476;
+            volumemaximo=volumeinicial*476;
            }
          if(capital>=2390000 && capital<2400000)
            {
             volumeoper=loteinicial*478;
-            //volumemaximo=volumeinicial*478;
+            volumemaximo=volumeinicial*478;
            }
          if(capital>=2400000 && capital<2410000)
            {
             volumeoper=loteinicial*480;
-            //volumemaximo=volumeinicial*480;
+            volumemaximo=volumeinicial*480;
            }
          if(capital>=2410000 && capital<2420000)
            {
             volumeoper=loteinicial*482;
-            //volumemaximo=volumeinicial*482;
+            volumemaximo=volumeinicial*482;
            }
          if(capital>=2420000 && capital<2430000)
            {
             volumeoper=loteinicial*484;
-            //volumemaximo=volumeinicial*484;
+            volumemaximo=volumeinicial*484;
            }
          if(capital>=2430000 && capital<2440000)
            {
             volumeoper=loteinicial*486;
-            //volumemaximo=volumeinicial*486;
+            volumemaximo=volumeinicial*486;
            }
          if(capital>=2440000 && capital<2450000)
            {
             volumeoper=loteinicial*488;
-            //volumemaximo=volumeinicial*488;
+            volumemaximo=volumeinicial*488;
            }
          if(capital>=2450000 && capital<2460000)
            {
             volumeoper=loteinicial*490;
-            //volumemaximo=volumeinicial*490;
+            volumemaximo=volumeinicial*490;
            }
          if(capital>=2460000 && capital<2470000)
            {
             volumeoper=loteinicial*492;
-            //volumemaximo=volumeinicial*492;
+            volumemaximo=volumeinicial*492;
            }
          if(capital>=2470000 && capital<2480000)
            {
             volumeoper=loteinicial*494;
-            //volumemaximo=volumeinicial*494;
+            volumemaximo=volumeinicial*494;
            }
          if(capital>=2480000 && capital<2490000)
            {
             volumeoper=loteinicial*496;
-            //volumemaximo=volumeinicial*496;
+            volumemaximo=volumeinicial*496;
            }
          if(capital>=2490000 && capital<2500000)
            {
             volumeoper=loteinicial*498;
-            //volumemaximo=volumeinicial*498;
+            volumemaximo=volumeinicial*498;
            }
          if(capital>=2500000 && capital<2510000)
            {
             volumeoper=loteinicial*500;
-            //volumemaximo=volumeinicial*500;
+            volumemaximo=volumeinicial*500;
            }
          if(capital>=2510000 && capital<2520000)
            {
             volumeoper=loteinicial*502;
-            //volumemaximo=volumeinicial*502;
+            volumemaximo=volumeinicial*502;
            }
          if(capital>=2520000 && capital<2530000)
            {
             volumeoper=loteinicial*504;
-            //volumemaximo=volumeinicial*504;
+            volumemaximo=volumeinicial*504;
            }
          if(capital>=2530000 && capital<2540000)
            {
             volumeoper=loteinicial*506;
-            //volumemaximo=volumeinicial*506;
+            volumemaximo=volumeinicial*506;
            }
          if(capital>=2540000 && capital<2550000)
            {
             volumeoper=loteinicial*508;
-            //volumemaximo=volumeinicial*508;
+            volumemaximo=volumeinicial*508;
            }
          if(capital>=2550000 && capital<2560000)
            {
             volumeoper=loteinicial*510;
-            //volumemaximo=volumeinicial*510;
+            volumemaximo=volumeinicial*510;
            }
          if(capital>=2560000 && capital<2570000)
            {
             volumeoper=loteinicial*512;
-            //volumemaximo=volumeinicial*512;
+            volumemaximo=volumeinicial*512;
            }
          if(capital>=2570000 && capital<2580000)
            {
             volumeoper=loteinicial*514;
-            //volumemaximo=volumeinicial*514;
+            volumemaximo=volumeinicial*514;
            }
          if(capital>=2580000 && capital<2590000)
            {
             volumeoper=loteinicial*516;
-            //volumemaximo=volumeinicial*516;
+            volumemaximo=volumeinicial*516;
            }
          if(capital>=2590000 && capital<2600000)
            {
             volumeoper=loteinicial*518;
-            //volumemaximo=volumeinicial*518;
+            volumemaximo=volumeinicial*518;
            }
          if(capital>=2600000 && capital<2610000)
            {
             volumeoper=loteinicial*520;
-            //volumemaximo=volumeinicial*520;
+            volumemaximo=volumeinicial*520;
            }
          if(capital>=2610000 && capital<2620000)
            {
             volumeoper=loteinicial*522;
-            //volumemaximo=volumeinicial*522;
+            volumemaximo=volumeinicial*522;
            }
          if(capital>=2620000 && capital<2630000)
            {
             volumeoper=loteinicial*524;
-            //volumemaximo=volumeinicial*524;
+            volumemaximo=volumeinicial*524;
            }
          if(capital>=2630000 && capital<2640000)
            {
             volumeoper=loteinicial*526;
-            //volumemaximo=volumeinicial*526;
+            volumemaximo=volumeinicial*526;
            }
          if(capital>=2640000 && capital<2650000)
            {
             volumeoper=loteinicial*528;
-            //volumemaximo=volumeinicial*528;
+            volumemaximo=volumeinicial*528;
            }
          if(capital>=2650000 && capital<2660000)
            {
             volumeoper=loteinicial*530;
-            //volumemaximo=volumeinicial*530;
+            volumemaximo=volumeinicial*530;
            }
          if(capital>=2660000 && capital<2670000)
            {
             volumeoper=loteinicial*532;
-            //volumemaximo=volumeinicial*532;
+            volumemaximo=volumeinicial*532;
            }
          if(capital>=2670000 && capital<2680000)
            {
             volumeoper=loteinicial*534;
-            //volumemaximo=volumeinicial*534;
+            volumemaximo=volumeinicial*534;
            }
          if(capital>=2680000 && capital<2690000)
            {
             volumeoper=loteinicial*536;
-            //volumemaximo=volumeinicial*536;
+            volumemaximo=volumeinicial*536;
            }
          if(capital>=2690000 && capital<2700000)
            {
             volumeoper=loteinicial*538;
-            //volumemaximo=volumeinicial*538;
+            volumemaximo=volumeinicial*538;
            }
          if(capital>=2700000 && capital<2710000)
            {
             volumeoper=loteinicial*540;
-            //volumemaximo=volumeinicial*540;
+            volumemaximo=volumeinicial*540;
            }
          if(capital>=2710000 && capital<2720000)
            {
             volumeoper=loteinicial*542;
-            //volumemaximo=volumeinicial*542;
+            volumemaximo=volumeinicial*542;
            }
          if(capital>=2720000 && capital<2730000)
            {
             volumeoper=loteinicial*544;
-            //volumemaximo=volumeinicial*544;
+            volumemaximo=volumeinicial*544;
            }
          if(capital>=2730000 && capital<2740000)
            {
             volumeoper=loteinicial*546;
-            //volumemaximo=volumeinicial*546;
+            volumemaximo=volumeinicial*546;
            }
          if(capital>=2740000 && capital<2750000)
            {
             volumeoper=loteinicial*548;
-            //volumemaximo=volumeinicial*548;
+            volumemaximo=volumeinicial*548;
            }
          if(capital>=2750000 && capital<2760000)
            {
             volumeoper=loteinicial*550;
-            //volumemaximo=volumeinicial*550;
+            volumemaximo=volumeinicial*550;
            }
          if(capital>=2760000 && capital<2770000)
            {
             volumeoper=loteinicial*552;
-            //volumemaximo=volumeinicial*552;
+            volumemaximo=volumeinicial*552;
            }
          if(capital>=2770000 && capital<2780000)
            {
             volumeoper=loteinicial*554;
-            //volumemaximo=volumeinicial*554;
+            volumemaximo=volumeinicial*554;
            }
          if(capital>=2780000 && capital<2790000)
            {
             volumeoper=loteinicial*556;
-            //volumemaximo=volumeinicial*556;
+            volumemaximo=volumeinicial*556;
            }
          if(capital>=2790000 && capital<2800000)
            {
             volumeoper=loteinicial*558;
-            //volumemaximo=volumeinicial*558;
+            volumemaximo=volumeinicial*558;
            }
          if(capital>=2800000 && capital<2810000)
            {
             volumeoper=loteinicial*560;
-            //volumemaximo=volumeinicial*560;
+            volumemaximo=volumeinicial*560;
            }
          if(capital>=2810000 && capital<2820000)
            {
             volumeoper=loteinicial*562;
-            //volumemaximo=volumeinicial*562;
+            volumemaximo=volumeinicial*562;
            }
          if(capital>=2820000 && capital<2830000)
            {
             volumeoper=loteinicial*564;
-            //volumemaximo=volumeinicial*564;
+            volumemaximo=volumeinicial*564;
            }
          if(capital>=2830000 && capital<2840000)
            {
             volumeoper=loteinicial*566;
-            //volumemaximo=volumeinicial*566;
+            volumemaximo=volumeinicial*566;
            }
          if(capital>=2840000 && capital<2850000)
            {
             volumeoper=loteinicial*568;
-            //volumemaximo=volumeinicial*568;
+            volumemaximo=volumeinicial*568;
            }
          if(capital>=2850000 && capital<2860000)
            {
             volumeoper=loteinicial*570;
-            //volumemaximo=volumeinicial*570;
+            volumemaximo=volumeinicial*570;
            }
          if(capital>=2860000 && capital<2870000)
            {
             volumeoper=loteinicial*572;
-            //volumemaximo=volumeinicial*572;
+            volumemaximo=volumeinicial*572;
            }
          if(capital>=2870000 && capital<2880000)
            {
             volumeoper=loteinicial*574;
-            //volumemaximo=volumeinicial*574;
+            volumemaximo=volumeinicial*574;
            }
          if(capital>=2880000 && capital<2890000)
            {
             volumeoper=loteinicial*576;
-            //volumemaximo=volumeinicial*576;
+            volumemaximo=volumeinicial*576;
            }
          if(capital>=2890000 && capital<2900000)
            {
             volumeoper=loteinicial*578;
-            //volumemaximo=volumeinicial*578;
+            volumemaximo=volumeinicial*578;
            }
          if(capital>=2900000 && capital<2910000)
            {
             volumeoper=loteinicial*580;
-            //volumemaximo=volumeinicial*80;
+            volumemaximo=volumeinicial*80;
            }
          if(capital>=2910000 && capital<2920000)
            {
             volumeoper=loteinicial*582;
-            //volumemaximo=volumeinicial*582;
+            volumemaximo=volumeinicial*582;
            }
          if(capital>=2920000 && capital<2930000)
            {
             volumeoper=loteinicial*584;
-            //volumemaximo=volumeinicial*584;
+            volumemaximo=volumeinicial*584;
            }
          if(capital>=2930000 && capital<2940000)
            {
             volumeoper=loteinicial*586;
-            //volumemaximo=volumeinicial*586;
+            volumemaximo=volumeinicial*586;
            }
          if(capital>=2940000 && capital<2950000)
            {
             volumeoper=loteinicial*588;
-            //volumemaximo=volumeinicial*588;
+            volumemaximo=volumeinicial*588;
            }
          if(capital>=2950000 && capital<2960000)
            {
             volumeoper=loteinicial*590;
-            //volumemaximo=volumeinicial*590;
+            volumemaximo=volumeinicial*590;
            }
          if(capital>=2960000 && capital<2970000)
            {
             volumeoper=loteinicial*592;
-            //volumemaximo=volumeinicial*592;
+            volumemaximo=volumeinicial*592;
            }
          if(capital>=2970000 && capital<2980000)
            {
             volumeoper=loteinicial*594;
-            //volumemaximo=volumeinicial*594;
+            volumemaximo=volumeinicial*594;
            }
          if(capital>=2980000 && capital<2990000)
            {
             volumeoper=loteinicial*596;
-            //volumemaximo=volumeinicial*596;
+            volumemaximo=volumeinicial*596;
            }
          if(capital>=2990000 && capital<3000000)
            {
             volumeoper=loteinicial*598;
-            //volumemaximo=volumeinicial*598;
+            volumemaximo=volumeinicial*598;
            }
         }
 
@@ -2445,7 +2448,7 @@ void OnTick()
            {
             if(NB2.IsNewBar(_Symbol,_Period)) //VERIFICA SE É UM NOVO CANDLE
               {
-               if(previsao > Ask && previsao!=0.0)
+               if(previsao > Ask && previsao!=0.0 && (percent_margem>prctniveloper||VolumePos()<volumemaximo))
                  {
                   if(PossuiPosVenda())
                     {
@@ -2499,37 +2502,37 @@ void OnTick()
                         trade.Buy(volumeoper,_Symbol,tick.ask,slcomprapadrao,previsao,"C1");
                         return;
                        }
-                     if(PossuiPosCompraComentada("C1") && !PossuiPosCompraComentada("C2"))
+                     if(PossuiPosCompraComentada("C1") && !PossuiPosCompraComentada("C2") && Ask<PrecoAberturaPosCompra())
                        {
                         trade.Buy(volnv2,_Symbol,tick.ask,slcomprapadrao,previsao,"C2");
                         return;
                        }
-                     if(PossuiPosCompraComentada("C2") && !PossuiPosCompraComentada("C3"))
+                     if(PossuiPosCompraComentada("C2") && !PossuiPosCompraComentada("C3") && Ask<PrecoAberturaPosCompra())
                        {
                         trade.Buy(volnv3,_Symbol,tick.ask,slcomprapadrao,previsao,"C3");
                         return;
                        }
-                     if(PossuiPosCompraComentada("C3") && !PossuiPosCompraComentada("C4"))
+                     if(PossuiPosCompraComentada("C3") && !PossuiPosCompraComentada("C4") && Ask<PrecoAberturaPosCompra())
                        {
                         trade.Buy(volnv4,_Symbol,tick.ask,slcomprapadrao,previsao,"C4");
                         return;
                        }
-                     if(PossuiPosCompraComentada("C4") && !PossuiPosCompraComentada("C5"))
+                     if(PossuiPosCompraComentada("C4") && !PossuiPosCompraComentada("C5") && Ask<PrecoAberturaPosCompra())
                        {
                         trade.Buy(volnv5,_Symbol,tick.ask,slcomprapadrao,previsao,"C5");
                         return;
                        }
-                     if(PossuiPosCompraComentada("C5") && !PossuiPosCompraComentada("C6"))
+                     if(PossuiPosCompraComentada("C5") && !PossuiPosCompraComentada("C6") && Ask<PrecoAberturaPosCompra())
                        {
                         trade.Buy(volnv6,_Symbol,tick.ask,slcomprapadrao,previsao,"C6");
                         return;
                        }
-                     if(PossuiPosCompraComentada("C6") && !PossuiPosCompraComentada("C7"))
+                     if(PossuiPosCompraComentada("C6") && !PossuiPosCompraComentada("C7") && Ask<PrecoAberturaPosCompra())
                        {
                         trade.Buy(volnv7,_Symbol,tick.ask,slcomprapadrao,previsao,"C7");
                         return;
                        }
-                     if(PossuiPosCompraComentada("C7") && !PossuiPosCompraComentada("C8"))
+                     if(PossuiPosCompraComentada("C7") && !PossuiPosCompraComentada("C8") && Ask<PrecoAberturaPosCompra())
                        {
                         trade.Buy(volnv8,_Symbol,tick.ask,slcomprapadrao,previsao,"C8");
                         return;
@@ -2537,7 +2540,7 @@ void OnTick()
                     }
                  }
 
-               if(previsao < Bid && previsao!=0.0)
+               if(previsao < Bid && previsao!=0.0 && (percent_margem>prctniveloper||VolumePos()<volumemaximo))
                  {
                   if(PossuiPosCompra())
                     {
@@ -2591,37 +2594,37 @@ void OnTick()
                         trade.Sell(volumeoper,_Symbol,tick.bid,slvendapadrao,previsao,"V1");
                         return;
                        }
-                     if(PossuiPosVendaComentada("V1") && !PossuiPosVendaComentada("V2"))
+                     if(PossuiPosVendaComentada("V1") && !PossuiPosVendaComentada("V2") && Bid>PrecoAberturaPosVenda())
                        {
                         trade.Sell(volnv2,_Symbol,tick.bid,slvendapadrao,previsao,"V2");
                         return;
                        }
-                     if(PossuiPosVendaComentada("V2") && !PossuiPosVendaComentada("V3"))
+                     if(PossuiPosVendaComentada("V2") && !PossuiPosVendaComentada("V3") && Bid>PrecoAberturaPosVenda())
                        {
                         trade.Sell(volnv3,_Symbol,tick.bid,slvendapadrao,previsao,"V3");
                         return;
                        }
-                     if(PossuiPosVendaComentada("V3") && !PossuiPosVendaComentada("V4"))
+                     if(PossuiPosVendaComentada("V3") && !PossuiPosVendaComentada("V4") && Bid>PrecoAberturaPosVenda())
                        {
                         trade.Sell(volnv4,_Symbol,tick.bid,slvendapadrao,previsao,"V4");
                         return;
                        }
-                     if(PossuiPosVendaComentada("V4") && !PossuiPosVendaComentada("V5"))
+                     if(PossuiPosVendaComentada("V4") && !PossuiPosVendaComentada("V5") && Bid>PrecoAberturaPosVenda())
                        {
                         trade.Sell(volnv5,_Symbol,tick.bid,slvendapadrao,previsao,"V5");
                         return;
                        }
-                     if(PossuiPosVendaComentada("V5") && !PossuiPosVendaComentada("V6"))
+                     if(PossuiPosVendaComentada("V5") && !PossuiPosVendaComentada("V6") && Bid>PrecoAberturaPosVenda())
                        {
                         trade.Sell(volnv6,_Symbol,tick.bid,slvendapadrao,previsao,"V6");
                         return;
                        }
-                     if(PossuiPosVendaComentada("V6") && !PossuiPosVendaComentada("V7"))
+                     if(PossuiPosVendaComentada("V6") && !PossuiPosVendaComentada("V7") && Bid>PrecoAberturaPosVenda())
                        {
                         trade.Sell(volnv7,_Symbol,tick.bid,slvendapadrao,previsao,"V7");
                         return;
                        }
-                     if(PossuiPosVendaComentada("V7") && !PossuiPosVendaComentada("V8"))
+                     if(PossuiPosVendaComentada("V7") && !PossuiPosVendaComentada("V8") && Bid>PrecoAberturaPosVenda())
                        {
                         trade.Sell(volnv8,_Symbol,tick.bid,slvendapadrao,previsao,"V8");
                         return;
@@ -3081,17 +3084,33 @@ bool PossuiPosVendaComentada(string comentario)
 //+--------------------------------------------------------+
 double PrecoAberturaPosCompra()
   {
-   for(int i=PositionsTotal()-1; i >= 0; i--)
+   HistorySelect(0,TimeCurrent());
+   string   name;
+   ulong    ticket=0;
+   double   price;
+   double   profit;
+   datetime time;
+   string   symbol;
+   long     type;
+   long     entry;
+   for(uint i=HistoryDealsTotal()-1; i >= 0; i--)
      {
-      ulong ticket=PositionGetTicket(i);
-      string position_symbol = PositionGetString(POSITION_SYMBOL);
-      //ulong  magic = PositionGetInteger(POSITION_MAGIC);
-      double price = PositionGetDouble(POSITION_PRICE_OPEN);
-      ENUM_POSITION_TYPE TipoPosicao=(ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
-      if(TipoPosicao==POSITION_TYPE_BUY && position_symbol==_Symbol /*&& magic == magicrobo*/)
+      //--- tentar obter ticket negócios
+      if((ticket=HistoryDealGetTicket(i))>0)
         {
-         return price;
-         break;
+         //--- obter as propriedades negócios
+         price =HistoryDealGetDouble(ticket,DEAL_PRICE);
+         time  =(datetime)HistoryDealGetInteger(ticket,DEAL_TIME);
+         symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+         type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+         entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+         profit=HistoryDealGetDouble(ticket,DEAL_PROFIT);
+         //--- apenas para o símbolo atual
+         if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+           {
+            return price;
+            break;
+           }
         }
      }
    return 0;
@@ -3102,17 +3121,33 @@ double PrecoAberturaPosCompra()
 //+-------------------------------------------------------+
 double PrecoAberturaPosVenda()
   {
-   for(int i=PositionsTotal()-1; i >= 0; i--)
+   HistorySelect(0,TimeCurrent());
+   string   name;
+   ulong    ticket=0;
+   double   price;
+   double   profit;
+   datetime time;
+   string   symbol;
+   long     type;
+   long     entry;
+   for(uint i=HistoryDealsTotal()-1; i >= 0; i--)
      {
-      ulong ticket=PositionGetTicket(i);
-      string position_symbol = PositionGetString(POSITION_SYMBOL);
-      //ulong  magic = PositionGetInteger(POSITION_MAGIC);
-      double price = PositionGetDouble(POSITION_PRICE_OPEN);
-      ENUM_POSITION_TYPE TipoPosicao=(ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
-      if(TipoPosicao==POSITION_TYPE_SELL && position_symbol==_Symbol /*&& magic == magicrobo*/)
+      //--- tentar obter ticket negócios
+      if((ticket=HistoryDealGetTicket(i))>0)
         {
-         return price;
-         break;
+         //--- obter as propriedades negócios
+         price =HistoryDealGetDouble(ticket,DEAL_PRICE);
+         time  =(datetime)HistoryDealGetInteger(ticket,DEAL_TIME);
+         symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+         type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+         entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+         profit=HistoryDealGetDouble(ticket,DEAL_PROFIT);
+         //--- apenas para o símbolo atual
+         if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+           {
+            return price;
+            break;
+           }
         }
      }
    return 0;
