@@ -225,7 +225,7 @@ void OnTick()
       return;
      }
 
-   static CIsNewBar NB1,NB2/*,NB3,NB4,NB5,NB6,NB7,NB8,NB9,NB10,NB11,NB12,NB13,NB14,NB15,NB16,NB17,NB18,NB19,NB20,NB21,NB22*/;
+   static CIsNewBar NB1,NB2,NB3/*,NB4,NB5,NB6,NB7,NB8,NB9,NB10,NB11,NB12,NB13,NB14,NB15,NB16,NB17,NB18,NB19,NB20,NB21,NB22*/;
 
    saldo = NormalizeDouble(AccountInfoDouble(ACCOUNT_BALANCE),2);
    lucro_prejuizo = NormalizeDouble(AccountInfoDouble(ACCOUNT_PROFIT),2);
@@ -3315,67 +3315,70 @@ void OnTick()
          //+------------------------------------------------------------------+
          //| ENVIO DE SINAIS P/ REDE NEURAL                                   |
          //+------------------------------------------------------------------+
-         /*
-                  if(ativaenvioneural==true)
-                    {
-                     if(NB2.IsNewBar(_Symbol,_Period)) //VERIFICA SE É UM NOVO CANDLE
-                       {
-                        open1  = DoubleToString(candle[4].open,5);
-                        open2  = DoubleToString(candle[3].open,5);
-                        open3  = DoubleToString(candle[2].open,5);
-                        open4  = DoubleToString(candle[1].open,5);
-                        low1   = DoubleToString(candle[4].low,5);
-                        low2   = DoubleToString(candle[3].low,5);
-                        low3   = DoubleToString(candle[2].low,5);
-                        low4   = DoubleToString(candle[1].low,5);
-                        high1  = DoubleToString(candle[4].high,5);
-                        high2  = DoubleToString(candle[3].high,5);
-                        high3  = DoubleToString(candle[2].high,5);
-                        high4  = DoubleToString(candle[1].high,5);
-                        close1 = DoubleToString(candle[4].close,5);
-                        close2 = DoubleToString(candle[3].close,5);
-                        close3 = DoubleToString(candle[2].close,5);
-                        close4 = DoubleToString(candle[1].close,5);
+         //Comentar esse bloco caso for utilizar para teste de estratégia a partir de um arquivo
+         
+         if(ativaenvioneural==true)
+           {
+            if(NB2.IsNewBar(_Symbol,_Period)) //VERIFICA SE É UM NOVO CANDLE
+              {
+               open1  = DoubleToString(candle[4].open,5);
+               open2  = DoubleToString(candle[3].open,5);
+               open3  = DoubleToString(candle[2].open,5);
+               open4  = DoubleToString(candle[1].open,5);
+               low1   = DoubleToString(candle[4].low,5);
+               low2   = DoubleToString(candle[3].low,5);
+               low3   = DoubleToString(candle[2].low,5);
+               low4   = DoubleToString(candle[1].low,5);
+               high1  = DoubleToString(candle[4].high,5);
+               high2  = DoubleToString(candle[3].high,5);
+               high3  = DoubleToString(candle[2].high,5);
+               high4  = DoubleToString(candle[1].high,5);
+               close1 = DoubleToString(candle[4].close,5);
+               close2 = DoubleToString(candle[3].close,5);
+               close3 = DoubleToString(candle[2].close,5);
+               close4 = DoubleToString(candle[1].close,5);
 
-                        envioneural = open1+","+high1+","+low1+","+open2+","+high2+","+low2+","+open3+","+high3+","+low3+","+open4+","+high4+","+low4+","+close4;
+               envioneural = open1+","+high1+","+low1+","+open2+","+high2+","+low2+","+open3+","+high3+","+low3+","+open4+","+high4+","+low4+","+close4;
 
-                        if(SocketIsConnected(socketneural))
-                           enviado = socksend(socketneural,envioneural);
-                        else
-                           Print("Falhou conexão a ",endereco,":",porta,", erro ",GetLastError());
+               if(SocketIsConnected(socketneural))
+                  enviado = socksend(socketneural,envioneural);
+               else
+                  Print("Falhou conexão a ",endereco,":",porta,", erro ",GetLastError());
 
-                        Sleep(300);
+               Sleep(300);
 
-                        if(SocketIsConnected(socketneural))
-                          {
-                           recebido = socketreceive(socketneural,1600);
-                           Print("Previsão recebida: ",recebido);
-                          }
-                        else
-                          {
-                           Print("soquete para recebimento não conectado!");
-                          }
+               if(SocketIsConnected(socketneural))
+                 {
+                  recebido = socketreceive(socketneural,1600);
+                  Print("Previsão recebida: ",recebido);
+                 }
+               else
+                 {
+                  Print("soquete para recebimento não conectado!");
+                 }
 
-                        previsao_temp=StringToDouble(recebido);
-                        previsao=NormalizeDouble(previsao_temp,5);
+               previsao=NormalizeDouble(StringToDouble(recebido),5);
 
-                        Print("Previsão normalizada: ",previsao);
+               Print("Valor da Previsão: ",previsao);
 
-                       }
-                    }
-         */
+              }
+           }
+         
          //+------------------------------------------------------------------+
          //| APÓS PREVISÃO RECEBIDA EFETUAR AS OPERAÇÕES DENTRO DA ESTRATÉGIA |
          //+------------------------------------------------------------------+
-         previsao = NormalizeDouble(StringToDouble(dict.Get<string>(TimeCurrent())),5);//ATIVAR ESSA LINHA CASO FOR USAR O TESTE DE ESTRATÉGIA A PARTIR DO ARQUIVO DE PREVISÕES
+         //previsao = NormalizeDouble(StringToDouble(dict.Get<string>(TimeCurrent())),5);//ATIVAR ESSA LINHA CASO FOR USAR O TESTE DE ESTRATÉGIA A PARTIR DO ARQUIVO DE PREVISÕES
          double Ask = NormalizeDouble(tick.ask,5);
          double Bid = NormalizeDouble(tick.bid,5);
+         int Spread = SymbolInfoInteger(Symbol(),SYMBOL_SPREAD);
+         int DifPrevAsk = previsao - Ask;
+         int DifPrevBid = Bid - previsao;
          //Print(TimeCurrent()+ " " + previsao);
-         //Comment(StringFormat("Preços\nAsk = %G\nBid = %G\nPrevisao = %G\nRSI = %G",Ask,Bid,previsao,rsi[0]));
+         Comment(StringFormat("Previsao = %G\nAsk = %G\nBid = %G\nSpread = %d\nDif_Prev_Ask = %d\nDif_Prev_Bid = %d",previsao,Ask,Bid,Spread,DifPrevAsk,DifPrevBid));
 
          if(ativaentradaea==true &&  !PossuiPosAbertaOutroAtivo())
            {
-            if(NB2.IsNewBar(_Symbol,_Period)) //VERIFICA SE É UM NOVO CANDLE
+            if(NB3.IsNewBar(_Symbol,_Period)) //VERIFICA SE É UM NOVO CANDLE
               {
                if(previsao > Ask && previsao!=0.0 && (percent_margem>prctniveloper||VolumePos()<volumemaximo))
                  {
@@ -3588,7 +3591,6 @@ void OnTick()
          FechaTodasPosicoesAbertas();
          Sleep(300);
         }
-
   }
 
 //+------------------------------------------------------------------------------------------+
