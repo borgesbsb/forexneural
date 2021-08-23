@@ -4,6 +4,8 @@ from tensorflow.keras.models import load_model
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
+import joblib as jl
+
 
 class Connection:
     def __init__(self):
@@ -38,23 +40,18 @@ class Connection:
     
 ###########################################Classe de Prfedição#######################################
 class Predictions:   
-    def __init__(self,namemodel, history, timestamp, features ):
-        self.model = load_model(namemodel)
+    def __init__(self,namemodel, timestamp, features ):
+        self.model = load_model('../redeneural/'+namemodel)
         self.scaler_X  = MinMaxScaler()
         self.scaler_Y  = MinMaxScaler()
         self.timestamp = timestamp
         self.features  = features
-        self.df = pd.read_csv( history, sep=';', header=0)
-        self.df_X = None
-        self.df_Y = None
         self.predict = None
         self.setScaler()
 
     def setScaler(self):
-        self.df_X = self.df[self.features]
-        self.df_Y = self.df_X.copy()
-        self.scaler_X.fit(self.df_X)
-        self.scaler_Y.fit( self.df_Y.iloc[:,3].values.reshape(-1,1) )
+        self.scaler_X = jl.load('../redeneural/scaler_x.pkl')
+        self.scaler_y = jl.load('../redeneural/scaler_y.pkl')
 
     def makepredictions(self,values):
         values = values.split(",")
@@ -79,13 +76,9 @@ class Predictions:
 ##############################################################ALgoritmo################################################
 print("Carregando os Módulos, aguarde! Tenha Paciência")
 timestamp = 2
-features  = 4
-history1  = "EURUSD.csv"
-history2  = "GBPUSD.csv"
-namemodel1 = "LSTM_EURUSD"
-namemodel2 = "LSTM_GBPUSD"
-features = ['open1','high1','low1','close1']
-prediction = Predictions(namemodel1, history1, timestamp, features)
+features = ['open1','max1','min1','open2','max2','min2','open3','max3','min3','open4','max4','min4','close4']
+namemodel1 = 'LSTM_EURUSD-15M-1H'
+prediction = Predictions(namemodel1, timestamp, features)
 brain = Connection()
 brain.listen()
 brain.forecasts(prediction)
