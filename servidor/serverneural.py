@@ -59,14 +59,12 @@ class Predictions:
         for i in values:
             x_values.append(float(i))
         x_values = np.array(x_values)
-        x_values = np.reshape(x_values,(x_values.shape[0],self.timestamp, len(self.features)))
-        print(x_values)
-        # np.reshape(x_data, (x_data.shape[0], self.timestamp, len(features)))
-        # x_values = self.scaler_X.transform(x_values)
-        # x_values = np.reshape(x_values,(1, self.timestamp, self.features))
-        # self.predict =  self.model.predict(x_values)
-        # self.predict =  self.scaler_Y.inverse_transform(self.predict)
-        return  "1.02"#str(self.predict[0][0])
+        x_values = np.reshape(x_values,(2,13))
+        x_values = self.scaler_X.transform(x_values)
+        x_values = np.reshape(x_values,(1, 2, 13))
+        self.predict =  self.model.predict(x_values)
+        prevision = self.scaler_y.inverse_transform(self.predict)
+        return  str(prevision[0][0])
 
     def getPrediction(self):
         if (self.predict):

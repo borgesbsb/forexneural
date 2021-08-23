@@ -9,9 +9,9 @@ mes = 8
 best_neurons = 0
 best_epochs  = 0
 best_accuracy = 0
-for neurons_i  in range(13,16):
-    for epochs_i  in range(26,28):
-        for loop_epochs in range(3):
+for neurons_i  in range(13,14):
+    for epochs_i  in range(26,27):
+        for loop_epochs in range(1,2):
             import warnings
             warnings.simplefilter(action='ignore', category=FutureWarning)
             import pandas as pd
@@ -78,7 +78,6 @@ for neurons_i  in range(13,16):
                     x_data = np.array(x_data)
                     y_data = np.array(y_data)
                     x_data = np.reshape(x_data, (x_data.shape[0], self.timestamp, len(features)))
-                    print(x_data.shape)
                     return x_data, y_data
             
                 def splitData(self):
@@ -267,5 +266,5 @@ for neurons_i  in range(13,16):
             for element in dir():
                 if element not in variables_saves :
                     del globals()[element]
-save_to_csv.saveToCsv()
-save_to_csv.modelTraining.saveLSTM()
+    save_to_csv.saveToCsv()
+    save_to_csv.modelTraining.saveLSTM()
