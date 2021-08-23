@@ -78,6 +78,7 @@ for neurons_i  in range(13,16):
                     x_data = np.array(x_data)
                     y_data = np.array(y_data)
                     x_data = np.reshape(x_data, (x_data.shape[0], self.timestamp, len(features)))
+                    print(x_data.shape)
                     return x_data, y_data
             
                 def splitData(self):
