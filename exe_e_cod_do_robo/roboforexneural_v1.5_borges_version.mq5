@@ -86,18 +86,22 @@ string                   open1               = "";
 string                   open2               = "";
 string                   open3               = "";
 string                   open4               = "";
+string                   open5               = "";
 string                   close1              = "";
 string                   close2              = "";
 string                   close3              = "";
 string                   close4              = "";
+string                   close5              = "";
 string                   low1                = "";
 string                   low2                = "";
 string                   low3                = "";
 string                   low4                = "";
+string                   low5                = "";
 string                   high1               = "";
 string                   high2               = "";
 string                   high3               = "";
 string                   high4               = "";
+string                   high5               = "";
 string                   envioneural         = "";//string contendo os dados a serem enviados para o servidor
 bool                     enviado;
 
@@ -218,8 +222,8 @@ void OnTick()
       Alert("Erro ao obter informações de Mqlticks: ", GetLastError());
       return;
      }
-   CopyRates(_Symbol,_Period,0,5,candle);
-   if(CopyRates(_Symbol,_Period,0,5,candle)<0)
+   CopyRates(_Symbol,_Period,0,6,candle);
+   if(CopyRates(_Symbol,_Period,0,6,candle)<0)
      {
       Alert("Erro ao obter informações de Mqlrates: ", GetLastError());
       return;
@@ -3321,24 +3325,28 @@ void OnTick()
            {
             if(NB2.IsNewBar(_Symbol,_Period)) //VERIFICA SE É UM NOVO CANDLE
               {
-               open1  = DoubleToString(candle[4].open,5);
-               open2  = DoubleToString(candle[3].open,5);
-               open3  = DoubleToString(candle[2].open,5);
-               open4  = DoubleToString(candle[1].open,5);
-               low1   = DoubleToString(candle[4].low,5);
-               low2   = DoubleToString(candle[3].low,5);
-               low3   = DoubleToString(candle[2].low,5);
-               low4   = DoubleToString(candle[1].low,5);
-               high1  = DoubleToString(candle[4].high,5);
-               high2  = DoubleToString(candle[3].high,5);
-               high3  = DoubleToString(candle[2].high,5);
-               high4  = DoubleToString(candle[1].high,5);
-               close1 = DoubleToString(candle[4].close,5);
-               close2 = DoubleToString(candle[3].close,5);
-               close3 = DoubleToString(candle[2].close,5);
-               close4 = DoubleToString(candle[1].close,5);
+               open1  = DoubleToString(candle[5].open,5);
+               open2  = DoubleToString(candle[4].open,5);
+               open3  = DoubleToString(candle[3].open,5);
+               open4  = DoubleToString(candle[2].open,5);
+               open5  = DoubleToString(candle[1].open,5);
+               low1   = DoubleToString(candle[5].low,5);
+               low2   = DoubleToString(candle[4].low,5);
+               low3   = DoubleToString(candle[3].low,5);
+               low4   = DoubleToString(candle[2].low,5);
+               low5   = DoubleToString(candle[1].low,5);
+               high1  = DoubleToString(candle[5].high,5);
+               high2  = DoubleToString(candle[4].high,5);
+               high3  = DoubleToString(candle[3].high,5);
+               high4  = DoubleToString(candle[2].high,5);
+               high5  = DoubleToString(candle[1].high,5);
+               close1 = DoubleToString(candle[5].close,5);
+               close2 = DoubleToString(candle[4].close,5);
+               close3 = DoubleToString(candle[3].close,5);
+               close4 = DoubleToString(candle[2].close,5);
+               close5 = DoubleToString(candle[1].close,5);
 
-               envioneural = open1+","+high1+","+low1+","+open2+","+high2+","+low2+","+open3+","+high3+","+low3+","+open4+","+high4+","+low4+","+close4;
+               envioneural = open1+","+high1+","+low1+","+open2+","+high2+","+low2+","+open3+","+high3+","+low3+","+open4+","+high4+","+low4+","+close4+","+open2+","+high2+","+low2+","+open3+","+high3+","+low3+","+open4+","+high4+","+low4+","+open5+","+high5+","+low5+","+close5;
 
                if(SocketIsConnected(socketneural))
                   enviado = socksend(socketneural,envioneural);
