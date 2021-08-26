@@ -70,11 +70,11 @@ for ano in range(2018,2022):
                             y_data = []
                             for i in range(self.timestamp, length):
                                 x_data.append( dataframe[i-self.timestamp:i,:])
-                                #y_data.append( dataframe[i,self.features.index(target)])
-                                maximum = dataframe[i].max()
-                                minimum = dataframe[i].min()
-                                point_mean = (maximum+minimum)/2
-                                y_data.append(point_mean)
+                                y_data.append( dataframe[i,self.features.index(target)])
+                                # maximum = dataframe[i].max()
+                                # minimum = dataframe[i].min()
+                                # point_mean = (maximum+minimum)/2
+                                # y_data.append(point_mean)
                             x_data = np.array(x_data)
                             y_data = np.array(y_data)
                             x_data = np.reshape(x_data, (x_data.shape[0], self.timestamp, len(features)))
