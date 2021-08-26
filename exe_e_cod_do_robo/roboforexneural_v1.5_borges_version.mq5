@@ -43,13 +43,6 @@ input group              "MARTINGALE"
 input ENUM_TP_MART       tipomartingale      = mart1;      // TIPO DE VOLUME MARTINGALE
 input int                multiplicador       = 2;          // MULTIPLICADOR P/ MARTINGALE
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-input group              "BREAKEVEN E TRAILING STOP"
-input bool               ativaBE             = false;      // ATIVA BREAKEVEN
-input double             recuoBE             = 50;         // PONTOS PARA RECUO NO BREAKEVEN
-input bool               ativaTS             = false;      // ATIVA TRAILING STOP
-input double             pontosTS            = 40;         // PONTOS P/ ATIVAÇÃO TS
-input double             avancoTS            = 10;         // AVANÇO DO STOP EM PONTOS
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 input group              "GERENCIAMENTO DE RISCO - FECHA AS POSIÇÕES NO PREJU"
 input bool               ativastop           = false;      // ATIVA STOP FORÇADO
 input double             stoppercent         = 10.00;     // % DO CAPITAL LIQUIDO PARA "STOPAR"
@@ -3552,8 +3545,8 @@ void OnTick()
          //////////////////////////
          //---|AJUSTE DE TAKE|---//
          //////////////////////////
-         Sleep(1500);
-         if(TPUltimaPosAberta() != previsao)
+         Sleep(800);
+         if(TPUltimaPosAberta() != previsao && ((PossuiPosCompra() && previsao > PrecoPosCompra())||(PossuiPosVenda() && previsao < PrecoPosCompra())))
            {
             trade.PositionModify(_Symbol,0,previsao);
             return;
@@ -3944,6 +3937,28 @@ double PrecoAberturaPosVenda()
         }
      }
    return 0;
+  }
+//+------------------------------------------------------------------------------------------+
+//+---------------------------------------------+
+//| RETORNA O PREÇO DA POSIÇÃO DE COMPRA ABERTA |
+//+---------------------------------------------+
+double PrecoPosCompra()
+  {
+   int posabertas = PositionsTotal();
+   for(int i = posabertas-1; i >= 0; i--)
+     {
+      ulong ticket = PositionGetTicket(i);
+      string position_symbol = PositionGetString(POSITION_SYMBOL);
+      //ulong  magic = PositionGetInteger(POSITION_MAGIC);
+      double preco = PositionGetDouble(POSITION_PRICE_OPEN);
+      ENUM_POSITION_TYPE tipo =(ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
+      if((tipo == POSITION_TYPE_BUY||tipo == POSITION_TYPE_SELL) && position_symbol==_Symbol /*&& magic == magicrobo*/)
+        {
+         return preco;
+         break;
+        }
+     }
+   return -1;
   }
 //+------------------------------------------------------------------------------------------+
 //+---------------------------------------------+
