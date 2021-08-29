@@ -59,7 +59,7 @@ class Predictions:
         for i in values:
             x_values.append(float(i))
         x_values = np.array(x_values)
-        x_values = np.reshape(x_values,(2,13))
+        x_values = np.reshape(x_values,(1,13))
         x_values = self.scaler_X.transform(x_values)
         x_values = np.reshape(x_values,(1, 2, 13))
         self.predict =  self.model.predict(x_values)
