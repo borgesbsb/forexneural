@@ -61,7 +61,7 @@ class Predictions:
         x_values = np.array(x_values)
         x_values = np.reshape(x_values,(1,13))
         x_values = self.scaler_X.transform(x_values)
-        x_values = np.reshape(x_values,(1, 2, 13))
+        x_values = np.reshape(x_values,(1, 1, 13))
         self.predict =  self.model.predict(x_values)
         prevision = self.scaler_y.inverse_transform(self.predict)
         return  str(prevision[0][0])
