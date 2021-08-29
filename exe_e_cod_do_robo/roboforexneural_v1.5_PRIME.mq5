@@ -43,6 +43,13 @@ input group              "MARTINGALE"
 input ENUM_TP_MART       tipomartingale      = mart1;      // TIPO DE VOLUME MARTINGALE
 input int                multiplicador       = 2;          // MULTIPLICADOR P/ MARTINGALE
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+input group              "BREAKEVEN/TRAILING STOP"
+input bool               ativbreak           = false;      // ATIVA BREAKEVEN/TRAILING STOP
+input double             pontosbreak         = 5;          // PTOS PROX AO TP PARA ATIV BREAKEVEN
+input double             pontosbreak2        = 5;          // PTOS P/ MOVER TP PARA FRENTE BREAKEVEN
+input double             pontosbesl          = 10;         // PTOS A MENOS PARA SL NOVO
+input double             pontosts            = 5;          // PTOS DO SL NOVO PARA ATIV TS
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 input group              "GERENCIAMENTO DE RISCO - FECHA AS POSIÇÕES NO PREJU"
 input bool               ativastop           = false;      // ATIVA STOP FORÇADO
 input double             stoppercent         = 10.00;     // % DO CAPITAL LIQUIDO PARA "STOPAR"
@@ -90,16 +97,10 @@ bool                     enviado;
 //--- Definição das variáveis dos volumes para compra e venda quando utilizar martingale
 double                   volnv2,volnv3,volnv4,volnv5,volnv6,volnv7,volnv8,volnv9;
 double                   volnv_2,volnv_3,volnv_4,volnv_5,volnv_6,volnv_7,volnv_8,volnv_9;
-double                   prejuizo;
 
 //--- Variáveis p/ ticks e candles
 MqlTick                  tick;
 MqlRates                 candle[];
-
-// Cria estruturas de tempo para manipulação de horários
-MqlDateTime horario_inicio, horario_termino,/* horario_fechamento,*/ //
-            horario_atual, horario_inicio_pausa1, horario_termino_pausa1, //
-            horario_inicio_pausa2, horario_termino_pausa2, horario_posicao;
 
 //--- Usa a classe responsável pela execução das ordens - Ctrade
 CTrade                   trade;
@@ -792,35 +793,31 @@ void OnTick()
      {
       if(NB2.IsNewBar(_Symbol,_Period)) //VERIFICA SE É UM NOVO CANDLE
         {
-         open1  = DoubleToString(candle[5].open,5);
-         open2  = DoubleToString(candle[4].open,5);
-         open3  = DoubleToString(candle[3].open,5);
-         open4  = DoubleToString(candle[2].open,5);
-         open5  = DoubleToString(candle[1].open,5);
-         low1   = DoubleToString(candle[5].low,5);
-         low2   = DoubleToString(candle[4].low,5);
-         low3   = DoubleToString(candle[3].low,5);
-         low4   = DoubleToString(candle[2].low,5);
-         low5   = DoubleToString(candle[1].low,5);
-         high1  = DoubleToString(candle[5].high,5);
-         high2  = DoubleToString(candle[4].high,5);
-         high3  = DoubleToString(candle[3].high,5);
-         high4  = DoubleToString(candle[2].high,5);
-         high5  = DoubleToString(candle[1].high,5);
-         close1 = DoubleToString(candle[5].close,5);
-         close2 = DoubleToString(candle[4].close,5);
-         close3 = DoubleToString(candle[3].close,5);
-         close4 = DoubleToString(candle[2].close,5);
-         close5 = DoubleToString(candle[1].close,5);
+         open1  = DoubleToString(candle[4].open,5);
+         open2  = DoubleToString(candle[3].open,5);
+         open3  = DoubleToString(candle[2].open,5);
+         open4  = DoubleToString(candle[1].open,5);
+         low1   = DoubleToString(candle[4].low,5);
+         low2   = DoubleToString(candle[3].low,5);
+         low3   = DoubleToString(candle[2].low,5);
+         low4   = DoubleToString(candle[1].low,5);
+         high1  = DoubleToString(candle[4].high,5);
+         high2  = DoubleToString(candle[3].high,5);
+         high3  = DoubleToString(candle[2].high,5);
+         high4  = DoubleToString(candle[1].high,5);
+         close1 = DoubleToString(candle[4].close,5);
+         close2 = DoubleToString(candle[3].close,5);
+         close3 = DoubleToString(candle[2].close,5);
+         close4 = DoubleToString(candle[1].close,5);
 
-         envioneural = open1+","+high1+","+low1+","+open2+","+high2+","+low2+","+open3+","+high3+","+low3+","+open4+","+high4+","+low4+","+close4+","+open2+","+high2+","+low2+","+open3+","+high3+","+low3+","+open4+","+high4+","+low4+","+open5+","+high5+","+low5+","+close5;
+         envioneural = open1+","+high1+","+low1+","+open2+","+high2+","+low2+","+open3+","+high3+","+low3+","+open4+","+high4+","+low4+","+close4;
 
          if(SocketIsConnected(socketneural))
             enviado = socksend(socketneural,envioneural);
          else
             Print("Falhou conexão a ",endereco,":",porta,", erro ",GetLastError());
 
-         Sleep(3);
+         Sleep(300);
 
          if(SocketIsConnected(socketneural))
            {
@@ -860,91 +857,91 @@ void OnTick()
                if(PossuiPosVendaComentada("V1"))
                  {
                   FechaTodasPosicoesAbertas();
-                  Sleep(300);
+                  Sleep(200);
                   trade.Buy(volnv2,_Symbol,tick.ask,slcomprapadrao,previsao,"C2");
                   return;
                  }
                if(PossuiPosVendaComentada("V2"))
                  {
                   FechaTodasPosicoesAbertas();
-                  Sleep(300);
+                  Sleep(200);
                   trade.Buy(volnv3,_Symbol,tick.ask,slcomprapadrao,previsao,"C3");
                   return;
                  }
                if(PossuiPosVendaComentada("V3"))
                  {
                   FechaTodasPosicoesAbertas();
-                  Sleep(300);
+                  Sleep(200);
                   trade.Buy(volnv4,_Symbol,tick.ask,slcomprapadrao,previsao,"C4");
                   return;
                  }
                if(PossuiPosVendaComentada("V4"))
                  {
                   FechaTodasPosicoesAbertas();
-                  Sleep(300);
+                  Sleep(200);
                   trade.Buy(volnv5,_Symbol,tick.ask,slcomprapadrao,previsao,"C5");
                   return;
                  }
                if(PossuiPosVendaComentada("V5"))
                  {
                   FechaTodasPosicoesAbertas();
-                  Sleep(300);
+                  Sleep(200);
                   trade.Buy(volnv6,_Symbol,tick.ask,slcomprapadrao,previsao,"C6");
                   return;
                  }
                if(PossuiPosVendaComentada("V6"))
                  {
                   FechaTodasPosicoesAbertas();
-                  Sleep(300);
+                  Sleep(200);
                   trade.Buy(volnv7,_Symbol,tick.ask,slcomprapadrao,previsao,"C7");
                   return;
                  }
                if(PossuiPosVendaComentada("V7"))
                  {
                   FechaTodasPosicoesAbertas();
-                  Sleep(300);
+                  Sleep(200);
                   trade.Buy(volnv8,_Symbol,tick.ask,slcomprapadrao,previsao,"C8");
                   return;
                  }
               }
             else
               {
-               if(!PossuiPosCompra())
+               if(PositionsTotal()==0)
                  {
                   trade.Buy(volumeoper,_Symbol,tick.ask,slcomprapadrao,previsao,"C1");
                   return;
                  }
-               if(PossuiPosCompraComentada("C1") && !PossuiPosCompraComentada("C2") && Ask<PrecoAberturaPosCompra() && VolumePos()<=5 && volnv2!=0)
+               if(PossuiPosCompraComentada("C1") && !PossuiPosCompraComentada("C2") && Ask<PrecoAberturaPosCompra() && VolumePos()<=500 && volnv2!=0)
                  {
                   trade.Buy(volnv2,_Symbol,tick.ask,slcomprapadrao,previsao,"C2");
                   return;
                  }
-               if(PossuiPosCompraComentada("C2") && !PossuiPosCompraComentada("C3") && Ask<PrecoAberturaPosCompra() && VolumePos()<=5 && volnv3!=0)
+               if(PossuiPosCompraComentada("C2") && !PossuiPosCompraComentada("C3") && Ask<PrecoAberturaPosCompra() && VolumePos()<=500 && volnv3!=0)
                  {
                   trade.Buy(volnv3,_Symbol,tick.ask,slcomprapadrao,previsao,"C3");
                   return;
                  }
-               if(PossuiPosCompraComentada("C3") && !PossuiPosCompraComentada("C4") && Ask<PrecoAberturaPosCompra() && VolumePos()<=5 && volnv4!=0)
+               if(PossuiPosCompraComentada("C3") && !PossuiPosCompraComentada("C4") && Ask<PrecoAberturaPosCompra() && VolumePos()<=500 && volnv4!=0)
                  {
                   trade.Buy(volnv4,_Symbol,tick.ask,slcomprapadrao,previsao,"C4");
                   return;
                  }
-               if(PossuiPosCompraComentada("C4") && !PossuiPosCompraComentada("C5") && Ask<PrecoAberturaPosCompra() && VolumePos()<=5 && volnv5!=0)
+               if(PossuiPosCompraComentada("C4") && !PossuiPosCompraComentada("C5") && Ask<PrecoAberturaPosCompra() && VolumePos()<=500 && volnv5!=0)
                  {
                   trade.Buy(volnv5,_Symbol,tick.ask,slcomprapadrao,previsao,"C5");
                   return;
                  }
-               if(PossuiPosCompraComentada("C5") && !PossuiPosCompraComentada("C6") && Ask<PrecoAberturaPosCompra() && VolumePos()<=5 && volnv6!=0)
+               if(PossuiPosCompraComentada("C5") && !PossuiPosCompraComentada("C6") && Ask<PrecoAberturaPosCompra() && VolumePos()<=500 && volnv6!=0)
                  {
                   trade.Buy(volnv6,_Symbol,tick.ask,slcomprapadrao,previsao,"C6");
                   return;
                  }
-               if(PossuiPosCompraComentada("C6") && !PossuiPosCompraComentada("C7") && Ask<PrecoAberturaPosCompra() && VolumePos()<=5 && volnv7!=0)
+               if(PossuiPosCompraComentada("C6") && !PossuiPosCompraComentada("C7") && Ask<PrecoAberturaPosCompra() && VolumePos()<=500 && volnv7!=0)
                  {
                   trade.Buy(volnv7,_Symbol,tick.ask,slcomprapadrao,previsao,"C7");
                   return;
                  }
-               if(PossuiPosCompraComentada("C7") && !PossuiPosCompraComentada("C8") && Ask<PrecoAberturaPosCompra() && VolumePos()<=5 && volnv8!=0)
+               if(PossuiPosCompraComentada("C7") && !PossuiPosCompraComentada("C8") && Ask<PrecoAberturaPosCompra() && VolumePos()<=500 && volnv8!=0)
                  {
                   trade.Buy(volnv8,_Symbol,tick.ask,slcomprapadrao,previsao,"C8");
                   return;
@@ -959,104 +956,108 @@ void OnTick()
                if(PossuiPosCompraComentada("C1"))
                  {
                   FechaTodasPosicoesAbertas();
-                  Sleep(300);
+                  Sleep(200);
                   trade.Sell(volnv2,_Symbol,tick.bid,slvendapadrao,previsao,"V2");
                   return;
                  }
                if(PossuiPosCompraComentada("C2"))
                  {
                   FechaTodasPosicoesAbertas();
-                  Sleep(300);
+                  Sleep(200);
                   trade.Sell(volnv3,_Symbol,tick.bid,slvendapadrao,previsao,"V3");
                   return;
                  }
                if(PossuiPosCompraComentada("C3"))
                  {
                   FechaTodasPosicoesAbertas();
-                  Sleep(300);
+                  Sleep(200);
                   trade.Sell(volnv4,_Symbol,tick.bid,slvendapadrao,previsao,"V4");
                   return;
                  }
                if(PossuiPosCompraComentada("C4"))
                  {
                   FechaTodasPosicoesAbertas();
-                  Sleep(300);
+                  Sleep(200);
                   trade.Sell(volnv5,_Symbol,tick.bid,slvendapadrao,previsao,"V5");
                   return;
                  }
                if(PossuiPosCompraComentada("C5"))
                  {
                   FechaTodasPosicoesAbertas();
-                  Sleep(300);
+                  Sleep(200);
                   trade.Sell(volnv6,_Symbol,tick.bid,slvendapadrao,previsao,"V6");
                   return;
                  }
                if(PossuiPosCompraComentada("C6"))
                  {
                   FechaTodasPosicoesAbertas();
-                  Sleep(300);
+                  Sleep(200);
                   trade.Sell(volnv7,_Symbol,tick.bid,slvendapadrao,previsao,"V7");
                   return;
                  }
                if(PossuiPosCompraComentada("C7"))
                  {
                   FechaTodasPosicoesAbertas();
-                  Sleep(300);
+                  Sleep(200);
                   trade.Sell(volnv8,_Symbol,tick.bid,slvendapadrao,previsao,"V8");
                   return;
                  }
               }
             else
               {
-               if(!PossuiPosVenda())
+               if(PositionsTotal()==0)
                  {
                   trade.Sell(volumeoper,_Symbol,tick.bid,slvendapadrao,previsao,"V1");
                   return;
                  }
-               if(PossuiPosVendaComentada("V1") && !PossuiPosVendaComentada("V2") && Bid>PrecoAberturaPosVenda() && VolumePos()<=5 && volnv2!=0)
+               if(PossuiPosVendaComentada("V1") && !PossuiPosVendaComentada("V2") && Bid>PrecoAberturaPosVenda() && VolumePos()<=500 && volnv2!=0)
                  {
                   trade.Sell(volnv2,_Symbol,tick.bid,slvendapadrao,previsao,"V2");
                   return;
                  }
-               if(PossuiPosVendaComentada("V2") && !PossuiPosVendaComentada("V3") && Bid>PrecoAberturaPosVenda() && VolumePos()<=5 && volnv3!=0)
+               if(PossuiPosVendaComentada("V2") && !PossuiPosVendaComentada("V3") && Bid>PrecoAberturaPosVenda() && VolumePos()<=500 && volnv3!=0)
                  {
                   trade.Sell(volnv3,_Symbol,tick.bid,slvendapadrao,previsao,"V3");
                   return;
                  }
-               if(PossuiPosVendaComentada("V3") && !PossuiPosVendaComentada("V4") && Bid>PrecoAberturaPosVenda() && VolumePos()<=5 && volnv4!=0)
+               if(PossuiPosVendaComentada("V3") && !PossuiPosVendaComentada("V4") && Bid>PrecoAberturaPosVenda() && VolumePos()<=500 && volnv4!=0)
                  {
                   trade.Sell(volnv4,_Symbol,tick.bid,slvendapadrao,previsao,"V4");
                   return;
                  }
-               if(PossuiPosVendaComentada("V4") && !PossuiPosVendaComentada("V5") && Bid>PrecoAberturaPosVenda() && VolumePos()<=5 && volnv5!=0)
+               if(PossuiPosVendaComentada("V4") && !PossuiPosVendaComentada("V5") && Bid>PrecoAberturaPosVenda() && VolumePos()<=500 && volnv5!=0)
                  {
                   trade.Sell(volnv5,_Symbol,tick.bid,slvendapadrao,previsao,"V5");
                   return;
                  }
-               if(PossuiPosVendaComentada("V5") && !PossuiPosVendaComentada("V6") && Bid>PrecoAberturaPosVenda() && VolumePos()<=5 && volnv6!=0)
+               if(PossuiPosVendaComentada("V5") && !PossuiPosVendaComentada("V6") && Bid>PrecoAberturaPosVenda() && VolumePos()<=500 && volnv6!=0)
                  {
                   trade.Sell(volnv6,_Symbol,tick.bid,slvendapadrao,previsao,"V6");
                   return;
                  }
-               if(PossuiPosVendaComentada("V6") && !PossuiPosVendaComentada("V7") && Bid>PrecoAberturaPosVenda() && VolumePos()<=5 && volnv7!=0)
+               if(PossuiPosVendaComentada("V6") && !PossuiPosVendaComentada("V7") && Bid>PrecoAberturaPosVenda() && VolumePos()<=500 && volnv7!=0)
                  {
                   trade.Sell(volnv7,_Symbol,tick.bid,slvendapadrao,previsao,"V7");
                   return;
                  }
-               if(PossuiPosVendaComentada("V7") && !PossuiPosVendaComentada("V8") && Bid>PrecoAberturaPosVenda() && VolumePos()<=5 && volnv8!=0)
+               if(PossuiPosVendaComentada("V7") && !PossuiPosVendaComentada("V8") && Bid>PrecoAberturaPosVenda() && VolumePos()<=500 && volnv8!=0)
                  {
                   trade.Sell(volnv8,_Symbol,tick.bid,slvendapadrao,previsao,"V8");
                   return;
                  }
               }
            }
+
          //////////////////////////
          //---|AJUSTE DE TAKE|---//
          //////////////////////////
-         Sleep(800);
-         if(TPUltimaPosAberta() != previsao && ((PossuiPosCompra() && previsao > PrecoPosCompra())||(PossuiPosVenda() && previsao < PrecoPosCompra())))
+         Sleep(300);
+         if(TPUltimaPosAberta() != previsao && (StopUltimaPosAberta()==slcomprapadrao||StopUltimaPosAberta()==slvendapadrao) && ((PossuiPosCompra() && previsao > PrecoPosCompra())||(PossuiPosVenda() && previsao < PrecoPosCompra())))
            {
-            trade.PositionModify(_Symbol,0,previsao);
+            if(PossuiPosCompra())
+               trade.PositionModify(_Symbol,slcomprapadrao,previsao);
+            if(PossuiPosVenda())
+               trade.PositionModify(_Symbol,slvendapadrao,previsao);
             return;
            }
         }
@@ -1069,8 +1070,39 @@ void OnTick()
       if(MathAbs((LucroPrejuizoPosAberta()/capital)*100)>=stoppercent && saldo!=capital)
         {
          FechaTodasPosicoesAbertas();
-         Sleep(300);
+         Sleep(200);
         }
+        
+////////////////////////////
+//---|BREAKEVEN E TS |----//
+////////////////////////////
+   if(ativbreak==true)
+     {
+
+      if(PossuiPosCompra() && tick.bid>PrecoPosCompra() && StopUltimaPosAberta()==slcomprapadrao && tick.ask>TPUltimaPosAberta()-pontosbreak*_Point)
+        {
+         trade.PositionModify(_Symbol,tick.bid-pontosbesl*_Point,TPUltimaPosAberta()+pontosbreak2*_Point);
+         Sleep(200);
+        }
+      if(PossuiPosCompra() && tick.bid>TPUltimaPosAberta()+pontosts*_Point && StopUltimaPosAberta()!=slcomprapadrao)
+        {
+         trade.PositionModify(_Symbol,TPUltimaPosAberta()+pontosts*_Point,TPUltimaPosAberta()+pontosts*_Point);
+         Sleep(200);
+        }
+
+      if(PossuiPosVenda() && tick.ask<PrecoPosCompra() && StopUltimaPosAberta()==slvendapadrao && tick.bid<TPUltimaPosAberta()+pontosbreak*_Point)
+        {
+         trade.PositionModify(_Symbol,tick.ask+pontosbesl*_Point,TPUltimaPosAberta()-pontosbreak2*_Point);
+         Sleep(200);
+        }
+      if(PossuiPosVenda() && tick.ask<TPUltimaPosAberta()-pontosts*_Point && StopUltimaPosAberta()!=slvendapadrao)
+        {
+         trade.PositionModify(_Symbol,TPUltimaPosAberta()-pontosts*_Point,TPUltimaPosAberta()-pontosts*_Point);
+         Sleep(200);
+        }
+
+     }
+
   }
 
 //+------------------------------------------------------------------------------------------+

@@ -38,19 +38,26 @@ input int                porta               = 8082;       // PORTA DA REDE NEUR
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 input group              "ABERTURA DE POSIÇÕES"
 input bool               ativaentradaea      = true;       // ATIVA ABERTURA
-input double             loteinicial         = 0.01;       // TAM DO LOTE P/ CADA $50,00 DE CAPITAL
+input double             loteinicial         = 0.01;       // TAM DO LOTE P/ CADA $500,00 DE CAPITAL
 input ENUM_VOL_INIT      nivellote           = vollv_easy; // PERFIL DE AJUSTE DOS LOTES
 input group              "MARTINGALE"
 input ENUM_TP_MART       tipomartingale      = mart1;      // TIPO DE VOLUME MARTINGALE
 input int                multiplicador       = 2;          // MULTIPLICADOR P/ MARTINGALE
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-input group              "GERENCIAMENTO DE RISCO - FECHA AS POSIÇÕES NO PREJU"
+input group              "BREAKEVEN/TRAILING STOP"
+input bool               ativbreak           = false;      // ATIVA BREAKEVEN/TRAILING STOP
+input double             pontosbreak         = 5;          // PTOS PROX AO TP PARA ATIV BREAKEVEN
+input double             pontosbreak2        = 5;          // PTOS P/ MOVER TP PARA FRENTE BREAKEVEN
+input double             pontosbesl          = 10;         // PTOS A MENOS PARA SL NOVO
+input double             pontosts            = 5;          // PTOS DO SL NOVO PARA ATIV TS
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+input group              "GERENCIAMENTO DE RISCO - STOP"
 input bool               ativastop           = false;      // ATIVA STOP FORÇADO
 input double             stoppercent         = 10.00;     // % DO CAPITAL LIQUIDO PARA "STOPAR"
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-input group              "GERENCIAMENTO DE RISCO - NÃO ABRE NOVAS POSIÇÕES"
+input group              "GERENCIAMENTO DE RISCO - CONTROLE DE MARGEM"
 input double             prctniveloper       = 3000;       // MARGEM MINIMA P/ ABRIR POSIÇÕES
-input double             volumeinicial       = 0.5;        // VOL MÁX P/ CADA $50,00 DE CAPITAL
+input double             volumeinicial       = 0.5;        // VOL MÁX P/ CADA $500,00 DE CAPITAL
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 string                   shortname;
 
@@ -60,7 +67,7 @@ double                   stopvenda           = 0.0;
 double                   takecompra          = 0.0;
 double                   takevenda           = 0.0;
 
-double                   percent_margem, saldo, capital, lucro_prejuizo, volumemaximo, volumeoper, stopemdolarajustado, slcomprapadrao, slvendapadrao, previsao_temp, previsao;
+double                   percent_margem, saldo, capital, lucro_prejuizo, volumemaximo, volumeoper, stopemdolarajustado, slcomprapadrao, slvendapadrao, previsao;
 
 //--- Definição das variáveis dos volumes para compra e venda quando utilizar martingale
 double                   volnv2,volnv3,volnv4,volnv5,volnv6,volnv7,volnv8,volnv9;
@@ -763,8 +770,6 @@ void OnTick()
 
    double Ask = NormalizeDouble(tick.ask,5);
    double Bid = NormalizeDouble(tick.bid,5);
-   if(previsao!=0)
-      previsao_temp = previsao;
 
    if(ativaentradaea==true &&  !PossuiPosAbertaOutroAtivo())
      {
@@ -826,7 +831,7 @@ void OnTick()
               }
             else
               {
-               if(!PossuiPosCompra())
+               if(PositionsTotal()==0)
                  {
                   trade.Buy(volumeoper,_Symbol,tick.ask,slcomprapadrao,previsao,"C1");
                   return;
@@ -925,7 +930,7 @@ void OnTick()
               }
             else
               {
-               if(!PossuiPosVenda())
+               if(PositionsTotal()==0)
                  {
                   trade.Sell(volumeoper,_Symbol,tick.bid,slvendapadrao,previsao,"V1");
                   return;
@@ -971,13 +976,15 @@ void OnTick()
          //////////////////////////
          //---|AJUSTE DE TAKE|---//
          //////////////////////////
-         Sleep(800);
-         if(TPUltimaPosAberta() != previsao && ((PossuiPosCompra() && previsao > PrecoPosCompra())||(PossuiPosVenda() && previsao < PrecoPosCompra())))
+         Sleep(300);
+         if(TPUltimaPosAberta() != previsao && (StopUltimaPosAberta()==slcomprapadrao||StopUltimaPosAberta()==slvendapadrao) && ((PossuiPosCompra() && previsao > PrecoPosCompra())||(PossuiPosVenda() && previsao < PrecoPosCompra())))
            {
-            trade.PositionModify(_Symbol,0,previsao);
+            if(PossuiPosCompra())
+               trade.PositionModify(_Symbol,slcomprapadrao,previsao);
+            if(PossuiPosVenda())
+               trade.PositionModify(_Symbol,slvendapadrao,previsao);
             return;
            }
-
         }
      }
 
@@ -990,6 +997,36 @@ void OnTick()
          FechaTodasPosicoesAbertas();
          Sleep(200);
         }
+
+////////////////////////////
+//---|BREAKEVEN E TS |----//
+////////////////////////////
+   if(ativbreak==true)
+     {
+
+      if(PossuiPosCompra() && tick.bid>PrecoPosCompra() && StopUltimaPosAberta()==slcomprapadrao && tick.ask>TPUltimaPosAberta()-pontosbreak*_Point)
+        {
+         trade.PositionModify(_Symbol,tick.bid-pontosbesl*_Point,TPUltimaPosAberta()+pontosbreak2*_Point);
+         Sleep(200);
+        }
+      if(PossuiPosCompra() && tick.bid>TPUltimaPosAberta()+pontosts*_Point && StopUltimaPosAberta()!=slcomprapadrao)
+        {
+         trade.PositionModify(_Symbol,TPUltimaPosAberta()+pontosts*_Point,TPUltimaPosAberta()+pontosts*_Point);
+         Sleep(200);
+        }
+
+      if(PossuiPosVenda() && tick.ask<PrecoPosCompra() && StopUltimaPosAberta()==slvendapadrao && tick.bid<TPUltimaPosAberta()+pontosbreak*_Point)
+        {
+         trade.PositionModify(_Symbol,tick.ask+pontosbesl*_Point,TPUltimaPosAberta()-pontosbreak2*_Point);
+         Sleep(200);
+        }
+      if(PossuiPosVenda() && tick.ask<TPUltimaPosAberta()-pontosts*_Point && StopUltimaPosAberta()!=slvendapadrao)
+        {
+         trade.PositionModify(_Symbol,TPUltimaPosAberta()-pontosts*_Point,TPUltimaPosAberta()-pontosts*_Point);
+         Sleep(200);
+        }
+
+     }
 
   }
 
