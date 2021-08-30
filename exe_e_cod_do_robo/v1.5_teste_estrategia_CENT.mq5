@@ -40,6 +40,7 @@ input group              "ABERTURA DE POSIÇÕES"
 input bool               ativaentradaea      = true;       // ATIVA ABERTURA
 input double             loteinicial         = 0.03;       // TAM DO LOTE P/ CADA $50,00 DE CAPITAL
 input ENUM_VOL_INIT      nivellote           = vollv_easy; // PERFIL DE AJUSTE DOS LOTES
+input int                volumetick          = 150;        // VOLUME TICK ANTERIOR MINIMO P/ ORDENS
 input group              "MARTINGALE"
 input ENUM_TP_MART       tipomartingale      = mart1;      // TIPO DE VOLUME MARTINGALE
 input int                multiplicador       = 2;          // MULTIPLICADOR P/ MARTINGALE
@@ -3354,7 +3355,7 @@ void OnTick()
               }
             else
               {
-               if(PositionsTotal()==0)
+               if(PositionsTotal()==0 && candle[1].tick_volume>=volumetick)
                  {
                   trade.Buy(volumeoper,_Symbol,tick.ask,slcomprapadrao,previsao,"C1");
                   return;
@@ -3453,7 +3454,7 @@ void OnTick()
               }
             else
               {
-               if(PositionsTotal()==0)
+               if(PositionsTotal()==0 && candle[1].tick_volume>=volumetick)
                  {
                   trade.Sell(volumeoper,_Symbol,tick.bid,slvendapadrao,previsao,"V1");
                   return;

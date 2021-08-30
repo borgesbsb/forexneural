@@ -37,8 +37,9 @@ input int                porta               = 8083;       // PORTA DA REDE NEUR
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 input group              "ABERTURA DE POSIÇÕES"
 input bool               ativaentradaea      = true;       // ATIVA ABERTURA
-input double             loteinicial         = 0.01;       // TAM DO LOTE P/ CADA $50,00 DE CAPITAL
+input double             loteinicial         = 0.01;       // TAM DO LOTE P/ CADA $500,00 DE CAPITAL
 input ENUM_VOL_INIT      nivellote           = vollv_easy; // PERFIL DE AJUSTE DOS LOTES
+input int                volumetick          = 150;        // VOLUME TICK ANTERIOR MINIMO P/ ORDENS
 input group              "MARTINGALE"
 input ENUM_TP_MART       tipomartingale      = mart1;      // TIPO DE VOLUME MARTINGALE
 input int                multiplicador       = 2;          // MULTIPLICADOR P/ MARTINGALE
@@ -50,11 +51,11 @@ input double             pontosbreak2        = 5;          // PTOS P/ MOVER TP P
 input double             pontosbesl          = 10;         // PTOS A MENOS PARA SL NOVO
 input double             pontosts            = 5;          // PTOS DO SL NOVO PARA ATIV TS
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-input group              "GERENCIAMENTO DE RISCO - FECHA AS POSIÇÕES NO PREJU"
+input group              "GERENCIAMENTO DE RISCO - STOP"
 input bool               ativastop           = false;      // ATIVA STOP FORÇADO
 input double             stoppercent         = 10.00;     // % DO CAPITAL LIQUIDO PARA "STOPAR"
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-input group              "GERENCIAMENTO DE RISCO - NÃO ABRE NOVAS POSIÇÕES"
+input group              "GERENCIAMENTO DE RISCO - CONTROLE DE MARGEM"
 input double             prctniveloper       = 3000;       // MARGEM MINIMA P/ ABRIR POSIÇÕES
 input double             volumeinicial       = 0.5;        // VOL MÁX P/ CADA $50,00 DE CAPITAL
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -850,7 +851,7 @@ void OnTick()
      {
       if(NB3.IsNewBar(_Symbol,_Period)) //VERIFICA SE É UM NOVO CANDLE
         {
-         if(previsao > Ask /*+ 40*_Point*/ && previsao!=0.0 && (percent_margem>prctniveloper||VolumePos()<volumemaximo))
+         if(previsao > Ask + 5*_Point && previsao!=0.0 && (percent_margem>prctniveloper||VolumePos()<volumemaximo))
            {
             if(PossuiPosVenda())
               {
@@ -906,7 +907,7 @@ void OnTick()
               }
             else
               {
-               if(PositionsTotal()==0)
+               if(PositionsTotal()==0 && candle[1].tick_volume>=volumetick)
                  {
                   trade.Buy(volumeoper,_Symbol,tick.ask,slcomprapadrao,previsao,"C1");
                   return;
@@ -949,7 +950,7 @@ void OnTick()
               }
            }
 
-         if(previsao < Bid /*- 40*_Point*/ && previsao!=0.0 && (percent_margem>prctniveloper||VolumePos()<volumemaximo))
+         if(previsao < Bid - 5*_Point && previsao!=0.0 && (percent_margem>prctniveloper||VolumePos()<volumemaximo))
            {
             if(PossuiPosCompra())
               {
@@ -1005,7 +1006,7 @@ void OnTick()
               }
             else
               {
-               if(PositionsTotal()==0)
+               if(PositionsTotal()==0 && candle[1].tick_volume>=volumetick)
                  {
                   trade.Sell(volumeoper,_Symbol,tick.bid,slvendapadrao,previsao,"V1");
                   return;
