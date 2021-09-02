@@ -260,6 +260,9 @@ void OnTick()
         {
          if(previsao > Ask + 20*_Point && previsao!=0.0 && (percent_margem>prctniveloper||saldo==capital))
            {
+            /////////////////////////////////////
+            //---|VIRADA DE MÃO PARA VENDAS|---//
+            /////////////////////////////////////
             if(PossuiPosVenda())
               {
                if(PossuiPosVendaComentada("V1"))
@@ -312,6 +315,9 @@ void OnTick()
                   return;
                  }
               }
+            ////////////////////////////////////////
+            //---|COMPRAS NORMAIS E MARTINGALE|---//
+            ////////////////////////////////////////
             else
               {
                if(PositionsTotal()==0 && candle[1].tick_volume>=volumetick)
@@ -359,6 +365,10 @@ void OnTick()
 
          if(previsao < Bid - 20*_Point && previsao!=0.0 && (percent_margem>prctniveloper||saldo==capital))
            {
+            //////////////////////////////////////
+            //---|VIRADA DE MÃO PARA COMPRAS|---//
+            //////////////////////////////////////
+
             if(PossuiPosCompra())
               {
                if(PossuiPosCompraComentada("C1"))
@@ -411,6 +421,9 @@ void OnTick()
                   return;
                  }
               }
+            ///////////////////////////////////////
+            //---|VENDAS NORMAIS E MARTINGALE|---//
+            ///////////////////////////////////////
             else
               {
                if(PositionsTotal()==0 && candle[1].tick_volume>=volumetick)
@@ -463,11 +476,13 @@ void OnTick()
            {
             if(PossuiPosCompra())
               {
+
                trade.PositionModify(_Symbol,slcomprapadrao,previsao);
                return;
               }
             if(PossuiPosVenda())
               {
+
                trade.PositionModify(_Symbol,slvendapadrao,previsao);
                return;
               }
