@@ -70,11 +70,22 @@ for ano in range(2018,2022):
                             y_data = []
                             for i in range(self.timestamp, length):
                                 x_data.append( dataframe[i-self.timestamp:i,:])
-                                y_data.append( dataframe[i,self.features.index(target)])
+                                #Target no fechamento
+                                #y_data.append( dataframe[i,self.features.index(target)])
+                                # Target no ponto medio
                                 # maximum = dataframe[i].max()
                                 # minimum = dataframe[i].min()
                                 # point_mean = (maximum+minimum)/2
                                 # y_data.append(point_mean)
+                                # Target do maximo e minimo
+                                maximum = dataframe[i,self.features.index('max4')]
+                                minimum = dataframe[i,self.features.index('min4')]
+                                close   = dataframe[i,self.features.index('close4')]
+                                point_men = (maximum+minimum)/2
+                                if point_men > close:
+                                    y_data.append( dataframe[i,self.features.index('max4')])
+                                else:
+                                    y_data.append( dataframe[i,self.features.index('min4')])
                             x_data = np.array(x_data)
                             y_data = np.array(y_data)
                             x_data = np.reshape(x_data, (x_data.shape[0], self.timestamp, len(features)))
@@ -103,7 +114,7 @@ for ano in range(2018,2022):
                             #Processando o dataset com o shape adequado para a modelagem 
                             self.x_test , self.y_test  = self.processXY( self.x_test )
                             self.x_validate, self.y_validate = self.processXY( self.x_validate )
-
+                            
 
                     #########################Fim da classe de processamento############################################################
 
