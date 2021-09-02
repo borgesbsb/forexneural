@@ -70,11 +70,22 @@ for neurons_i  in range(13,14):
                     y_data = []
                     for i in range(self.timestamp, length):
                         x_data.append( dataframe[i-self.timestamp:i,:])
-                        y_data.append( dataframe[i,self.features.index(target)])
+                        #Target no fechamento
+                        #y_data.append( dataframe[i,self.features.index(target)])
+                        # Target no ponto medio
                         # maximum = dataframe[i].max()
                         # minimum = dataframe[i].min()
                         # point_mean = (maximum+minimum)/2
                         # y_data.append(point_mean)
+                        # Target do maximo e minimo
+                        maximum = dataframe[i,self.features.index('max4')]
+                        minimum = dataframe[i,self.features.index('min4')]
+                        close   = dataframe[i,self.features.index('close4')]
+                        point_men = (maximum+minimum)/2
+                        if point_men > close:
+                            y_data.append( dataframe[i,self.features.index('max4')])
+                        else:
+                            y_data.append( dataframe[i,self.features.index('min4')])
                     x_data = np.array(x_data)
                     y_data = np.array(y_data)
                     x_data = np.reshape(x_data, (x_data.shape[0], self.timestamp, len(features)))
@@ -172,11 +183,11 @@ for neurons_i  in range(13,14):
                     #self.prevision_validate      = pd.DataFrame(data=self.predictedPrice_validate, columns=['Previsão'])
                     self.time           = pd.DataFrame(data=self.ds.df_test['time'].shift(-self.ds.timestamp).dropna().values, columns=['Data'])
                     #self.time_validate  = pd.DataFrame(data=self.ds.df_validate['time'].shift(-self.ds.timestamp).dropna().values, columns=['Data'])
-                    self.maxima           = pd.DataFrame(data=self.ds.df_test[['max1','max2','max3','max4']].max(axis=1).shift(-self.ds.timestamp).dropna().values, columns=['Máxima'])
+                    self.maxima           = pd.DataFrame(data=self.ds.df_test['max4'].shift(-self.ds.timestamp).dropna().values, columns=['Máxima'])
                     self.maxima           = self.maxima
                     #self.maxima_validate  = pd.DataFrame(data=self.ds.df_validate[['max1','max2','max3','max4']].max(axis=1).shift(-self.ds.timestamp).dropna().values, columns=['Máxima'])
                     #self.maxima_validate  = self.maxima_validate
-                    self.minima           = pd.DataFrame(data=self.ds.df_test[['min1','min2','min3','min4']].min(axis=1).shift(-self.ds.timestamp).dropna().values, columns=['Minima'])
+                    self.minima           = pd.DataFrame(data=self.ds.df_test['min4'].shift(-self.ds.timestamp).dropna().values, columns=['Minima'])
                     self.minima           = self.minima
                     #self.minima_validate  = pd.DataFrame(data=self.ds.df_validate[['min1','min2','min3','min4']].min(axis=1).shift(-self.ds.timestamp).dropna().values, columns=['Minima'])
                     #self.minima_validate  = self.minima_validate 
