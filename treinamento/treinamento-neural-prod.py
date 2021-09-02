@@ -181,7 +181,7 @@ for neurons_i  in range(13,14):
                     self.open           = pd.DataFrame(data=self.ds.df_test['open1'].shift(-self.ds.timestamp).dropna().values, columns=['Abertura'])
                     self.prevision      = pd.DataFrame(data=self.predictedPrice, columns=['Previsão'])
                     #self.prevision_validate      = pd.DataFrame(data=self.predictedPrice_validate, columns=['Previsão'])
-                    self.time           = pd.DataFrame(data=self.ds.df_test['time'].shift(-self.ds.timestamp).dropna().values, columns=['Data'])
+                    self.time           = pd.DataFrame(data=self.ds.df_test['time'].shift(-4).dropna().values, columns=['Data'])
                     #self.time_validate  = pd.DataFrame(data=self.ds.df_validate['time'].shift(-self.ds.timestamp).dropna().values, columns=['Data'])
                     self.maxima           = pd.DataFrame(data=self.ds.df_test['max4'].shift(-self.ds.timestamp).dropna().values, columns=['Máxima'])
                     self.maxima           = self.maxima
