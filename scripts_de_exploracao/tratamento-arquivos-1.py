@@ -7,7 +7,7 @@ f = open("../arquivos_de_coleta/"+output,'w')
 for linha in ref_arquivo:
     valores = linha.split()
     data =  datetime.datetime.strptime(valores[0],'%Y.%m.%d').strftime('%d.%m.%Y')
-    line_string = data+" "+str(valores[1])+","+str(valores[2])+","+str(valores[3])+","+str(valores[4])+","+str(valores[5])+","+str(valores[6])
+    line_string = data+" "+str(valores[1])+";"+str(valores[2])+";"+str(valores[3])+";"+str(valores[4])+";"+str(valores[5])+";"+str(valores[6])
     f.write("\n"+line_string)
 
 f.close()
