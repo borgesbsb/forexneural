@@ -38,6 +38,7 @@ input group              "MARTINGALE"
 input ENUM_TP_MART       tipomartingale      = mart3;      // TIPO DE VOLUME MARTINGALE
 input int                multiplicador       = 1;          // MULTIPLICADOR P/ MARTINGALE
 input double             pontosmart          = 10;         // PONTOS DISTANTES P/ PX OPER
+input double             pontosvirada        = 30;         // PONTOS MÍN P/ VIRADA DE MÃO +
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 input group              "BREAKEVEN/TRAILING STOP"
 input bool               ativbreak           = false;      // ATIVA BREAKEVEN/TRAILING STOP
@@ -305,49 +306,49 @@ void OnTick()
             /////////////////////////////////////
             if(PossuiPosVenda())
               {
-               if(PossuiPosVendaComentada("V1"))
+               if(PossuiPosVendaComentada("V1") && (candle[1].open<candle[1].close||(candle[1].open>candle[1].close && candle[1].open-candle[1].close>pontosvirada*_Point)))
                  {
                   FechaTodasPosicoesAbertas();
                   Sleep(200);
                   trade.Buy(volnv2,_Symbol,tick.ask,slcomprapadrao,previsao/*tick.bid+(pontosprev2/2)*_Point*/,"C2");
                   return;
                  }
-               if(PossuiPosVendaComentada("V2"))
+               if(PossuiPosVendaComentada("V2") && (candle[1].open<candle[1].close||(candle[1].open>candle[1].close && candle[1].open-candle[1].close>pontosvirada*_Point)))
                  {
                   FechaTodasPosicoesAbertas();
                   Sleep(200);
                   trade.Buy(volnv3,_Symbol,tick.ask,slcomprapadrao,previsao/*tick.bid+(pontosprev2/2)*_Point*/,"C3");
                   return;
                  }
-               if(PossuiPosVendaComentada("V3"))
+               if(PossuiPosVendaComentada("V3") && (candle[1].open<candle[1].close||(candle[1].open>candle[1].close && candle[1].open-candle[1].close>pontosvirada*_Point)))
                  {
                   FechaTodasPosicoesAbertas();
                   Sleep(200);
                   trade.Buy(volnv4,_Symbol,tick.ask,slcomprapadrao,previsao/*tick.bid+(pontosprev2/2)*_Point*/,"C4");
                   return;
                  }
-               if(PossuiPosVendaComentada("V4"))
+               if(PossuiPosVendaComentada("V4") && (candle[1].open<candle[1].close||(candle[1].open>candle[1].close && candle[1].open-candle[1].close>pontosvirada*_Point)))
                  {
                   FechaTodasPosicoesAbertas();
                   Sleep(200);
                   trade.Buy(volnv5,_Symbol,tick.ask,slcomprapadrao,previsao/*tick.bid+(pontosprev2/2)*_Point*/,"C5");
                   return;
                  }
-               if(PossuiPosVendaComentada("V5"))
+               if(PossuiPosVendaComentada("V5") && (candle[1].open<candle[1].close||(candle[1].open>candle[1].close && candle[1].open-candle[1].close>pontosvirada*_Point)))
                  {
                   FechaTodasPosicoesAbertas();
                   Sleep(200);
                   trade.Buy(volnv6,_Symbol,tick.ask,slcomprapadrao,previsao/*tick.bid+(pontosprev2/2)*_Point*/,"C6");
                   return;
                  }
-               if(PossuiPosVendaComentada("V6"))
+               if(PossuiPosVendaComentada("V6") && (candle[1].open<candle[1].close||(candle[1].open>candle[1].close && candle[1].open-candle[1].close>pontosvirada*_Point)))
                  {
                   FechaTodasPosicoesAbertas();
                   Sleep(200);
                   trade.Buy(volnv7,_Symbol,tick.ask,slcomprapadrao,previsao/*tick.bid+(pontosprev2/2)*_Point*/,"C7");
                   return;
                  }
-               if(PossuiPosVendaComentada("V7"))
+               if(PossuiPosVendaComentada("V7") && (candle[1].open<candle[1].close||(candle[1].open>candle[1].close && candle[1].open-candle[1].close>pontosvirada*_Point)))
                  {
                   FechaTodasPosicoesAbertas();
                   Sleep(200);
@@ -411,49 +412,49 @@ void OnTick()
 
             if(PossuiPosCompra())
               {
-               if(PossuiPosCompraComentada("C1"))
+               if(PossuiPosCompraComentada("C1") && (candle[1].open>candle[1].close||(candle[1].open<candle[1].close && candle[1].close-candle[1].open>pontosvirada*_Point)))
                  {
                   FechaTodasPosicoesAbertas();
                   Sleep(200);
                   trade.Sell(volnv2,_Symbol,tick.bid,slvendapadrao,previsao/*tick.bid-(pontosprev2/2)*_Point*/,"V2");
                   return;
                  }
-               if(PossuiPosCompraComentada("C2"))
+               if(PossuiPosCompraComentada("C2") && (candle[1].open>candle[1].close||(candle[1].open<candle[1].close && candle[1].close-candle[1].open>pontosvirada*_Point)))
                  {
                   FechaTodasPosicoesAbertas();
                   Sleep(200);
                   trade.Sell(volnv3,_Symbol,tick.bid,slvendapadrao,previsao/*tick.bid-(pontosprev2/2)*_Point*/,"V3");
                   return;
                  }
-               if(PossuiPosCompraComentada("C3"))
+               if(PossuiPosCompraComentada("C3") && (candle[1].open>candle[1].close||(candle[1].open<candle[1].close && candle[1].close-candle[1].open>pontosvirada*_Point)))
                  {
                   FechaTodasPosicoesAbertas();
                   Sleep(200);
                   trade.Sell(volnv4,_Symbol,tick.bid,slvendapadrao,previsao/*tick.bid-(pontosprev2/2)*_Point*/,"V4");
                   return;
                  }
-               if(PossuiPosCompraComentada("C4"))
+               if(PossuiPosCompraComentada("C4") && (candle[1].open>candle[1].close||(candle[1].open<candle[1].close && candle[1].close-candle[1].open>pontosvirada*_Point)))
                  {
                   FechaTodasPosicoesAbertas();
                   Sleep(200);
                   trade.Sell(volnv5,_Symbol,tick.bid,slvendapadrao,previsao/*tick.bid-(pontosprev2/2)*_Point*/,"V5");
                   return;
                  }
-               if(PossuiPosCompraComentada("C5"))
+               if(PossuiPosCompraComentada("C5") && (candle[1].open>candle[1].close||(candle[1].open<candle[1].close && candle[1].close-candle[1].open>pontosvirada*_Point)))
                  {
                   FechaTodasPosicoesAbertas();
                   Sleep(200);
                   trade.Sell(volnv6,_Symbol,tick.bid,slvendapadrao,previsao/*tick.bid-(pontosprev2/2)*_Point*/,"V6");
                   return;
                  }
-               if(PossuiPosCompraComentada("C6"))
+               if(PossuiPosCompraComentada("C6") && (candle[1].open>candle[1].close||(candle[1].open<candle[1].close && candle[1].close-candle[1].open>pontosvirada*_Point)))
                  {
                   FechaTodasPosicoesAbertas();
                   Sleep(200);
                   trade.Sell(volnv7,_Symbol,tick.bid,slvendapadrao,previsao/*tick.bid-(pontosprev2/2)*_Point*/,"V7");
                   return;
                  }
-               if(PossuiPosCompraComentada("C7"))
+               if(PossuiPosCompraComentada("C7") && (candle[1].open>candle[1].close||(candle[1].open<candle[1].close && candle[1].close-candle[1].open>pontosvirada*_Point)))
                  {
                   FechaTodasPosicoesAbertas();
                   Sleep(200);
