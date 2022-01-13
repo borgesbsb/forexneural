@@ -33,6 +33,7 @@ input int                porta               = 8082;       // PORTA DA REDE NEUR
 input group              "ABERTURA DE POSIÇÕES"
 input bool               ativaentradaea      = true;       // ATIVA ABERTURA
 input double             loteinicial         = 1;          // TAMANHO DO LOTE INICIAL
+input double             pontosiniciais      = 20;         // QTDE DE PONTOS MÍNIMA PREV
 input double             valoraumento        = 100000.00;  // VALOR PARA AUMENTO DE LOTE
 input group              "MARTINGALE"
 input ENUM_TP_MART       tipomartingale      = mart3;      // TIPO DE VOLUME MARTINGALE
@@ -77,9 +78,6 @@ double                   PM1, PM2, PM3, PM4, PM5, PM6, PM7;
 MqlTick                  tick;
 MqlRates                 candle[];
 
-// Cria estruturas de tempo para manipulação de horários
-//MqlDateTime hora_oper, hora_atual;
-
 //--- Usa a classe responsável pela execução das ordens - Ctrade
 CTrade                   trade;
 
@@ -91,10 +89,6 @@ CDictionary *dict = new CDictionary();
 //+--------------------------------+
 int OnInit()
   {
-
-//--- Criação das structs de tempo
-//   TimeToStruct(StringToTime(inicio),horario_inicio);
-//   TimeToStruct(StringToTime(termino),horario_termino);
 
 //--- Seta o magic number do robô
    trade.SetExpertMagicNumber(magicrobo);
@@ -307,7 +301,7 @@ void OnTick()
      {
       if(NB2.IsNewBar(_Symbol,_Period)) //VERIFICA SE É UM NOVO CANDLE
         {
-         if(previsao > Ask/* + 20*_Point*/ && previsao!=0.0 && (percent_margem>prctniveloper||saldo==capital))
+         if(previsao > Ask && previsao-Ask>pontosiniciais*_Point && previsao!=0.0 && (percent_margem>prctniveloper||saldo==capital))
            {
             /////////////////////////////////////
             //---|VIRADA DE MÃO PARA VENDAS|---//
@@ -412,7 +406,7 @@ void OnTick()
               }
            }
 
-         if(previsao < Bid/* - 20*_Point*/ && previsao!=0.0 && (percent_margem>prctniveloper||saldo==capital))
+         if(previsao < Bid && Bid-previsao>pontosiniciais*_Point && previsao!=0.0 && (percent_margem>prctniveloper||saldo==capital))
            {
             //////////////////////////////////////
             //---|VIRADA DE MÃO PARA COMPRAS|---//
@@ -580,6 +574,10 @@ void OnTick()
         }
 
      }
+//     if(ValidadeGeral()==true)
+//       {
+//        FechaTodasPosicoesAbertas();
+//       }
 
   }
 
@@ -590,6 +588,47 @@ void OnTick()
 /////////////////////////////////////
 //| INÍCIO DAS FUNÇÕES AUXILIARES |//
 /////////////////////////////////////
+
+
+
+bool ValidadeGeral()
+  {
+   HistorySelect(0,TimeCurrent());
+   string   name;
+   ulong    ticket=0;
+   string   symbol;
+   datetime hora_atual = TimeCurrent();
+   datetime hora_oper;
+   long     type;
+   long     entry;
+   for(uint i=HistoryDealsTotal()-1; i >= 0; i--)
+     {
+      //--- tentar obter ticket negócios
+      if((ticket=HistoryDealGetTicket(i))>0)
+        {
+         //--- obter as propriedades negócios
+         hora_oper  =(datetime)HistoryDealGetInteger(ticket,DEAL_TIME);
+         symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+         type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+         entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+         Alert(hora_atual-hora_oper);
+         //--- apenas para o símbolo atual
+         if((type==DEAL_TYPE_BUY || type==DEAL_TYPE_SELL) && entry==DEAL_ENTRY_IN && symbol==_Symbol && hora_atual-hora_oper>899)
+           {
+            return true;
+            break;
+           }
+         else
+           {
+            return false;
+            break;
+           }
+        }
+     }
+   return false;
+  }
+  
+  
 //+-----------------------------------------------+
 //| VERIFICA VALIDADE DA PREVISÃO CONFORME INPUTS |
 //+-----------------------------------------------+
