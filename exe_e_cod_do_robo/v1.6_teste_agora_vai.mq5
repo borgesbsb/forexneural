@@ -29,6 +29,7 @@ input bool               ativaenvioneural    = false;      // ATIVA ENVIO DE DAD
 input string             endereco            = "localhost";// IP/SITE DA REDE NEURAL
 input int                porta               = 8082;       // PORTA DA REDE NEURAL
 //input bool               ExtTLS              = false;      // ATIVA ENVIO POR HTTPS
+input bool               ativahedge          = true;       // ATIVA A OPERAÇÃO EM CONTAS HEDGE
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 input group              "ABERTURA DE POSIÇÕES"
 input bool               ativaentradaea      = true;       // ATIVA ABERTURA
@@ -412,7 +413,7 @@ void OnTick()
               }
            }
 
-         if(previsao < Bid/* - 20*_Point*/ && previsao!=0.0 && (percent_margem>prctniveloper||saldo==capital))
+         if(previsao < Bid - 20*_Point && previsao!=0.0 && (percent_margem>prctniveloper||saldo==capital))
            {
             //////////////////////////////////////
             //---|VIRADA DE MÃO PARA COMPRAS|---//
@@ -551,6 +552,14 @@ void OnTick()
          return;
         }
 
+/////////////////////////////////////////////////////////////////////
+//---|FECHA TUDO QUANDO TAKE ATINGIDO - AJUSTE P/ CONTA HEDGE |----//
+/////////////////////////////////////////////////////////////////////
+   if(ativahedge==true && (PossuiPosCompra()||PossuiPosVenda()) && UltimaPosFechadaTake()==true)
+     {
+      FechaTodasPosicoesAbertas();
+     }
+
 ////////////////////////////
 //---|BREAKEVEN E TS |----//
 ////////////////////////////
@@ -630,7 +639,38 @@ bool PrevForaVal()
    return false;
   }
 //+------------------------------------------------------------------------------------------+
-
+//+------------------------------------------------------------------+
+//| VERIFICA SE A ÚLTIMA POSICAO FECHADA FOI DE TAKE PROFIT ATINGIDO |
+//+------------------------------------------------------------------+
+bool UltimaPosFechadaTake()
+  {
+   HistorySelect(0,TimeCurrent());
+   ulong    ticket=0;
+   string   symbol;
+   long     reason;
+   long     entry;
+   for(uint i=HistoryDealsTotal()-1; i >= 0; i--)
+     {
+      //--- tentar obter ticket negócios
+      if((ticket=HistoryDealGetTicket(i))>0)
+        {
+         //--- obter as propriedades negócios
+         symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+         reason=HistoryDealGetInteger(ticket,DEAL_REASON);
+         entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+         //--- apenas para o símbolo atual
+         if(reason==DEAL_REASON_TP && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+           {
+            return true;
+            break;
+           }
+         return false;
+         break;
+        }
+     }
+   return false;
+  }
+//+------------------------------------------------------------------------------------------+
 //+-------------------------------------------------------------------------+
 //| VERIFICA SE HÁ PELO MENOS UMA POSIÇÃO DE COMPRA ABERTA NO ATIVO CORRENTE|
 //+-------------------------------------------------------------------------+
