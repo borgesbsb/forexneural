@@ -21,42 +21,37 @@ enum ENUM_TP_MART
    mart4,        // [4]2x VOL ACUMULADO
   };
 
-enum ENUM_TIPO_PORCENT
-  {
-   tipoprc1,     // [1]PORCENTAGEM DO PREÇO
-   tipoprc2,     // [2]PORCENTAGEM DO CAPITAL
-  };
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 input ulong              magicrobo           = 941;        // MAGIC NUMBER DO ROBÔ
-input bool               ativahedge          = true;       // ATIVA A OPERAÇÃO EM CONTAS HEDGE
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 input group              "ABERTURA DE POSIÇÕES"
 input bool               ativaentradaea      = true;       // ATIVA ABERTURA
 input double             loteinicial         = 1;          // TAMANHO DO LOTE INICIAL
 input double             valoraumento        = 100000.00;  // VALOR PARA AUMENTO DE LOTE
-input ENUM_TIPO_PORCENT  tipopercent         = tipoprc2;   // TIPO DE PERCENTUAL PARA STOP/GAIN
 input double             percentgain         = 0.1;        // % GAIN
 input double             percentloss         = 2.5;        // % LOSS
 input group              "MARTINGALE"
-input ENUM_TP_MART       tipomartingale      = mart3;      // TIPO DE VOLUME MARTINGALE
+input ENUM_TP_MART       tipomartingale      = mart3;      // TIPO DE MARTINGALE
 input int                multiplicador       = 1;          // MULTIPLICADOR P/ MARTINGALE
-input double             prctmart            = 50;         // % DE PTS P/ PX OPERAÇÃO
+input double             prctmart            = 50;         // % MÍNIMO DOS PTS P/ PX ORDEM
 input group              "RSI"
 input bool               ativarsi            = true;       // ATIVA RSI
 input int                periodorsi          = 14;         // PERIODO RSI
 input int                sobrevrsi           = 70;         // PORCENTAGEM SOBREVENDA
 input int                sobrecrsi           = 30;         // PORCENTAGEM SOBRECOMPRA
-input bool               ativafiltrobb       = false;      // ATIVA FILTRO BOLINGER
 input group              "BANDAS DE BOLLINGER"
 input bool               ativabb             = false;      // ATIVA BOLINGER
 input int                periodobb           = 14;         // PERIODO BOLINGER
 input double             desviobb            = 2.0;        // DESVIO BOLINGER
-input bool               ativafiltrorsi      = false;      // ATIVA FILTRO RSI
 input group              "CRUZAMENTO DE MÉDIAS"
 input bool               ativamedia          = false;      // ATIVA CRUZAMENTO DE MÉDIAS
 input int                periodm1            = 7;          // PERÍODO DA MEDIA MENOR
 input int                periodm2            = 21;         // PERÍODO DA MEDIA MAIOR
+input group              "ENVELOPE - USA DADOS DA MÉDIA MENOR ACIMA"
+input bool               ativaenvelope       = false;      // ATIVA ESTRATÉGIA ENVELOPE
+input double             tamanhoenvelope     = 100000;     // TAMANHO DO ENVELOPE EM PONTOS
+input group              "FILTROS QUE PODEM SER USADOS COM RSI, BB E ENVELOPE"
+input bool               ativafiltrorsi      = false;      // ATIVA FILTRO RSI
+input bool               ativafiltrobb       = false;      // ATIVA FILTRO BOLINGER
 input group              "BREAKEVEN/TRAILING STOP"
 input bool               ativbreak           = false;      // ATIVA BREAKEVEN/TRAILING STOP
 input double             pontosbreak         = 5;          // PTOS PROX AO TP PARA ATIV BREAKEVEN
@@ -66,15 +61,17 @@ input double             pontosts            = 5;          // PTOS DO SL NOVO PA
 input group              "GERENCIAMENTO DE RISCO - PARADA DIÁRIA DO ROBÔ"
 input bool               ativastopdiario     = true;       // PARA O ROBÔ NO DIA QNDO STOP > N
 input int                qtdestops           = 3;          // QTDE MÁXIMA DE STOPS (N)
-input group              "GERENCIAMENTO DE RISCO - FECHAMENTO DE ORDENS ABERTAS NO FIM DO DIA"
-input bool               ativafecfinaldia    = true;       // ATIVA FECHAMENTO DE OPERAÇÕES FIM DO DIA
+input group              "GERENCIAMENTO DE RISCO - FECHAMENTO DE ORDENS LONGAS/FIM DO DIA"
+input bool               ativafecfinaldia    = false;      // ATIVA FECHAMENTO DE OPERAÇÕES FIM DO DIA
+input bool               ativafeclongas      = false;      // ATIVA FECHAMENTO DE ORDENS LONGAS
 input group              "GERENCIAMENTO DE RISCO - STOP FULL"
-input bool               ativastopfull       = true;       // ATIVA STOP FORÇADO QNDO CAPITAL
+input bool               ativastopfull       = true;       // ATIVA STOP P/ LIMITE DE CAPITAL INVESTIDO
 input double             percentfull         = 5;          // % DO CAPITAL PARA FECHAR TODAS AS ORDENS
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 string                   shortname;
 
-//--- Variáveis temporárias e de carater geral
+//--- Variáveis
 double                   stopcompra          = 0.0;
 double                   stopvenda           = 0.0;
 double                   takecompra          = 0.0;
@@ -86,19 +83,16 @@ double                   percent_margem, saldo, capital, lucro_prejuizo, volumem
                          slcomprapadrao, slvendapadrao, tpcomprapadrao, tpvendapadrao, rsi[], bbu[], bbm[], bbd[], mediam1[], mediam2[];
 
 //--- Definição das variáveis dos volumes para compra e venda quando utilizar martingale
-double                   volnv2,volnv3,volnv4,volnv5,volnv6,volnv7,volnv8,volnv9;
-double                   volnv_2,volnv_3,volnv_4,volnv_5,volnv_6,volnv_7,volnv_8,volnv_9;
+double                   volnv2,volnv3,volnv4,volnv5,volnv6,volnv7,volnv8;
+double                   volnv_2,volnv_3,volnv_4,volnv_5,volnv_6,volnv_7,volnv_8;
 
 //--- Definição das variáveis dos preços médios para compra e venda quando utilizar martingale
 double                   PM1, PM2, PM3, PM4, PM5, PM6, PM7, PM8;
 
-//--- Variáveis p/ ticks e candles
+//--- Variáveis p/ ticks, candles e tempo
 MqlTick                  tick;
 MqlRates                 candle[];
 MqlDateTime              TempoStruct;
-
-// Cria estruturas de tempo para manipulação de horários
-//MqlDateTime hora_oper, hora_atual;
 
 //--- Usa a classe responsável pela execução das ordens - Ctrade
 CTrade                   trade;
@@ -108,10 +102,6 @@ CTrade                   trade;
 //+--------------------------------+
 int OnInit()
   {
-
-//--- Criação das structs de tempo
-//   TimeToStruct(StringToTime(inicio),horario_inicio);
-//   TimeToStruct(StringToTime(termino),horario_termino);
 
 //--- Seta o magic number do robô
    trade.SetExpertMagicNumber(magicrobo);
@@ -234,21 +224,20 @@ void OnTick()
       Alert("Erro ao copiar dados de Média Móvel Menor: ", GetLastError());
       return;
      }
-   CopyBuffer(handlebb,0,0,5,mediam2);
-   if(CopyBuffer(handlebb,0,0,5,mediam2)<0)
+   CopyBuffer(handlem2,0,0,5,mediam2);
+   if(CopyBuffer(handlem2,0,0,5,mediam2)<0)
      {
       Alert("Erro ao copiar dados de Média Móvel Maior: ", GetLastError());
       return;
      }
 
-
    static CIsNewBar NB1,NB2/*,NB3,NB4,NB5,NB6,NB7,NB8,NB9,NB10,NB11,NB12,NB13,NB14,NB15,NB16,NB17,NB18,NB19,NB20,NB21,NB22*/;
 
+//   double margem = NormalizeDouble(AccountInfoDouble(ACCOUNT_MARGIN),2);
+//   double margem_livre = NormalizeDouble(AccountInfoDouble(ACCOUNT_FREEMARGIN),2);
    saldo = NormalizeDouble(AccountInfoDouble(ACCOUNT_BALANCE),2);
    lucro_prejuizo = NormalizeDouble(AccountInfoDouble(ACCOUNT_PROFIT),2);
    capital = NormalizeDouble(AccountInfoDouble(ACCOUNT_EQUITY),2);
-//   double margem = NormalizeDouble(AccountInfoDouble(ACCOUNT_MARGIN),2);
-//   double margem_livre = NormalizeDouble(AccountInfoDouble(ACCOUNT_FREEMARGIN),2);
    percent_margem = NormalizeDouble(AccountInfoDouble(ACCOUNT_MARGIN_LEVEL),2);
 
    if(NB1.IsNewBar(_Symbol,_Period)) //VERIFICA SE É UM NOVO CANDLE
@@ -270,7 +259,6 @@ void OnTick()
          volnv6             = 13*volumeoper;//13
          volnv7             = 21*volumeoper;//21
          volnv8             = 34*volumeoper;//34
-         volnv9             = 55*volumeoper;//55
         }
       if(tipomartingale==mart2)//mix - fibo ate a 5 ordem e o dobro do anterior nas proximas ordens
         {
@@ -281,7 +269,6 @@ void OnTick()
          volnv6             = volnv5*multiplicador;
          volnv7             = volnv6*multiplicador;
          volnv8             = volnv7*multiplicador;
-         volnv9             = volnv8*multiplicador;
         }
       if(tipomartingale==mart3)//N vezes o volume anterior conforme tabela de inputs
         {
@@ -292,7 +279,6 @@ void OnTick()
          volnv6             = volnv5*multiplicador;
          volnv7             = volnv6*multiplicador;
          volnv8             = volnv7*multiplicador;
-         volnv9             = volnv8*multiplicador;
         }
       if(tipomartingale==mart4)//dobro do volume acumulado
         {
@@ -303,7 +289,6 @@ void OnTick()
          volnv6             = (volumeoper+volnv2+volnv3+volnv4+volnv5)*multiplicador;//162
          volnv7             = (volumeoper+volnv2+volnv3+volnv4+volnv5+volnv6)*multiplicador;//486
          volnv8             = (volumeoper+volnv2+volnv3+volnv4+volnv5+volnv6+volnv7)*multiplicador;//1458
-         volnv9             = (volumeoper+volnv2+volnv3+volnv4+volnv5+volnv6+volnv7+volnv8)*multiplicador;//4374
         }
       if(volnv2>220.0)
          volnv2=0;
@@ -320,99 +305,157 @@ void OnTick()
       if(volnv8>220.0)
          volnv8=0;
 
-      //--- Definição do sl e tp padrões a serem usados nas ordens
-      if(ativahedge==true && tipopercent==tipoprc2)
-        {
-         slcomprapadrao = tick.bid*(1-percentloss/100);
-         slvendapadrao  = tick.ask*(1+percentloss/100);
-         tpcomprapadrao = tick.ask*(1+percentgain/100);
-         tpvendapadrao  = tick.bid*(1-percentgain/100);
-        }
-
      }
 
 //--- Definição dos preços médios para quando houver 2 ou mais compras/vendas
+   /*   if(PositionsTotal()>=1)
+        {
+         if(PossuiPosCompraComentada("C1") && !PossuiPosCompraComentada("C2"))
+            PM1 = (tick.ask*volnv2 + PrecoPosCompra()*volumeoper)/(volnv2+volumeoper);
+         if(PossuiPosCompraComentada("C2") && !PossuiPosCompraComentada("C3"))
+            PM2 = (tick.ask*volnv3 + PrecoAberturaPosCompra(2)*volnv2 + PrecoAberturaPosCompra(1)*volumeoper)/(volnv3+volnv2+volumeoper);
+         if(PossuiPosCompraComentada("C3") && !PossuiPosCompraComentada("C4"))
+            PM3 = (tick.ask*volnv4 + PrecoAberturaPosCompra(3)*volnv3 + PrecoAberturaPosCompra(2)*volnv2 + //
+                   PrecoAberturaPosCompra(1)*volumeoper)/(volnv4+volnv3+volnv2+volumeoper);
+         if(PossuiPosCompraComentada("C4") && !PossuiPosCompraComentada("C5"))
+            PM4 = (tick.ask*volnv5 + PrecoAberturaPosCompra(4)*volnv4 + PrecoAberturaPosCompra(3)*volnv3 + PrecoAberturaPosCompra(2)*volnv2 + //
+                   PrecoAberturaPosCompra(1)*volumeoper)/(volnv5+volnv4+volnv3+volnv2+volumeoper);
+         if(PossuiPosCompraComentada("C5") && !PossuiPosCompraComentada("C6"))
+            PM5 = (tick.ask*volnv6 + PrecoAberturaPosCompra(5)*volnv5 + PrecoAberturaPosCompra(4)*volnv4 + PrecoAberturaPosCompra(3)*volnv3 + //
+                   PrecoAberturaPosCompra(2)*volnv2 + PrecoAberturaPosCompra(1)*volumeoper)/(volnv6+volnv5+volnv4+volnv3+volnv2+volumeoper);
+         if(PossuiPosCompraComentada("C6") && !PossuiPosCompraComentada("C7"))
+            PM6 = (tick.ask*volnv7 + PrecoAberturaPosCompra(6)*volnv6 + PrecoAberturaPosCompra(5)*volnv5 + PrecoAberturaPosCompra(4)*volnv4 + //
+                   PrecoAberturaPosCompra(3)*volnv3 + PrecoAberturaPosCompra(2)*volnv2 + PrecoAberturaPosCompra(1)*volumeoper)/(volnv7+volnv6+volnv5+//
+                         volnv4+volnv3+volnv2+volumeoper);
+         if(PossuiPosCompraComentada("C7") && !PossuiPosCompraComentada("C8"))
+            PM7 = (tick.ask*volnv8 + PrecoAberturaPosCompra(7)*volnv7 + PrecoAberturaPosCompra(6)*volnv6 + PrecoAberturaPosCompra(5)*volnv5 + //
+                   PrecoAberturaPosCompra(4)*volnv4 + PrecoAberturaPosCompra(3)*volnv3 + PrecoAberturaPosCompra(2)*volnv2 + PrecoAberturaPosCompra(1)* //
+                   volumeoper)/(volnv8+volnv7+volnv6+volnv5+volnv4+volnv3+volnv2+volumeoper);
 
-   if(PositionsTotal()>=1 && ativahedge==true)
+         if(PossuiPosVendaComentada("C1") && !PossuiPosVendaComentada("C2"))
+            PM1 = (tick.bid*volnv2 + PrecoAberturaPosVenda(1)*volumeoper)/(volnv2+volumeoper);
+         if(PossuiPosVendaComentada("C2") && !PossuiPosVendaComentada("C3"))
+            PM2 = (tick.bid*volnv3 + PrecoAberturaPosVenda(2)*volnv2 + PrecoAberturaPosVenda(1)*volumeoper)/(volnv3+volnv2+volumeoper);
+         if(PossuiPosVendaComentada("C3") && !PossuiPosVendaComentada("C4"))
+            PM3 = (tick.bid*volnv4 + PrecoAberturaPosVenda(3)*volnv3 + PrecoAberturaPosVenda(2)*volnv2 + //
+                   PrecoAberturaPosVenda(1)*volumeoper)/(volnv4+volnv3+volnv2+volumeoper);
+         if(PossuiPosVendaComentada("C4") && !PossuiPosVendaComentada("C5"))
+            PM4 = (tick.bid*volnv5 + PrecoAberturaPosVenda(4)*volnv4 + PrecoAberturaPosVenda(3)*volnv3 + PrecoAberturaPosVenda(2)*volnv2 + //
+                   PrecoAberturaPosVenda(1)*volumeoper)/(volnv5+volnv4+volnv3+volnv2+volumeoper);
+         if(PossuiPosVendaComentada("C5") && !PossuiPosVendaComentada("C6"))
+            PM5 = (tick.bid*volnv6 + PrecoAberturaPosVenda(5)*volnv5 + PrecoAberturaPosVenda(4)*volnv4 + PrecoAberturaPosVenda(3)*volnv3 + //
+                   PrecoAberturaPosVenda(2)*volnv2 + PrecoAberturaPosVenda(1)*volumeoper)/(volnv6+volnv5+volnv4+volnv3+volnv2+volumeoper);
+         if(PossuiPosVendaComentada("C6") && !PossuiPosVendaComentada("C7"))
+            PM6 = (tick.bid*volnv7 + PrecoAberturaPosVenda(6)*volnv6 + PrecoAberturaPosVenda(5)*volnv5 + PrecoAberturaPosVenda(4)*volnv4 + //
+                   PrecoAberturaPosVenda(3)*volnv3 + PrecoAberturaPosVenda(2)*volnv2 + PrecoAberturaPosVenda(1)*volumeoper)/(volnv7+volnv6+volnv5+//
+                         volnv4+volnv3+volnv2+volumeoper);
+         if(PossuiPosVendaComentada("C7") && !PossuiPosVendaComentada("C8"))
+            PM7 = (tick.bid*volnv8 + PrecoAberturaPosVenda(7)*volnv7 + PrecoAberturaPosVenda(6)*volnv6 + PrecoAberturaPosVenda(5)*volnv5 + //
+                   PrecoAberturaPosVenda(4)*volnv4 + PrecoAberturaPosVenda(3)*volnv3 + PrecoAberturaPosVenda(2)*volnv2 + PrecoAberturaPosVenda(1)* //
+                   volumeoper)/(volnv8+volnv7+volnv6+volnv5+volnv4+volnv3+volnv2+volumeoper);
+        }
+   */
+
+   if(PositionsTotal()==1)
+
      {
       if(PossuiPosCompraComentada("C1") && !PossuiPosCompraComentada("C2"))
-         PM1 = (tick.ask*volnv2 + PrecoAberturaPosCompra(1)*volumeoper)/(volnv2+volumeoper);
+         PM1 = (tick.ask*volnv2 + PrecoPosCompra()*volumeoper)/(volnv2+volumeoper);
       if(PossuiPosCompraComentada("C2") && !PossuiPosCompraComentada("C3"))
-         PM2 = (tick.ask*volnv3 + PrecoAberturaPosCompra(2)*volnv2 + PrecoAberturaPosCompra(1)*volumeoper)/(volnv3+volnv2+volumeoper);
+         PM2 = (tick.ask*volnv3 + PrecoPosCompra()*VolumePos())/(volnv3+VolumePos());
       if(PossuiPosCompraComentada("C3") && !PossuiPosCompraComentada("C4"))
-         PM3 = (tick.ask*volnv4 + PrecoAberturaPosCompra(3)*volnv3 + PrecoAberturaPosCompra(2)*volnv2 + //
-                PrecoAberturaPosCompra(1)*volumeoper)/(volnv4+volnv3+volnv2+volumeoper);
+         PM3 = (tick.ask*volnv4 + PrecoPosCompra()*VolumePos())/(volnv4+VolumePos());
       if(PossuiPosCompraComentada("C4") && !PossuiPosCompraComentada("C5"))
-         PM4 = (tick.ask*volnv5 + PrecoAberturaPosCompra(4)*volnv4 + PrecoAberturaPosCompra(3)*volnv3 + PrecoAberturaPosCompra(2)*volnv2 + //
-                PrecoAberturaPosCompra(1)*volumeoper)/(volnv5+volnv4+volnv3+volnv2+volumeoper);
+         PM4 = (tick.ask*volnv5 + PrecoPosCompra()*VolumePos())/(volnv5+VolumePos());
       if(PossuiPosCompraComentada("C5") && !PossuiPosCompraComentada("C6"))
-         PM5 = (tick.ask*volnv6 + PrecoAberturaPosCompra(5)*volnv5 + PrecoAberturaPosCompra(4)*volnv4 + PrecoAberturaPosCompra(3)*volnv3 + //
-                PrecoAberturaPosCompra(2)*volnv2 + PrecoAberturaPosCompra(1)*volumeoper)/(volnv6+volnv5+volnv4+volnv3+volnv2+volumeoper);
+         PM5 = (tick.ask*volnv6 + PrecoPosCompra()*VolumePos())/(volnv6+VolumePos());
       if(PossuiPosCompraComentada("C6") && !PossuiPosCompraComentada("C7"))
-         PM6 = (tick.ask*volnv7 + PrecoAberturaPosCompra(6)*volnv6 + PrecoAberturaPosCompra(5)*volnv5 + PrecoAberturaPosCompra(4)*volnv4 + //
-                PrecoAberturaPosCompra(3)*volnv3 + PrecoAberturaPosCompra(2)*volnv2 + PrecoAberturaPosCompra(1)*volumeoper)/(volnv7+volnv6+volnv5+//
-                      volnv4+volnv3+volnv2+volumeoper);
+         PM6 = (tick.ask*volnv7 + PrecoPosCompra()*VolumePos())/(volnv7+VolumePos());
       if(PossuiPosCompraComentada("C7") && !PossuiPosCompraComentada("C8"))
-         PM7 = (tick.ask*volnv8 + PrecoAberturaPosCompra(7)*volnv7 + PrecoAberturaPosCompra(6)*volnv6 + PrecoAberturaPosCompra(5)*volnv5 + //
-                PrecoAberturaPosCompra(4)*volnv4 + PrecoAberturaPosCompra(3)*volnv3 + PrecoAberturaPosCompra(2)*volnv2 + PrecoAberturaPosCompra(1)*//
-                volumeoper)/(volnv8+volnv7+volnv6+volnv5+volnv4+volnv3+volnv2+volumeoper);
+         PM7 = (tick.ask*volnv8 + PrecoPosCompra()*VolumePos())/(volnv8+VolumePos());
 
-      if(PossuiPosVendaComentada("C1") && !PossuiPosVendaComentada("C2"))
-         PM1 = (tick.bid*volnv2 + PrecoAberturaPosVenda(1)*volumeoper)/(volnv2+volumeoper);
-      if(PossuiPosVendaComentada("C2") && !PossuiPosVendaComentada("C3"))
-         PM2 = (tick.bid*volnv3 + PrecoAberturaPosVenda(2)*volnv2 + PrecoAberturaPosVenda(1)*volumeoper)/(volnv3+volnv2+volumeoper);
-      if(PossuiPosVendaComentada("C3") && !PossuiPosVendaComentada("C4"))
-         PM3 = (tick.bid*volnv4 + PrecoAberturaPosVenda(3)*volnv3 + PrecoAberturaPosVenda(2)*volnv2 + //
-                PrecoAberturaPosVenda(1)*volumeoper)/(volnv4+volnv3+volnv2+volumeoper);
-      if(PossuiPosVendaComentada("C4") && !PossuiPosVendaComentada("C5"))
-         PM4 = (tick.bid*volnv5 + PrecoAberturaPosVenda(4)*volnv4 + PrecoAberturaPosVenda(3)*volnv3 + PrecoAberturaPosVenda(2)*volnv2 + //
-                PrecoAberturaPosVenda(1)*volumeoper)/(volnv5+volnv4+volnv3+volnv2+volumeoper);
-      if(PossuiPosVendaComentada("C5") && !PossuiPosVendaComentada("C6"))
-         PM5 = (tick.bid*volnv6 + PrecoAberturaPosVenda(5)*volnv5 + PrecoAberturaPosVenda(4)*volnv4 + PrecoAberturaPosVenda(3)*volnv3 + //
-                PrecoAberturaPosVenda(2)*volnv2 + PrecoAberturaPosVenda(1)*volumeoper)/(volnv6+volnv5+volnv4+volnv3+volnv2+volumeoper);
-      if(PossuiPosVendaComentada("C6") && !PossuiPosVendaComentada("C7"))
-         PM6 = (tick.bid*volnv7 + PrecoAberturaPosVenda(6)*volnv6 + PrecoAberturaPosVenda(5)*volnv5 + PrecoAberturaPosVenda(4)*volnv4 + //
-                PrecoAberturaPosVenda(3)*volnv3 + PrecoAberturaPosVenda(2)*volnv2 + PrecoAberturaPosVenda(1)*volumeoper)/(volnv7+volnv6+volnv5+//
-                      volnv4+volnv3+volnv2+volumeoper);
-      if(PossuiPosVendaComentada("C7") && !PossuiPosVendaComentada("C8"))
-         PM7 = (tick.bid*volnv8 + PrecoAberturaPosVenda(7)*volnv7 + PrecoAberturaPosVenda(6)*volnv6 + PrecoAberturaPosVenda(5)*volnv5 + //
-                PrecoAberturaPosVenda(4)*volnv4 + PrecoAberturaPosVenda(3)*volnv3 + PrecoAberturaPosVenda(2)*volnv2 + PrecoAberturaPosVenda(1)*//
-                volumeoper)/(volnv8+volnv7+volnv6+volnv5+volnv4+volnv3+volnv2+volumeoper);
+      if(PossuiPosVendaComentada("V1") && !PossuiPosVendaComentada("V2"))
+         PM1 = (tick.bid*volnv2 + PrecoPosCompra()*volumeoper)/(volnv2+volumeoper);
+      if(PossuiPosVendaComentada("V2") && !PossuiPosVendaComentada("V3"))
+         PM2 = (tick.bid*volnv3 + PrecoPosCompra()*VolumePos())/(volnv3+VolumePos());
+      if(PossuiPosVendaComentada("V3") && !PossuiPosVendaComentada("V4"))
+         PM3 = (tick.bid*volnv4 + PrecoPosCompra()*VolumePos())/(volnv4+VolumePos());
+      if(PossuiPosVendaComentada("V4") && !PossuiPosVendaComentada("V5"))
+         PM4 = (tick.bid*volnv5 + PrecoPosCompra()*VolumePos())/(volnv5+VolumePos());
+      if(PossuiPosVendaComentada("V5") && !PossuiPosVendaComentada("V6"))
+         PM5 = (tick.bid*volnv6 + PrecoPosCompra()*VolumePos())/(volnv6+VolumePos());
+      if(PossuiPosVendaComentada("V6") && !PossuiPosVendaComentada("V7"))
+         PM6 = (tick.bid*volnv7 + PrecoPosCompra()*VolumePos())/(volnv7+VolumePos());
+      if(PossuiPosVendaComentada("V7") && !PossuiPosVendaComentada("V8"))
+         PM7 = (tick.bid*volnv8 + PrecoPosCompra()*VolumePos())/(volnv8+VolumePos());
      }
 
-//Print("PrecoC1: ",PrecoAberturaPosCompra(1)," PrecoC2: ",PrecoAberturaPosCompra(2)," PrecoV1: ",PrecoAberturaPosVenda(1)," PrecoV2: ",//
-//      PrecoAberturaPosVenda(2)," Pontos Compra: ",(PrecoAberturaPosCompra(2)-PrecoAberturaPosCompra(1))/_Point,"Pontos Venda: ",//
-//      (PrecoAberturaPosVenda(1)-PrecoAberturaPosVenda(2))/_Point);
+//--- Ajuste da data/hora atual para tipo struct
+   TimeToStruct(TimeCurrent(),TempoStruct);
+
+//Print("SLV2: ",puxatpsl("SLV2")," TPV2: ",puxatpsl("TPV2"));
+
+////////////////////////////////////////////
+//---| FECHA ORDENS NO FIM DO PREGÃO |----//
+////////////////////////////////////////////
+   if(ativafecfinaldia==true && (PossuiPosCompra()||PossuiPosVenda()) && TempoStruct.hour==23 && TempoStruct.min==50)
+     {
+      FechaTodasPosicoesAbertas();
+     }
+
+//////////////////////////////////
+//---| FECHA ORDENS LONGAS |----//
+//////////////////////////////////
+   if(ativafeclongas)
+     {
+      if(PossuiPosCompra())
+        {
+         if((PossuiPosCompraComentada("C3")||PossuiPosCompraComentada("C4")||PossuiPosCompraComentada("C5")|| //
+             PossuiPosCompraComentada("C6")||PossuiPosCompraComentada("C7")||PossuiPosCompraComentada("C8")) && //
+            (candle[1].close>bbu[1]||candle[1].close>mediam1[1]+tamanhoenvelope*_Point))
+           {
+            FechaTodasPosicoesAbertas();
+           }
+        }
+      if(PossuiPosVenda())
+        {
+         if((PossuiPosVendaComentada("V3")||PossuiPosVendaComentada("V4")||PossuiPosVendaComentada("V5")|| //
+             PossuiPosVendaComentada("V6")||PossuiPosVendaComentada("V7")||PossuiPosVendaComentada("V8")) && //
+            (candle[1].close<bbd[1]||candle[1].close<mediam1[1]-tamanhoenvelope*_Point))
+           {
+            FechaTodasPosicoesAbertas();
+           }
+        }
+
+     }
 
 //+------------------------------------------------------------------+
 //| OPERAÇÕES SEGUINDO A ESTRATÉGIA ESCOLHIDA |
 //+------------------------------------------------------------------+
 
-   TimeToStruct(TimeCurrent(),TempoStruct);
-
-//double Ask = NormalizeDouble(tick.ask,5);
-//double Bid = NormalizeDouble(tick.bid,5);
-
-   if(ativaentradaea==true && !PossuiPosAbertaOutroAtivo() && TempoStruct.hour<=23 && TempoStruct.min<=50 && (percent_margem>3500||saldo==capital))
+   if(ativaentradaea && !PossuiPosAbertaOutroAtivo() && TempoStruct.hour<=23 && TempoStruct.min<50 && (percent_margem>3500||saldo==capital))
      {
-      if(NB2.IsNewBar(_Symbol,_Period) && StopouMuito()==false) //VERIFICA SE O CANDLE ACABOU DE ABRIR E SE < N STOPS NO DIA
+      if(NB2.IsNewBar(_Symbol,_Period) && QtdeStops()<qtdestops) //VERIFICA SE O CANDLE ACABOU DE ABRIR E SE NÃO STOPOU MUITO
         {
          ////////////////////////////////////
          //---|ESTRATEGIA PRINCIPAL RSI|---//
          ////////////////////////////////////
-         if(ativarsi == true)
+         if(ativarsi)
            {
-            if(ativafiltrobb == true)
+            if(ativafiltrobb)
               {
                ///////////////////
                //---|COMPRAS|---//
                ///////////////////
-               if(rsi[1]<sobrecrsi/* && rsi[0]>30*/ && candle[1].close<bbd[1])
+               if(rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/ && candle[1].close<bbd[1])
+                 {
+                  Print("Tick: ",tick.ask);
                   ComprasNormais();
+                 }
                //////////////////
                //---|VENDAS|---//
                //////////////////
-               if(rsi[1]>sobrevrsi/* && rsi[0]<70*/ && candle[1].close>bbu[1])
+               if(rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/ && candle[1].close>bbu[1])
                   VendasNormais();
               }
             else
@@ -420,12 +463,13 @@ void OnTick()
                ///////////////////
                //---|COMPRAS|---//
                ///////////////////
-               if(rsi[1]<sobrecrsi/*&& rsi[0]>30*/)
+               if(rsi[1]<sobrecrsi/*&& rsi[0]>sobrecrsi*/)
                   ComprasNormais();
+
                //////////////////
                //---|VENDAS|---//
                //////////////////
-               if(rsi[1]>sobrevrsi/* && rsi[0]<70*/)
+               if(rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/)
                   VendasNormais();
               }
            }
@@ -433,58 +477,109 @@ void OnTick()
          //---|ESTRATEGIA PRINCIPAL BOLINGER|---//
          /////////////////////////////////////////
 
-         if(ativabb == true)
+         if(ativabb)
            {
-            if(ativafiltrorsi == true)
-              {
-               ///////////////////
-               //---|COMPRAS|---//
-               ///////////////////
-               if(candle[1].close<bbd[1] && rsi[1]<sobrecrsi/* && rsi[0]>30*/)
-                  ComprasNormais();
-               //////////////////
-               //---|VENDAS|---//
-               //////////////////
-               if(candle[1].close>bbu[1] && rsi[1]>sobrevrsi/* && rsi[0]<70*/)
-                  VendasNormais();
-              }
-            else
-              {
-               ///////////////////
-               //---|COMPRAS|---//
-               ///////////////////
-               if(candle[1].close<bbd[1])
-                  ComprasNormais();
-               //////////////////
-               //---|VENDAS|---//
-               //////////////////
-               if(candle[1].close>bbu[1])
-                  VendasNormais();
-              }
+            ///////////////////
+            //---|COMPRAS|---//
+            ///////////////////
+            if(candle[1].close<bbd[1])
+               ComprasNormais();
+
+            //////////////////
+            //---|VENDAS|---//
+            //////////////////
+            if(candle[1].close>bbu[1])
+               VendasNormais();
            }
          /////////////////////////////////////////////////////
          //---|ESTRATEGIA PRINCIPAL CRUZAMENTO DE MÉDIAS|---//
          /////////////////////////////////////////////////////
-         if(ativamedia == true)
+         if(ativamedia)
            {
             ///////////////////
             //---|COMPRAS|---//
             ///////////////////
             if(mediam1[2]<mediam2[2] && mediam1[1]>mediam2[1])
                ComprasNormais();
+
             //////////////////
             //---|VENDAS|---//
             //////////////////
             if(mediam1[2]>mediam2[2] && mediam1[1]<mediam2[1])
                VendasNormais();
-
            }
-         //////////////////////////////////////////////////////////
-         //---|AJUSTE DE TAKE E STOP - AJUSTE P/ CONTA HEDGE |---//
-         //////////////////////////////////////////////////////////
-         if(PositionsTotal()>=2)
-            AjustaTPSL();
+         /////////////////////////////////////////
+         //---|ESTRATEGIA PRINCIPAL ENVELOPE|---//
+         /////////////////////////////////////////
+         if(ativaenvelope)
+           {
+            if(ativafiltrorsi)
+              {
+               if(ativafiltrobb)
+                 {
+                  ///////////////////
+                  //---|COMPRAS|---//
+                  ///////////////////
+                  if(candle[1].close<mediam1[1]-tamanhoenvelope*_Point && rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/ && candle[1].close<bbd[1])
+                     ComprasNormais();
+                  //////////////////
+                  //---|VENDAS|---//
+                  //////////////////
+                  if(candle[1].close>mediam1[1]+tamanhoenvelope*_Point && rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/ && candle[1].close>bbu[1])
+                     VendasNormais();
+                 }
+               else
+                 {
+                  ///////////////////
+                  //---|COMPRAS|---//
+                  ///////////////////
+                  if(candle[1].close<mediam1[1]-tamanhoenvelope*_Point && rsi[1]<sobrecrsi/*&& rsi[0]>sobrecrsi*/)
+                     ComprasNormais();
 
+                  //////////////////
+                  //---|VENDAS|---//
+                  //////////////////
+                  if(candle[1].close>mediam1[1]+tamanhoenvelope*_Point && rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/)
+                     VendasNormais();
+                 }
+              }
+            else
+              {
+               if(ativafiltrobb)
+                 {
+                  ///////////////////
+                  //---|COMPRAS|---//
+                  ///////////////////
+                  if(candle[1].close<mediam1[1]-tamanhoenvelope*_Point && candle[1].close<bbd[1])
+                     ComprasNormais();
+                  //////////////////
+                  //---|VENDAS|---//
+                  //////////////////
+                  if(candle[1].close>mediam1[1]+tamanhoenvelope*_Point && candle[1].close>bbu[1])
+                     VendasNormais();
+                 }
+               else
+                 {
+                  ///////////////////
+                  //---|COMPRAS|---//
+                  ///////////////////
+                  if(candle[1].close<mediam1[1]-tamanhoenvelope*_Point)
+                     ComprasNormais();
+
+                  //////////////////
+                  //---|VENDAS|---//
+                  //////////////////
+                  if(candle[1].close>mediam1[1]+tamanhoenvelope*_Point)
+                     VendasNormais();
+                 }
+              }
+           }
+
+         /////////////////////////////////
+         //---|AJUSTE DE TAKE E STOP|---//
+         /////////////////////////////////
+         //         if(PositionsTotal()==1 && )
+         //            AjustaTPSL();
         }
      }
 
@@ -498,22 +593,6 @@ void OnTick()
          Sleep(100);
          return;
         }
-
-//////////////////////////////////////////////////////////////////////
-//---|FECHA TUDO QUANDO FINAL DO DIA ALCANÇADO COM ORDEM ATIVA |----//
-//////////////////////////////////////////////////////////////////////
-   if(ativafecfinaldia==true && (PossuiPosCompra()||PossuiPosVenda()) && TempoStruct.hour==23 && TempoStruct.min==50)
-     {
-      FechaTodasPosicoesAbertas();
-     }
-
-//////////////////////////////////////////////////////////////////////////////////
-//---|FECHA TUDO QUANDO TAKE OU STOP LOSS ATINGIDO - AJUSTE P/ CONTA HEDGE |----//
-//////////////////////////////////////////////////////////////////////////////////
-   if(ativahedge==true && (PossuiPosCompra()||PossuiPosVenda()) && (UltimaPosFechadaTake()==true||UltimaPosFechadaStop()==true))
-     {
-      FechaTodasPosicoesAbertas();
-     }
 
 ////////////////////////////
 //---|BREAKEVEN E TS |----//
@@ -554,60 +633,37 @@ void OnTick()
 /////////////////////////////////////
 //| INÍCIO DAS FUNÇÕES AUXILIARES |//
 /////////////////////////////////////
-//+----------------------------------------------------------+
-//| VERIFICA SE AS ÚLTIMAS N POSICÕES FECHADAS FORAM DE STOP |
-//+----------------------------------------------------------+
-bool StopouMuito()
+//+--------------------------------------------+
+//| VERIFICA QUANTOS STOPS OCORRERAM EM UM DIA |
+//+--------------------------------------------+
+int QtdeStops()
   {
    HistorySelect(0,TimeCurrent());
-   ulong       ticket1=0;
-   ulong       ticket2=0;
-   string      symbol1;
-   string      symbol2;
-   long        reason1;
-   long        reason2;
-   long        entry1;
-   long        entry2;
-   datetime    time1;
-   datetime    time2;
-   MqlDateTime DataHoraDaUltimaOper;
-   MqlDateTime DataHoraDaPenultimaOper;
-   int         contador=1;
+   ulong       ticket=0;
+   string      symbol;
+   long        reason;
+   long        entry;
+   int         contador=0;
+   MqlDateTime timecorrente;
+   MqlDateTime timedaoper;
+   datetime    time;
    for(uint i=HistoryDealsTotal()-1; i >= 0; i--)
      {
-      if((ticket1=HistoryDealGetTicket(i))>1)
+      if((ticket=HistoryDealGetTicket(i))>0)
         {
-         symbol1=HistoryDealGetString(ticket1,DEAL_SYMBOL);
-         reason1=HistoryDealGetInteger(ticket1,DEAL_REASON);
-         entry1 =HistoryDealGetInteger(ticket1,DEAL_ENTRY);
-         time1  =(datetime)HistoryDealGetInteger(ticket1,DEAL_TIME);
-         TimeToStruct(time1,DataHoraDaUltimaOper);
-         if((ticket2=HistoryDealGetTicket(i-1))>1)
-           {
-            symbol2=HistoryDealGetString(ticket2,DEAL_SYMBOL);
-            reason2=HistoryDealGetInteger(ticket2,DEAL_REASON);
-            entry2 =HistoryDealGetInteger(ticket2,DEAL_ENTRY);
-            time2  =(datetime)HistoryDealGetInteger(ticket2,DEAL_TIME);
-            TimeToStruct(time2,DataHoraDaPenultimaOper);
-
-            if(reason1==DEAL_REASON_SL && entry1==DEAL_ENTRY_OUT && symbol1==_Symbol && reason2==DEAL_REASON_SL && //
-               entry2==DEAL_ENTRY_OUT && symbol2==_Symbol  && time1-time2>30 && DataHoraDaUltimaOper.day==DataHoraDaPenultimaOper.day)
-              {
-               contador++;
-               if(contador>qtdestops)
-                 {
-                  return true;
-                  break;
-                 }
-              }
-           }
-         return false;
-         break;
+         time  =(datetime)HistoryDealGetInteger(ticket,DEAL_TIME);
+         symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+         reason=HistoryDealGetInteger(ticket,DEAL_REASON);
+         entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+         TimeToStruct(TimeCurrent(),timecorrente);
+         TimeToStruct(time,timedaoper);
+         if(reason==DEAL_REASON_SL && entry==DEAL_ENTRY_OUT && symbol==_Symbol && timecorrente.day==timedaoper.day)
+            contador++;
         }
-      return false;
-      break;
+      else
+         return 0;
      }
-   return false;
+   return contador;
   }
 //+------------------------------------------------------------------------------------------+
 //+------------------------------------------------------------------+
@@ -1487,70 +1543,57 @@ void  ComprasNormais()
   {
    if(PositionsTotal()==0 /*&& tick.ask>candle[1].open*/)
      {
-      trade.Buy(volumeoper,_Symbol,tick.ask,slcomprapadrao,tpcomprapadrao,"C1");
+      trade.Buy(volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),puxatpsl("TPC0"),"C1");
       Sleep(500);
       return;
      }
    if(PossuiPosCompraComentada("C1") && !PossuiPosCompraComentada("C2") && tick.ask<PrecoAberturaPosCompra(1)-10000*_Point //
       && VolumePos()<=500 && volnv2!=0)
      {
-      if(ativahedge==true)
-         slcomprapadrao=PM1*(1-percentloss/100);
-      trade.Buy(volnv2,_Symbol,tick.ask,slcomprapadrao,tpcomprapadrao,"C2");
+      Print("entrou normal");
+      trade.Buy(volnv2,_Symbol,tick.ask,puxatpsl("SLC1"),puxatpsl("TPC1"),"C2");
       Sleep(500);
       return;
      }
-   if(PossuiPosCompraComentada("C2") && !PossuiPosCompraComentada("C3") && (PrecoAberturaPosCompra(1)-tick.ask)*_Point>//
-      (PrecoAberturaPosCompra(2)-PrecoAberturaPosCompra(1))*_Point*prctmart/100 && VolumePos()<=500 && volnv3!=0)
+   if(PossuiPosCompraComentada("C2") && !PossuiPosCompraComentada("C3") && (PrecoAberturaPosCompra(1)-tick.ask)/_Point>//
+      (PrecoAberturaPosCompra(2)-PrecoAberturaPosCompra(1))/_Point*prctmart/100 && VolumePos()<=500 && volnv3!=0)
      {
-      if(ativahedge==true)
-         slcomprapadrao=PM2*(1-percentloss/100);
-      trade.Buy(volnv3,_Symbol,tick.ask,slcomprapadrao,tpcomprapadrao,"C3");
+      trade.Buy(volnv3,_Symbol,tick.ask,puxatpsl("SLC2"),puxatpsl("TPC2"),"C3");
       Sleep(500);
       return;
      }
-   if(PossuiPosCompraComentada("C3") && !PossuiPosCompraComentada("C4") && (PrecoAberturaPosCompra(1)-tick.ask)*_Point>//
-      (PrecoAberturaPosCompra(2)-PrecoAberturaPosCompra(1))*_Point*prctmart/100 && VolumePos()<=500 && volnv4!=0)
+   if(PossuiPosCompraComentada("C3") && !PossuiPosCompraComentada("C4") && (PrecoAberturaPosCompra(1)-tick.ask)/_Point>//
+      (PrecoAberturaPosCompra(2)-PrecoAberturaPosCompra(1))/_Point*prctmart/100 && VolumePos()<=500 && volnv4!=0)
      {
-      if(ativahedge==true)
-         slcomprapadrao=PM3*(1-percentloss/100);
-      trade.Buy(volnv4,_Symbol,tick.ask,slcomprapadrao,tpcomprapadrao,"C4");
+      trade.Buy(volnv4,_Symbol,tick.ask,puxatpsl("SLC3"),puxatpsl("TPC3"),"C4");
       Sleep(500);
       return;
      }
-   if(PossuiPosCompraComentada("C4") && !PossuiPosCompraComentada("C5") && (PrecoAberturaPosCompra(1)-tick.ask)*_Point>//
-      (PrecoAberturaPosCompra(2)-PrecoAberturaPosCompra(1))*_Point*prctmart/100 && VolumePos()<=500 && volnv5!=0)
+   if(PossuiPosCompraComentada("C4") && !PossuiPosCompraComentada("C5") && (PrecoAberturaPosCompra(1)-tick.ask)/_Point>//
+      (PrecoAberturaPosCompra(2)-PrecoAberturaPosCompra(1))/_Point*prctmart/100 && VolumePos()<=500 && volnv5!=0)
      {
-      if(ativahedge==true)
-         slcomprapadrao=PM4*(1-percentloss/100);
-      trade.Buy(volnv5,_Symbol,tick.ask,slcomprapadrao,tpcomprapadrao,"C5");
+      trade.Buy(volnv5,_Symbol,tick.ask,puxatpsl("SLC4"),puxatpsl("TPC4"),"C5");
       Sleep(500);
       return;
      }
-   if(PossuiPosCompraComentada("C5") && !PossuiPosCompraComentada("C6") && (PrecoAberturaPosCompra(1)-tick.ask)*_Point>//
-      (PrecoAberturaPosCompra(2)-PrecoAberturaPosCompra(1))*_Point*prctmart/100 && VolumePos()<=500 && volnv6!=0)
+   if(PossuiPosCompraComentada("C5") && !PossuiPosCompraComentada("C6") && (PrecoAberturaPosCompra(1)-tick.ask)/_Point>//
+      (PrecoAberturaPosCompra(2)-PrecoAberturaPosCompra(1))/_Point*prctmart/100 && VolumePos()<=500 && volnv6!=0)
      {
-      if(ativahedge==true)
-         slcomprapadrao=PM5*(1-percentloss/100);
-      trade.Buy(volnv6,_Symbol,tick.ask,slcomprapadrao,tpcomprapadrao,"C6");
+      trade.Buy(volnv6,_Symbol,tick.ask,puxatpsl("SLC5"),puxatpsl("TPC5"),"C6");
       Sleep(500);
       return;
      }
-   if(PossuiPosCompraComentada("C6") && !PossuiPosCompraComentada("C7") && (PrecoAberturaPosCompra(1)-tick.ask)*_Point>//
-      (PrecoAberturaPosCompra(2)-PrecoAberturaPosCompra(1))*_Point*prctmart/100 && VolumePos()<=500 && volnv7!=0)
+   if(PossuiPosCompraComentada("C6") && !PossuiPosCompraComentada("C7") && (PrecoAberturaPosCompra(1)-tick.ask)/_Point>//
+      (PrecoAberturaPosCompra(2)-PrecoAberturaPosCompra(1))/_Point*prctmart/100 && VolumePos()<=500 && volnv7!=0)
      {
-      if(ativahedge==true)
-         slcomprapadrao=PM6*(1-percentloss/100);
-      trade.Buy(volnv7,_Symbol,tick.ask,slcomprapadrao,tpcomprapadrao,"C7");
+      trade.Buy(volnv7,_Symbol,tick.ask,puxatpsl("SLC6"),puxatpsl("TPC6"),"C7");
       Sleep(500);
       return;
      }
-   if(PossuiPosCompraComentada("C7") && !PossuiPosCompraComentada("C8") && (PrecoAberturaPosCompra(1)-tick.ask)*_Point>//
-      (PrecoAberturaPosCompra(2)-PrecoAberturaPosCompra(1))*_Point*prctmart/100 && VolumePos()<=500 && volnv8!=0)
+   if(PossuiPosCompraComentada("C7") && !PossuiPosCompraComentada("C8") && (PrecoAberturaPosCompra(1)-tick.ask)/_Point>//
+      (PrecoAberturaPosCompra(2)-PrecoAberturaPosCompra(1))/_Point*prctmart/100 && VolumePos()<=500 && volnv8!=0)
      {
-      if(ativahedge==true)
-         slcomprapadrao=PM7*(1-percentloss/100);
-      trade.Buy(volnv8,_Symbol,tick.ask,slcomprapadrao,tpcomprapadrao,"C8");
+      trade.Buy(volnv8,_Symbol,tick.ask,puxatpsl("SLC7"),puxatpsl("TPC7"),"C8");
       Sleep(500);
       return;
      }
@@ -1561,75 +1604,138 @@ void  ComprasNormais()
 /////////////////////////////////////////
 void  VendasNormais()
   {
-   if(PositionsTotal()==0 /*&& tick.bid < candle[1].open*/)
+   if(PositionsTotal()==0)
      {
-      trade.Sell(volumeoper,_Symbol,tick.bid,slvendapadrao,tpvendapadrao,"V1");
+      trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),puxatpsl("TPV0"),"V1");
       Sleep(500);
       return;
      }
    if(PossuiPosVendaComentada("V1") && !PossuiPosVendaComentada("V2") && tick.bid>PrecoAberturaPosVenda(1)+10000*_Point//
       && VolumePos()<=500 && volnv2!=0)
      {
-      if(ativahedge==true)
-         slvendapadrao=PM1*(1+percentloss/100);
-      trade.Sell(volnv2,_Symbol,tick.bid,slvendapadrao,tpvendapadrao,"V2");
+      trade.Sell(volnv2,_Symbol,tick.bid,puxatpsl("SLV1"),puxatpsl("TPV1"),"V2");
       Sleep(500);
       return;
      }
-   if(PossuiPosVendaComentada("V2") && !PossuiPosVendaComentada("V3") && (PrecoAberturaPosVenda(1)-tick.ask)*_Point>//
-      (PrecoAberturaPosVenda(1)-PrecoAberturaPosVenda(2))*_Point*prctmart/100 && VolumePos()<=500 && volnv3!=0)
+   if(PossuiPosVendaComentada("V2") && !PossuiPosVendaComentada("V3") && (tick.bid-PrecoAberturaPosVenda(1))/_Point>//
+      (PrecoAberturaPosVenda(1)-PrecoAberturaPosVenda(2))/_Point*prctmart/100 && VolumePos()<=500 && volnv3!=0)
      {
-      if(ativahedge==true)
-         slvendapadrao=PM2*(1+percentloss/100);
-      trade.Sell(volnv3,_Symbol,tick.bid,slvendapadrao,tpvendapadrao,"V3");
+      trade.Sell(volnv3,_Symbol,tick.bid,puxatpsl("SLV2"),puxatpsl("TPV2"),"V3");
       Sleep(500);
       return;
      }
-   if(PossuiPosVendaComentada("V3") && !PossuiPosVendaComentada("V4") && (PrecoAberturaPosVenda(1)-tick.ask)*_Point>//
-      (PrecoAberturaPosVenda(1)-PrecoAberturaPosVenda(2))*_Point*prctmart/100 && VolumePos()<=500 && volnv4!=0)
+   if(PossuiPosVendaComentada("V3") && !PossuiPosVendaComentada("V4") && (tick.bid-PrecoAberturaPosVenda(1))/_Point>//
+      (PrecoAberturaPosVenda(1)-PrecoAberturaPosVenda(2))/_Point*prctmart/100 && VolumePos()<=500 && volnv4!=0)
      {
-      if(ativahedge==true)
-         slvendapadrao=PM3*(1+percentloss/100);
-      trade.Sell(volnv4,_Symbol,tick.bid,slvendapadrao,tpvendapadrao,"V4");
+      trade.Sell(volnv4,_Symbol,tick.bid,puxatpsl("SLV3"),puxatpsl("TPV3"),"V4");
       Sleep(500);
       return;
      }
-   if(PossuiPosVendaComentada("V4") && !PossuiPosVendaComentada("V5") && (PrecoAberturaPosVenda(1)-tick.ask)*_Point>//
-      (PrecoAberturaPosVenda(1)-PrecoAberturaPosVenda(2))*_Point*prctmart/100 && VolumePos()<=500 && volnv5!=0)
+   if(PossuiPosVendaComentada("V4") && !PossuiPosVendaComentada("V5") && (tick.bid-PrecoAberturaPosVenda(1))/_Point>//
+      (PrecoAberturaPosVenda(1)-PrecoAberturaPosVenda(2))/_Point*prctmart/100 && VolumePos()<=500 && volnv5!=0)
      {
-      if(ativahedge==true)
-         slvendapadrao=PM4*(1+percentloss/100);
-      trade.Sell(volnv5,_Symbol,tick.bid,slvendapadrao,tpvendapadrao,"V5");
+      trade.Sell(volnv5,_Symbol,tick.bid,puxatpsl("SLV4"),puxatpsl("TPV4"),"V5");
       Sleep(500);
       return;
      }
-   if(PossuiPosVendaComentada("V5") && !PossuiPosVendaComentada("V6") && (PrecoAberturaPosVenda(1)-tick.ask)*_Point>//
-      (PrecoAberturaPosVenda(1)-PrecoAberturaPosVenda(2))*_Point*prctmart/100 && VolumePos()<=500 && volnv6!=0)
+   if(PossuiPosVendaComentada("V5") && !PossuiPosVendaComentada("V6") && (tick.bid-PrecoAberturaPosVenda(1))/_Point>//
+      (PrecoAberturaPosVenda(1)-PrecoAberturaPosVenda(2))/_Point*prctmart/100 && VolumePos()<=500 && volnv6!=0)
      {
-      if(ativahedge==true)
-         slvendapadrao=PM5*(1+percentloss/100);
-      trade.Sell(volnv6,_Symbol,tick.bid,slvendapadrao,tpvendapadrao,"V6");
+      trade.Sell(volnv6,_Symbol,tick.bid,puxatpsl("SLV5"),puxatpsl("TPV5"),"V6");
       Sleep(500);
       return;
      }
-   if(PossuiPosVendaComentada("V6") && !PossuiPosVendaComentada("V7") && (PrecoAberturaPosVenda(1)-tick.ask)*_Point>//
-      (PrecoAberturaPosVenda(1)-PrecoAberturaPosVenda(2))*_Point*prctmart/100 && VolumePos()<=500 && volnv7!=0)
+   if(PossuiPosVendaComentada("V6") && !PossuiPosVendaComentada("V7") && (tick.bid-PrecoAberturaPosVenda(1))/_Point>//
+      (PrecoAberturaPosVenda(1)-PrecoAberturaPosVenda(2))/_Point*prctmart/100 && VolumePos()<=500 && volnv7!=0)
      {
-      if(ativahedge==true)
-         slvendapadrao=PM6*(1+percentloss/100);
-      trade.Sell(volnv7,_Symbol,tick.bid,slvendapadrao,tpvendapadrao,"V7");
+      trade.Sell(volnv7,_Symbol,tick.bid,puxatpsl("SLV6"),puxatpsl("TPV6"),"V7");
       Sleep(500);
       return;
      }
-   if(PossuiPosVendaComentada("V7") && !PossuiPosVendaComentada("V8") && (PrecoAberturaPosVenda(1)-tick.ask)*_Point>//
-      (PrecoAberturaPosVenda(1)-PrecoAberturaPosVenda(2))*_Point*prctmart/100 && VolumePos()<=500 && volnv8!=0)
+   if(PossuiPosVendaComentada("V7") && !PossuiPosVendaComentada("V8") && (tick.bid-PrecoAberturaPosVenda(1))/_Point>//
+      (PrecoAberturaPosVenda(1)-PrecoAberturaPosVenda(2))/_Point*prctmart/100 && VolumePos()<=500 && volnv8!=0)
      {
-      if(ativahedge==true)
-         slvendapadrao=PM7*(1+percentloss/100);
-      trade.Sell(volnv8,_Symbol,tick.bid,slvendapadrao,tpvendapadrao,"V8");
+      trade.Sell(volnv8,_Symbol,tick.bid,puxatpsl("SLV7"),puxatpsl("TPV7"),"V8");
       Sleep(500);
       return;
      }
   }
 //+---------------------------------------------------------------------------------------------------------------------------------+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+//---| AJUSTA O VALOR DE TAKE PROFIT E STOP LOSS PARA POSTERIOR INSERÇÃO NAS ORDENS DE COMPRA/VENDA |---//
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+double   puxatpsl(string tpsl)
+  {
+   string str=tpsl;
+   if(str=="SLV0")
+      return(tick.bid*(1+percentloss/100));
+   if(str=="SLV1")
+      return(PM1*(1+percentloss/100));
+   if(str=="SLV2")
+      return(PM2*(1+percentloss/100));
+   if(str=="SLV3")
+      return(PM3*(1+percentloss/100));
+   if(str=="SLV4")
+      return(PM4*(1+percentloss/100));
+   if(str=="SLV5")
+      return(PM5*(1+percentloss/100));
+   if(str=="SLV6")
+      return(PM6*(1+percentloss/100));
+   if(str=="SLV7")
+      return(PM7*(1+percentloss/100));
+
+   if(str=="SLC0")
+      return(tick.ask*(1-percentloss/100));
+   if(str=="SLC1")
+      return(PM1*(1-percentloss/100));
+   if(str=="SLC2")
+      return(PM2*(1-percentloss/100));
+   if(str=="SLC3")
+      return(PM3*(1-percentloss/100));
+   if(str=="SLC4")
+      return(PM4*(1-percentloss/100));
+   if(str=="SLC5")
+      return(PM5*(1-percentloss/100));
+   if(str=="SLC6")
+      return(PM6*(1-percentloss/100));
+   if(str=="SLC7")
+      return(PM7*(1-percentloss/100));
+
+   if(str=="TPC0")
+      return(tick.bid*(1+percentgain/100));
+   if(str=="TPC1")
+      return(PM1*(1+percentgain/100));
+   if(str=="TPC2")
+      return(PM2*(1+percentgain/100));
+   if(str=="TPC3")
+      return(PM3*(1+percentgain/100));
+   if(str=="TPC4")
+      return(PM4*(1+percentgain/100));
+   if(str=="TPC5")
+      return(PM5*(1+percentgain/100));
+   if(str=="TPC6")
+      return(PM6*(1+percentgain/100));
+   if(str=="TPC7")
+      return(PM7*(1+percentgain/100));
+
+   if(str=="TPV0")
+      return(tick.ask*(1-percentgain/100));
+   if(str=="TPV1")
+      return(PM1*(1-percentgain/100));
+   if(str=="TPV2")
+      return(PM2*(1-percentgain/100));
+   if(str=="TPV3")
+      return(PM3*(1-percentgain/100));
+   if(str=="TPV4")
+      return(PM4*(1-percentgain/100));
+   if(str=="TPV5")
+      return(PM5*(1-percentgain/100));
+   if(str=="TPV6")
+      return(PM6*(1-percentgain/100));
+   if(str=="TPV7")
+      return(PM7*(1-percentgain/100));
+   return(NULL);
+  }
+//+------------------------------------------------------------------+
+//|                                                                  |
 //+------------------------------------------------------------------+
