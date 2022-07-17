@@ -29,10 +29,11 @@ input double             loteinicial         = 1;          // TAMANHO DO LOTE IN
 input double             valoraumento        = 100000.00;  // VALOR PARA AUMENTO DE LOTE
 input double             percentgain         = 0.1;        // % GAIN
 input double             percentloss         = 2.5;        // % LOSS
+input int                ptsmartprimcompra   = 10000;      // DISTANCIA EM PTS PARA 2 OPER
 input group              "MARTINGALE"
 input ENUM_TP_MART       tipomartingale      = mart3;      // TIPO DE MARTINGALE
 input int                multiplicador       = 1;          // MULTIPLICADOR P/ MARTINGALE
-input double             prctmart            = 50;         // % MÍNIMO DOS PTS P/ PX ORDEM
+input double             prctmart            = 50;         // % MÍN DE PTS DA ORD ANT P/ PX ORD
 input group              "RSI"
 input bool               ativarsi            = true;       // ATIVA RSI
 input int                periodorsi          = 14;         // PERIODO RSI
@@ -1582,7 +1583,7 @@ void  VendasNormais()
       Sleep(500);
       return;
      }
-   if(PossuiPosVendaComentada("V1") && !PossuiPosVendaComentada("V2") && tick.bid>PrecoAberturaPosVenda(1)+10000*_Point//
+   if(PossuiPosVendaComentada("V1") && !PossuiPosVendaComentada("V2") && tick.bid>PrecoAberturaPosVenda(1)+ptsmartprimcompra*_Point//
       && VolumePos()<=500 && volnv2!=0)
      {
       trade.Sell(volnv2,_Symbol,tick.bid,puxatpsl("SLV1"),puxatpsl("TPV1"),"V2");
