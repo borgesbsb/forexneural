@@ -42,12 +42,9 @@ input group              "BANDAS DE BOLLINGER"
 input bool               ativabb             = false;      // ATIVA BOLINGER
 input int                periodobb           = 14;         // PERIODO BOLINGER
 input double             desviobb            = 2.0;        // DESVIO BOLINGER
-input group              "CRUZAMENTO DE MÉDIAS"
-input bool               ativamedia          = false;      // ATIVA CRUZAMENTO DE MÉDIAS
-input int                periodm1            = 7;          // PERÍODO DA MEDIA MENOR
-input int                periodm2            = 21;         // PERÍODO DA MEDIA MAIOR
 input group              "ENVELOPE - USA DADOS DA MÉDIA MENOR ACIMA"
 input bool               ativaenvelope       = false;      // ATIVA ESTRATÉGIA ENVELOPE
+input int                periodm1            = 14;         // PERIODO DA MÉDIA ENVELOPE
 input double             tamanhoenvelope     = 100000;     // TAMANHO DO ENVELOPE EM PONTOS
 input group              "FILTROS QUE PODEM SER USADOS COM RSI, BB E ENVELOPE"
 input bool               ativafiltrorsi      = false;      // ATIVA FILTRO RSI
@@ -109,14 +106,12 @@ int OnInit()
    handlersi = iRSI(_Symbol,_Period,periodorsi,PRICE_CLOSE);
    handlebb = iBands(_Symbol,_Period,periodobb,0,desviobb,PRICE_CLOSE);
    handlem1 = iMA(_Symbol,_Period,periodm1,0,MODE_SMA,PRICE_CLOSE);
-   handlem2 = iMA(_Symbol,_Period,periodm2,0,MODE_SMA,PRICE_CLOSE);
    ArraySetAsSeries(candle,true);
    ArraySetAsSeries(rsi,true);
    ArraySetAsSeries(bbu,true);
    ArraySetAsSeries(bbm,true);
    ArraySetAsSeries(bbd,true);
    ArraySetAsSeries(mediam1,true);
-   ArraySetAsSeries(mediam2,true);
 
 //--- Definição dos preços de stoploss padrão para as diversas moedas
    if(Symbol()=="EURUSD")
@@ -222,12 +217,6 @@ void OnTick()
    if(CopyBuffer(handlem1,0,0,5,mediam1)<0)
      {
       Alert("Erro ao copiar dados de Média Móvel Menor: ", GetLastError());
-      return;
-     }
-   CopyBuffer(handlem2,0,0,5,mediam2);
-   if(CopyBuffer(handlem2,0,0,5,mediam2)<0)
-     {
-      Alert("Erro ao copiar dados de Média Móvel Maior: ", GetLastError());
       return;
      }
 
@@ -489,23 +478,6 @@ void OnTick()
             //---|VENDAS|---//
             //////////////////
             if(candle[1].close>bbu[1])
-               VendasNormais();
-           }
-         /////////////////////////////////////////////////////
-         //---|ESTRATEGIA PRINCIPAL CRUZAMENTO DE MÉDIAS|---//
-         /////////////////////////////////////////////////////
-         if(ativamedia)
-           {
-            ///////////////////
-            //---|COMPRAS|---//
-            ///////////////////
-            if(mediam1[2]<mediam2[2] && mediam1[1]>mediam2[1])
-               ComprasNormais();
-
-            //////////////////
-            //---|VENDAS|---//
-            //////////////////
-            if(mediam1[2]>mediam2[2] && mediam1[1]<mediam2[1])
                VendasNormais();
            }
          /////////////////////////////////////////
