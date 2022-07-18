@@ -21,45 +21,52 @@ enum ENUM_TP_MART
    mart4,        // [4]2x VOL ACUMULADO
   };
 
+enum ENUM_TP_ESTRAT
+  {
+   estrat1,      // [1]ENVELOPE/RSI/BOLINGER
+   estrat2,      // [2]ENVELOPE/RSI
+   estrat3,      // [3]ENVELOPE/BOLINGER
+   estrat4,      // [3]RSI/BOLINGER
+   estrat5,      // [4]ENVELOPE
+   estrat6,      // [5]RSI
+   estrat7,      // [6]BOLINGER
+  };
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 input ulong              magicrobo           = 941;        // MAGIC NUMBER DO ROBÔ
 input group              "ABERTURA DE POSIÇÕES"
 input bool               ativaentradaea      = true;       // ATIVA ABERTURA
 input double             loteinicial         = 1;          // TAMANHO DO LOTE INICIAL
-input double             valoraumento        = 100000.00;  // VALOR PARA AUMENTO DE LOTE
-input double             percentgain         = 0.1;        // % GAIN
-input double             percentloss         = 2.5;        // % LOSS
-input int                ptsmartprimcompra   = 10000;      // DISTANCIA EM PTS PARA 2 OPER
+input double             valoraumento        = 100000.00;  // [$] VALOR P/ AUMENTO DO VALOR DO LOTE
+input double             percentgain         = 0.1;        // [%] PORCENTAGEM DE STOP GAIN
+input double             percentloss         = 2.5;        // [%] PORCENTAGEM DE STOP LOSS
+input int                ptsmartprimcompra   = 10000;      // [PTS] DISTANCIA PARA 2 OPERAÇÃO
 input group              "MARTINGALE"
 input ENUM_TP_MART       tipomartingale      = mart3;      // TIPO DE MARTINGALE
-input int                multiplicador       = 1;          // MULTIPLICADOR P/ MARTINGALE
-input double             prctmart            = 50;         // % MÍN DE PTS DA ORD ANT P/ PX ORD
-input group              "RSI"
-input bool               ativarsi            = true;       // ATIVA RSI
-input int                periodorsi          = 14;         // PERIODO RSI
-input int                sobrevrsi           = 70;         // PORCENTAGEM SOBREVENDA
-input int                sobrecrsi           = 30;         // PORCENTAGEM SOBRECOMPRA
-input group              "BANDAS DE BOLLINGER"
-input bool               ativabb             = false;      // ATIVA BOLINGER
-input int                periodobb           = 14;         // PERIODO BOLINGER
-input double             desviobb            = 2.0;        // DESVIO BOLINGER
-input group              "ENVELOPE - USA DADOS DA MÉDIA MENOR ACIMA"
-input bool               ativaenvelope       = false;      // ATIVA ESTRATÉGIA ENVELOPE
-input int                periodm1            = 14;         // PERIODO DA MÉDIA ENVELOPE
-input double             tamanhoenvelope     = 100000;     // TAMANHO DO ENVELOPE EM PONTOS
-input group              "FILTROS QUE PODEM SER USADOS COM RSI, BB E ENVELOPE"
-input bool               ativafiltrorsi      = false;      // ATIVA FILTRO RSI
-input bool               ativafiltrobb       = false;      // ATIVA FILTRO BOLINGER
+input int                multiplicador       = 1;          // [INT] MULTIPLICADOR P/ MARTINGALE
+input double             prctmart            = 50;         // [%] MÍNIMA DAS 2 ORD ANT P/ PX ORD
+input group              "ESCOLHA DA ESTRATÉGIA"
+input ENUM_TP_ESTRAT     estrategia          = estrat1;    // ESCOLHA A ESTRATÉGIA
+input group              "VALORES DEFINIDOS P/ RSI"
+input int                periodorsi          = 14;         // [INT] PERIODO P/ RSI
+input int                sobrevrsi           = 70;         // [%] PORCENTAGEM DE SOBREVENDA
+input int                sobrecrsi           = 30;         // [%] PORCENTAGEM DE SOBRECOMPRA
+input group              "VALORES DEFINIDOS P/ BANDAS DE BOLLINGER"
+input int                periodobb           = 14;         // [INT] PERIODO P/ BANDAS DE BOLINGER
+input double             desviobb            = 2.0;        // [DEC] DESVIO P/ BANDAS DE BOLINGER
+input group              "VALORES DEFINIDOS P/ ENVELOPE"
+input int                periodm1            = 14;         // [INT] PERIODO DA MÉDIA P/ ENVELOPE
+input double             tamanhoenvelope     = 100000;     // [INT] DISTÂNCIA P/ ENVELOPE
 input group              "BREAKEVEN/TRAILING STOP"
 input bool               ativbreak           = false;      // ATIVA BREAKEVEN/TRAILING STOP
 input double             pontosbreak         = 5;          // PTOS PROX AO TP PARA ATIV BREAKEVEN
 input double             pontosbreak2        = 5;          // PTOS P/ MOVER TP PARA FRENTE BREAKEVEN
 input double             pontosbesl          = 10;         // PTOS A MENOS PARA SL NOVO
 input double             pontosts            = 5;          // PTOS DO SL NOVO PARA ATIV TS
-input group              "GERENCIAMENTO DE RISCO - PARADA DIÁRIA DO ROBÔ"
+input group              "GERENCIAMENTO DE RISCO - PARADA DIÁRIA DO ROBÔ COM STOP ALCANÇADO"
 input bool               ativastopdiario     = true;       // PARA O ROBÔ NO DIA QNDO STOP > N
 input int                qtdestops           = 3;          // QTDE MÁXIMA DE STOPS (N)
-input group              "GERENCIAMENTO DE RISCO - FECHAMENTO DE ORDENS LONGAS/FIM DO DIA"
+input group              "GERENCIAMENTO DE RISCO - FECHAMENTO DE ORDENS COM PERDA MENOR"
 input bool               ativafecfinaldia    = false;      // ATIVA FECHAMENTO DE OPERAÇÕES FIM DO DIA
 input bool               ativafeclongas      = false;      // ATIVA FECHAMENTO DE ORDENS LONGAS
 input group              "GERENCIAMENTO DE RISCO - STOP FULL"
@@ -75,17 +82,17 @@ double                   stopvenda           = 0.0;
 double                   takecompra          = 0.0;
 double                   takevenda           = 0.0;
 
-int                      handlebb,handlersi,handlem1,handlem2;
+int                      handlebb,handlersi,handleMM,handlem2;
 
 double                   percent_margem, saldo, capital, lucro_prejuizo, volumemaximo, volumeoper, //
-                         slcomprapadrao, slvendapadrao, tpcomprapadrao, tpvendapadrao, rsi[], bbu[], bbm[], bbd[], mediam1[], mediam2[];
+                         slcomprapadrao, slvendapadrao, tpcomprapadrao, tpvendapadrao, rsi[], bbu[], bbm[], bbd[], mediamovel[];
 
 //--- Definição das variáveis dos volumes para compra e venda quando utilizar martingale
 double                   volnv2,volnv3,volnv4,volnv5,volnv6,volnv7,volnv8;
 double                   volnv_2,volnv_3,volnv_4,volnv_5,volnv_6,volnv_7,volnv_8;
 
 //--- Definição das variáveis dos preços médios para compra e venda quando utilizar martingale
-double                   PM1, PM2, PM3, PM4, PM5, PM6, PM7, PM8;
+double                   PM1, PM2, PM3, PM4, PM5, PM6, PM7;
 
 //--- Variáveis p/ ticks, candles e tempo
 MqlTick                  tick;
@@ -106,15 +113,15 @@ int OnInit()
 
    handlersi = iRSI(_Symbol,_Period,periodorsi,PRICE_CLOSE);
    handlebb = iBands(_Symbol,_Period,periodobb,0,desviobb,PRICE_CLOSE);
-   handlem1 = iMA(_Symbol,_Period,periodm1,0,MODE_SMA,PRICE_CLOSE);
+   handleMM = iMA(_Symbol,_Period,periodm1,0,MODE_SMA,PRICE_CLOSE);
    ArraySetAsSeries(candle,true);
    ArraySetAsSeries(rsi,true);
    ArraySetAsSeries(bbu,true);
    ArraySetAsSeries(bbm,true);
    ArraySetAsSeries(bbd,true);
-   ArraySetAsSeries(mediam1,true);
+   ArraySetAsSeries(mediamovel,true);
 
-//--- Definição dos preços de stoploss padrão para as diversas moedas
+//--- Definição dos preços de stoploss padrão quando não utilizando estratégias de SL e TP programados
    if(Symbol()=="EURUSD")
      {
       slcomprapadrao=0.50000;
@@ -214,10 +221,10 @@ void OnTick()
       Alert("Erro ao copiar dados de Banda Inferior Bolinger: ", GetLastError());
       return;
      }
-   CopyBuffer(handlem1,0,0,5,mediam1);
-   if(CopyBuffer(handlem1,0,0,5,mediam1)<0)
+   CopyBuffer(handleMM,0,0,5,mediamovel);
+   if(CopyBuffer(handleMM,0,0,5,mediamovel)<0)
      {
-      Alert("Erro ao copiar dados de Média Móvel Menor: ", GetLastError());
+      Alert("Erro ao copiar dados de Média Móvel: ", GetLastError());
       return;
      }
 
@@ -233,7 +240,7 @@ void OnTick()
    if(NB1.IsNewBar(_Symbol,_Period)) //VERIFICA SE É UM NOVO CANDLE
      {
 
-      //--- Definição dos lotes iniciais de compra e venda, bem como os lotes quando utilizar martingale
+      //--- Definição dos lotes iniciais de compra e venda
       if(saldo<valoraumento)
          volumeoper=loteinicial;
       else
@@ -402,7 +409,7 @@ void OnTick()
         {
          if((PossuiPosCompraComentada("C3")||PossuiPosCompraComentada("C4")||PossuiPosCompraComentada("C5")|| //
              PossuiPosCompraComentada("C6")||PossuiPosCompraComentada("C7")||PossuiPosCompraComentada("C8")) && //
-            (candle[1].close>bbu[1]||candle[1].close>mediam1[1]+tamanhoenvelope*_Point))
+            (candle[1].close>bbu[1]||candle[1].close>mediamovel[1]+tamanhoenvelope*_Point))
            {
             FechaTodasPosicoesAbertas();
            }
@@ -411,7 +418,7 @@ void OnTick()
         {
          if((PossuiPosVendaComentada("V3")||PossuiPosVendaComentada("V4")||PossuiPosVendaComentada("V5")|| //
              PossuiPosVendaComentada("V6")||PossuiPosVendaComentada("V7")||PossuiPosVendaComentada("V8")) && //
-            (candle[1].close<bbd[1]||candle[1].close<mediam1[1]-tamanhoenvelope*_Point))
+            (candle[1].close<bbd[1]||candle[1].close<mediamovel[1]-tamanhoenvelope*_Point))
            {
             FechaTodasPosicoesAbertas();
            }
@@ -425,49 +432,110 @@ void OnTick()
 
    if(ativaentradaea && !PossuiPosAbertaOutroAtivo() && TempoStruct.hour<=23 && TempoStruct.min<50 && (percent_margem>3500||saldo==capital))
      {
+      Print("QTDE STOPS: ",QtdeStops());
       if(NB2.IsNewBar(_Symbol,_Period) && QtdeStops()<qtdestops) //VERIFICA SE O CANDLE ACABOU DE ABRIR E SE NÃO STOPOU MUITO
         {
-         ////////////////////////////////////
-         //---|ESTRATEGIA PRINCIPAL RSI|---//
-         ////////////////////////////////////
-         if(ativarsi)
+         //////////////////////////////////////////////
+         //---| ESTRATEGIA ENVELOPE/RSI/BOLINGER |---//
+         //////////////////////////////////////////////
+         if(estrat1)
            {
-            if(ativafiltrobb)
-              {
-               ///////////////////
-               //---|COMPRAS|---//
-               ///////////////////
-               if(rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/ && candle[1].close<bbd[1])
-                 {
-                  Print("Tick: ",tick.ask);
-                  ComprasNormais();
-                 }
-               //////////////////
-               //---|VENDAS|---//
-               //////////////////
-               if(rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/ && candle[1].close>bbu[1])
-                  VendasNormais();
-              }
-            else
-              {
-               ///////////////////
-               //---|COMPRAS|---//
-               ///////////////////
-               if(rsi[1]<sobrecrsi/*&& rsi[0]>sobrecrsi*/)
-                  ComprasNormais();
-
-               //////////////////
-               //---|VENDAS|---//
-               //////////////////
-               if(rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/)
-                  VendasNormais();
-              }
+            ///////////////////
+            //---|COMPRAS|---//
+            ///////////////////
+            if(candle[1].close<mediamovel[1]-tamanhoenvelope*_Point && rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/ && candle[1].close<bbd[1])
+               ComprasNormais();
+            //////////////////
+            //---|VENDAS|---//
+            //////////////////
+            if(candle[1].close>mediamovel[1]+tamanhoenvelope*_Point && rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/ && candle[1].close>bbu[1])
+               VendasNormais();
            }
-         /////////////////////////////////////////
-         //---|ESTRATEGIA PRINCIPAL BOLINGER|---//
-         /////////////////////////////////////////
+         /////////////////////////////////////
+         //---| ESTRATEGIA ENVELOPE/RSI |---//
+         /////////////////////////////////////
+         if(estrat2)
+           {
+            ///////////////////
+            //---|COMPRAS|---//
+            ///////////////////
+            if(candle[1].close<mediamovel[1]-tamanhoenvelope*_Point && rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/)
+               ComprasNormais();
+            //////////////////
+            //---|VENDAS|---//
+            //////////////////
+            if(candle[1].close>mediamovel[1]+tamanhoenvelope*_Point && rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/)
+               VendasNormais();
+           }
+         //////////////////////////////////////////
+         //---| ESTRATEGIA ENVELOPE/BOLINGER |---//
+         //////////////////////////////////////////
+         if(estrat3)
+           {
+            ///////////////////
+            //---|COMPRAS|---//
+            ///////////////////
+            if(candle[1].close<mediamovel[1]-tamanhoenvelope*_Point && candle[1].close<bbd[1])
+               ComprasNormais();
+            //////////////////
+            //---|VENDAS|---//
+            //////////////////
+            if(candle[1].close>mediamovel[1]+tamanhoenvelope*_Point && candle[1].close>bbu[1])
+               VendasNormais();
+           }
+         /////////////////////////////////////
+         //---| ESTRATEGIA RSI/BOLINGER |---//
+         /////////////////////////////////////
+         if(estrat4)
+           {
+            ///////////////////
+            //---|COMPRAS|---//
+            ///////////////////
+            if(rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/ && candle[1].close<bbd[1])
+               ComprasNormais();
+            //////////////////
+            //---|VENDAS|---//
+            //////////////////
+            if(rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/ && candle[1].close>bbu[1])
+               VendasNormais();
+           }
+         /////////////////////////////////
+         //---| ESTRATEGIA ENVELOPE |---//
+         /////////////////////////////////
+         if(estrat5)
+           {
+            ///////////////////
+            //---|COMPRAS|---//
+            ///////////////////
+            if(candle[1].close<mediamovel[1]-tamanhoenvelope*_Point)
+               ComprasNormais();
 
-         if(ativabb)
+            //////////////////
+            //---|VENDAS|---//
+            //////////////////
+            if(candle[1].close>mediamovel[1]+tamanhoenvelope*_Point)
+               VendasNormais();
+           }
+         ////////////////////////////
+         //---| ESTRATEGIA RSI |---//
+         ////////////////////////////
+         if(estrat6)
+           {
+            ///////////////////
+            //---|COMPRAS|---//
+            ///////////////////
+            if(rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/)
+               ComprasNormais();
+            //////////////////
+            //---|VENDAS|---//
+            //////////////////
+            if(rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/)
+               VendasNormais();
+           }
+         /////////////////////////////////
+         //---| ESTRATEGIA BOLINGER |---//
+         /////////////////////////////////
+         if(estrat7)
            {
             ///////////////////
             //---|COMPRAS|---//
@@ -481,80 +549,14 @@ void OnTick()
             if(candle[1].close>bbu[1])
                VendasNormais();
            }
-         /////////////////////////////////////////
-         //---|ESTRATEGIA PRINCIPAL ENVELOPE|---//
-         /////////////////////////////////////////
-         if(ativaenvelope)
-           {
-            if(ativafiltrorsi)
-              {
-               if(ativafiltrobb)
-                 {
-                  ///////////////////
-                  //---|COMPRAS|---//
-                  ///////////////////
-                  if(candle[1].close<mediam1[1]-tamanhoenvelope*_Point && rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/ && candle[1].close<bbd[1])
-                     ComprasNormais();
-                  //////////////////
-                  //---|VENDAS|---//
-                  //////////////////
-                  if(candle[1].close>mediam1[1]+tamanhoenvelope*_Point && rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/ && candle[1].close>bbu[1])
-                     VendasNormais();
-                 }
-               else
-                 {
-                  ///////////////////
-                  //---|COMPRAS|---//
-                  ///////////////////
-                  if(candle[1].close<mediam1[1]-tamanhoenvelope*_Point && rsi[1]<sobrecrsi/*&& rsi[0]>sobrecrsi*/)
-                     ComprasNormais();
-
-                  //////////////////
-                  //---|VENDAS|---//
-                  //////////////////
-                  if(candle[1].close>mediam1[1]+tamanhoenvelope*_Point && rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/)
-                     VendasNormais();
-                 }
-              }
-            else
-              {
-               if(ativafiltrobb)
-                 {
-                  ///////////////////
-                  //---|COMPRAS|---//
-                  ///////////////////
-                  if(candle[1].close<mediam1[1]-tamanhoenvelope*_Point && candle[1].close<bbd[1])
-                     ComprasNormais();
-                  //////////////////
-                  //---|VENDAS|---//
-                  //////////////////
-                  if(candle[1].close>mediam1[1]+tamanhoenvelope*_Point && candle[1].close>bbu[1])
-                     VendasNormais();
-                 }
-               else
-                 {
-                  ///////////////////
-                  //---|COMPRAS|---//
-                  ///////////////////
-                  if(candle[1].close<mediam1[1]-tamanhoenvelope*_Point)
-                     ComprasNormais();
-
-                  //////////////////
-                  //---|VENDAS|---//
-                  //////////////////
-                  if(candle[1].close>mediam1[1]+tamanhoenvelope*_Point)
-                     VendasNormais();
-                 }
-              }
-           }
-
-         /////////////////////////////////
-         //---|AJUSTE DE TAKE E STOP|---//
-         /////////////////////////////////
-         //         if(PositionsTotal()==1 && )
-         //            AjustaTPSL();
         }
      }
+
+/////////////////////////////////
+//---|AJUSTE DE TAKE E STOP|---//
+/////////////////////////////////
+//         if(PositionsTotal()==1 && )
+//            AjustaTPSL();
 
 ///////////////////////
 //---|STOP FULL |----//
@@ -630,11 +632,11 @@ int QtdeStops()
          entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
          TimeToStruct(TimeCurrent(),timecorrente);
          TimeToStruct(time,timedaoper);
-         if(reason==DEAL_REASON_SL && entry==DEAL_ENTRY_OUT && symbol==_Symbol && timecorrente.day==timedaoper.day)
+         if(reason==DEAL_REASON_SL && entry==DEAL_ENTRY_OUT && symbol==_Symbol && timecorrente.day==timedaoper.day && timecorrente.year==timedaoper.year)
             contador++;
         }
       else
-         return 0;
+         return(contador);
      }
    return contador;
   }
@@ -1523,7 +1525,6 @@ void  ComprasNormais()
    if(PossuiPosCompraComentada("C1") && !PossuiPosCompraComentada("C2") && tick.ask<PrecoAberturaPosCompra(1)-10000*_Point //
       && VolumePos()<=500 && volnv2!=0)
      {
-      Print("entrou normal");
       trade.Buy(volnv2,_Symbol,tick.ask,puxatpsl("SLC1"),puxatpsl("TPC1"),"C2");
       Sleep(500);
       return;
