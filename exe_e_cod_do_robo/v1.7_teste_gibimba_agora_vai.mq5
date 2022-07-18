@@ -26,10 +26,10 @@ enum ENUM_TP_ESTRAT
    estrat1,      // [1]ENVELOPE/RSI/BOLINGER
    estrat2,      // [2]ENVELOPE/RSI
    estrat3,      // [3]ENVELOPE/BOLINGER
-   estrat4,      // [3]RSI/BOLINGER
-   estrat5,      // [4]ENVELOPE
-   estrat6,      // [5]RSI
-   estrat7,      // [6]BOLINGER
+   estrat4,      // [4]RSI/BOLINGER
+   estrat5,      // [5]ENVELOPE
+   estrat6,      // [6]RSI
+   estrat7,      // [7]BOLINGER
   };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -56,7 +56,7 @@ input int                periodobb           = 14;         // [INT] PERIODO P/ B
 input double             desviobb            = 2.0;        // [DEC] DESVIO P/ BANDAS DE BOLINGER
 input group              "VALORES DEFINIDOS P/ ENVELOPE"
 input int                periodm1            = 14;         // [INT] PERIODO DA MÉDIA P/ ENVELOPE
-input double             tamanhoenvelope     = 100000;     // [INT] DISTÂNCIA P/ ENVELOPE
+input double             tamanhoenvelope     = 100000;     // [PTS] DISTÂNCIA P/ ENVELOPE
 input group              "BREAKEVEN/TRAILING STOP"
 input bool               ativbreak           = false;      // ATIVA BREAKEVEN/TRAILING STOP
 input double             pontosbreak         = 5;          // PTOS PROX AO TP PARA ATIV BREAKEVEN
@@ -438,7 +438,7 @@ void OnTick()
          //////////////////////////////////////////////
          //---| ESTRATEGIA ENVELOPE/RSI/BOLINGER |---//
          //////////////////////////////////////////////
-         if(estrat1)
+         if(estrategia==estrat1)
            {
             ///////////////////
             //---|COMPRAS|---//
@@ -454,7 +454,7 @@ void OnTick()
          /////////////////////////////////////
          //---| ESTRATEGIA ENVELOPE/RSI |---//
          /////////////////////////////////////
-         if(estrat2)
+         if(estrategia==estrat2)
            {
             ///////////////////
             //---|COMPRAS|---//
@@ -470,7 +470,7 @@ void OnTick()
          //////////////////////////////////////////
          //---| ESTRATEGIA ENVELOPE/BOLINGER |---//
          //////////////////////////////////////////
-         if(estrat3)
+         if(estrategia==estrat3)
            {
             ///////////////////
             //---|COMPRAS|---//
@@ -486,7 +486,7 @@ void OnTick()
          /////////////////////////////////////
          //---| ESTRATEGIA RSI/BOLINGER |---//
          /////////////////////////////////////
-         if(estrat4)
+         if(estrategia==estrat4)
            {
             ///////////////////
             //---|COMPRAS|---//
@@ -502,7 +502,7 @@ void OnTick()
          /////////////////////////////////
          //---| ESTRATEGIA ENVELOPE |---//
          /////////////////////////////////
-         if(estrat5)
+         if(estrategia==estrat5)
            {
             ///////////////////
             //---|COMPRAS|---//
@@ -519,7 +519,7 @@ void OnTick()
          ////////////////////////////
          //---| ESTRATEGIA RSI |---//
          ////////////////////////////
-         if(estrat6)
+         if(estrategia==estrat6)
            {
             ///////////////////
             //---|COMPRAS|---//
@@ -535,7 +535,7 @@ void OnTick()
          /////////////////////////////////
          //---| ESTRATEGIA BOLINGER |---//
          /////////////////////////////////
-         if(estrat7)
+         if(estrategia==estrat7)
            {
             ///////////////////
             //---|COMPRAS|---//
@@ -1522,7 +1522,7 @@ void  ComprasNormais()
       Sleep(500);
       return;
      }
-   if(PossuiPosCompraComentada("C1") && !PossuiPosCompraComentada("C2") && tick.ask<PrecoAberturaPosCompra(1)-10000*_Point //
+   if(PossuiPosCompraComentada("C1") && !PossuiPosCompraComentada("C2") && tick.ask<PrecoAberturaPosCompra(1)-ptsmartprimcompra*_Point //
       && VolumePos()<=500 && volnv2!=0)
      {
       trade.Buy(volnv2,_Symbol,tick.ask,puxatpsl("SLC1"),puxatpsl("TPC1"),"C2");
