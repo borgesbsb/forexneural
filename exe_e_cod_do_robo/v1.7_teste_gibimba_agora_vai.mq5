@@ -40,13 +40,16 @@ input double             loteinicial         = 1;          // TAMANHO DO LOTE IN
 input double             valoraumento        = 100000.00;  // [$] VALOR P/ AUMENTO DO VALOR DO LOTE
 input double             percentgain         = 0.1;        // [%] PORCENTAGEM DE STOP GAIN
 input double             percentloss         = 2.5;        // [%] PORCENTAGEM DE STOP LOSS
-input int                ptsmartprimcompra   = 10000;      // [PTS] DISTANCIA PARA 2 OPERAÇÃO
 input group              "MARTINGALE"
 input ENUM_TP_MART       tipomartingale      = mart3;      // TIPO DE MARTINGALE
 input int                multiplicador       = 1;          // [INT] MULTIPLICADOR P/ MARTINGALE
+input int                ptsmartprimcompra   = 10000;      // [PTS] DISTANCIA PARA 2 OPERAÇÃO
 input double             prctmart            = 50;         // [%] MÍNIMA DAS 2 ORD ANT P/ PX ORD
 input group              "ESCOLHA DA ESTRATÉGIA"
 input ENUM_TP_ESTRAT     estrategia          = estrat1;    // ESCOLHA A ESTRATÉGIA
+input group              "VARIÁVEIS DE CONFIRMAÇÃO - VOLUME E PREÇO"
+input double             percentvol          = 70;         // [%] MÍNIMA DO VOL DO CAND1 EM REL AO 2
+input double             percentprice        = 70;         // [%] MÍNIMA DO TAM DO CAND1 EM REL AO 2
 input group              "VALORES DEFINIDOS P/ RSI"
 input int                periodorsi          = 14;         // [INT] PERIODO P/ RSI
 input int                sobrevrsi           = 70;         // [%] PORCENTAGEM DE SOBREVENDA
@@ -389,8 +392,7 @@ void OnTick()
 
 //--- Ajuste da data/hora atual para tipo struct
    TimeToStruct(TimeCurrent(),TempoStruct);
-
-//Print("SLV2: ",puxatpsl("SLV2")," TPV2: ",puxatpsl("TPV2"));
+   datetime aberturacandleatual=datetime(SeriesInfoInteger(_Symbol,_Period,SERIES_LASTBAR_DATE));
 
 ////////////////////////////////////////////
 //---| FECHA ORDENS NO FIM DO PREGÃO |----//
@@ -423,16 +425,17 @@ void OnTick()
             FechaTodasPosicoesAbertas();
            }
         }
-
      }
 
 //+------------------------------------------------------------------+
 //| OPERAÇÕES SEGUINDO A ESTRATÉGIA ESCOLHIDA |
 //+------------------------------------------------------------------+
 
-   if(ativaentradaea && !PossuiPosAbertaOutroAtivo() && TempoStruct.hour<=23 && TempoStruct.min<50 && (percent_margem>3500||saldo==capital))
+//   Print("ABERTURA DO CANDLE: ",aberturacandleatual);
+
+   if(ativaentradaea && !PossuiPosAbertaOutroAtivo() && TempoStruct.hour<=22 && TempoStruct.min<=59 && (percent_margem>3500||saldo==capital) /*&& DataHoraUltPosFechada()<aberturacandleatual*/)
      {
-      Print("QTDE STOPS: ",QtdeStops());
+      //      Print("QTDE STOPS: ",QtdeStops());
       if(NB2.IsNewBar(_Symbol,_Period) && QtdeStops()<qtdestops) //VERIFICA SE O CANDLE ACABOU DE ABRIR E SE NÃO STOPOU MUITO
         {
          //////////////////////////////////////////////
@@ -443,12 +446,16 @@ void OnTick()
             ///////////////////
             //---|COMPRAS|---//
             ///////////////////
-            if(candle[1].close<mediamovel[1]-tamanhoenvelope*_Point && rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/ && candle[1].close<bbd[1])
+            if(candle[1].close<mediamovel[1]-tamanhoenvelope*_Point && rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/ && candle[1].close<bbd[1] && //
+               candle[2].close>candle[2].open && candle[1].close>candle[1].open && candle[1].tick_volume>=candle[2].tick_volume*(percentvol/100) //
+               && (candle[1].close-candle[1].open)>=(candle[2].close-candle[2].open)*(percentprice/100))
                ComprasNormais();
             //////////////////
             //---|VENDAS|---//
             //////////////////
-            if(candle[1].close>mediamovel[1]+tamanhoenvelope*_Point && rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/ && candle[1].close>bbu[1])
+            if(candle[1].close>mediamovel[1]+tamanhoenvelope*_Point && rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/ && candle[1].close>bbu[1] && //
+               candle[2].close<candle[2].open && candle[1].close<candle[1].open && candle[1].tick_volume>=candle[2].tick_volume*(percentvol/100) //
+               && (candle[1].open-candle[1].close)>=(candle[2].open-candle[2].close)*(percentprice/100))
                VendasNormais();
            }
          /////////////////////////////////////
@@ -459,12 +466,16 @@ void OnTick()
             ///////////////////
             //---|COMPRAS|---//
             ///////////////////
-            if(candle[1].close<mediamovel[1]-tamanhoenvelope*_Point && rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/)
+            if(candle[1].close<mediamovel[1]-tamanhoenvelope*_Point && rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/ && candle[2].close>candle[2].open && //
+               candle[1].close>candle[1].open && candle[1].tick_volume>=candle[2].tick_volume*(percentvol/100) //
+               && (candle[1].close-candle[1].open)>=(candle[2].close-candle[2].open)*(percentprice/100))
                ComprasNormais();
             //////////////////
             //---|VENDAS|---//
             //////////////////
-            if(candle[1].close>mediamovel[1]+tamanhoenvelope*_Point && rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/)
+            if(candle[1].close>mediamovel[1]+tamanhoenvelope*_Point && rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/ && candle[2].close<candle[2].open && //
+               candle[1].close<candle[1].open && candle[1].tick_volume>=candle[2].tick_volume*(percentvol/100) //
+               && (candle[1].open-candle[1].close)>=(candle[2].open-candle[2].close)*(percentprice/100))
                VendasNormais();
            }
          //////////////////////////////////////////
@@ -475,12 +486,16 @@ void OnTick()
             ///////////////////
             //---|COMPRAS|---//
             ///////////////////
-            if(candle[1].close<mediamovel[1]-tamanhoenvelope*_Point && candle[1].close<bbd[1])
+            if(candle[1].close<mediamovel[1]-tamanhoenvelope*_Point && candle[1].close<bbd[1] && candle[2].close>candle[2].open && //
+               candle[1].close>candle[1].open && candle[1].tick_volume>=candle[2].tick_volume*(percentvol/100) //
+               && (candle[1].close-candle[1].open)>=(candle[2].close-candle[2].open)*(percentprice/100))
                ComprasNormais();
             //////////////////
             //---|VENDAS|---//
             //////////////////
-            if(candle[1].close>mediamovel[1]+tamanhoenvelope*_Point && candle[1].close>bbu[1])
+            if(candle[1].close>mediamovel[1]+tamanhoenvelope*_Point && candle[1].close>bbu[1] && candle[2].close<candle[2].open && //
+               candle[1].close<candle[1].open && candle[1].tick_volume>=candle[2].tick_volume*(percentvol/100) //
+               && (candle[1].open-candle[1].close)>=(candle[2].open-candle[2].close)*(percentprice/100))
                VendasNormais();
            }
          /////////////////////////////////////
@@ -491,12 +506,14 @@ void OnTick()
             ///////////////////
             //---|COMPRAS|---//
             ///////////////////
-            if(rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/ && candle[1].close<bbd[1])
+            if(rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/ && candle[1].close<bbd[1] && candle[2].close>candle[2].open && candle[1].close>candle[1].open && //
+               candle[1].tick_volume>=candle[2].tick_volume*(percentvol/100) && (candle[1].close-candle[1].open)>=(candle[2].close-candle[2].open)*(percentprice/100))
                ComprasNormais();
             //////////////////
             //---|VENDAS|---//
             //////////////////
-            if(rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/ && candle[1].close>bbu[1])
+            if(rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/ && candle[1].close>bbu[1] && candle[2].close<candle[2].open && candle[1].close<candle[1].open && //
+               candle[1].tick_volume>=candle[2].tick_volume*(percentvol/100) && (candle[1].open-candle[1].close)>=(candle[2].open-candle[2].close)*(percentprice/100))
                VendasNormais();
            }
          /////////////////////////////////
@@ -507,13 +524,15 @@ void OnTick()
             ///////////////////
             //---|COMPRAS|---//
             ///////////////////
-            if(candle[1].close<mediamovel[1]-tamanhoenvelope*_Point)
+            if(candle[1].close<mediamovel[1]-tamanhoenvelope*_Point && candle[2].close>candle[2].open && candle[1].close>candle[1].open && //
+               candle[1].tick_volume>=candle[2].tick_volume*(percentvol/100) && (candle[1].close-candle[1].open)>=(candle[2].close-candle[2].open)*(percentprice/100))
                ComprasNormais();
 
             //////////////////
             //---|VENDAS|---//
             //////////////////
-            if(candle[1].close>mediamovel[1]+tamanhoenvelope*_Point)
+            if(candle[1].close>mediamovel[1]+tamanhoenvelope*_Point && candle[2].close<candle[2].open && candle[1].close<candle[1].open && //
+               candle[1].tick_volume>=candle[2].tick_volume*(percentvol/100) && (candle[1].open-candle[1].close)>=(candle[2].open-candle[2].close)*(percentprice/100))
                VendasNormais();
            }
          ////////////////////////////
@@ -524,12 +543,14 @@ void OnTick()
             ///////////////////
             //---|COMPRAS|---//
             ///////////////////
-            if(rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/)
+            if(rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/ && candle[2].close>candle[2].open && candle[1].close>candle[1].open && //
+               candle[1].tick_volume>=candle[2].tick_volume*(percentvol/100) && (candle[1].close-candle[1].open)>=(candle[2].close-candle[2].open)*(percentprice/100))
                ComprasNormais();
             //////////////////
             //---|VENDAS|---//
             //////////////////
-            if(rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/)
+            if(rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/ && candle[2].close<candle[2].open && candle[1].close<candle[1].open && //
+               candle[1].tick_volume>=candle[2].tick_volume*(percentvol/100) && (candle[1].open-candle[1].close)>=(candle[2].open-candle[2].close)*(percentprice/100))
                VendasNormais();
            }
          /////////////////////////////////
@@ -540,13 +561,15 @@ void OnTick()
             ///////////////////
             //---|COMPRAS|---//
             ///////////////////
-            if(candle[1].close<bbd[1])
+            if(candle[1].close<bbd[1] && candle[2].close>candle[2].open && candle[1].close>candle[1].open && candle[1].tick_volume>=candle[2].tick_volume*(percentvol/100) //
+               && (candle[1].close-candle[1].open)>=(candle[2].close-candle[2].open)*(percentprice/100))
                ComprasNormais();
 
             //////////////////
             //---|VENDAS|---//
             //////////////////
-            if(candle[1].close>bbu[1])
+            if(candle[1].close>bbu[1] && candle[2].close<candle[2].open && candle[1].close<candle[1].open && candle[1].tick_volume>=candle[2].tick_volume*(percentvol/100) //
+               && (candle[1].open-candle[1].close)>=(candle[2].open-candle[2].close)*(percentprice/100))
                VendasNormais();
            }
         }
@@ -608,6 +631,33 @@ void OnTick()
 /////////////////////////////////////
 //| INÍCIO DAS FUNÇÕES AUXILIARES |//
 /////////////////////////////////////
+//+---------------------------------------------------+
+//| RETORNA A DATA/HORA DO FECHAMENTO DA ULTIMA ORDEM |
+//+---------------------------------------------------+
+datetime DataHoraUltPosFechada()
+  {
+   HistorySelect(0,TimeCurrent());
+   ulong       ticket=0;
+   string      symbol;
+   long        entry;
+   datetime    time;
+   for(uint i=HistoryDealsTotal()-1; i >= 0; i--)
+     {
+      if((ticket=HistoryDealGetTicket(i))>0)
+        {
+         time  =(datetime)HistoryDealGetInteger(ticket,DEAL_TIME);
+         symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+         entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+         if(entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+           {
+            return time;
+            break;
+           }
+        }
+     }
+   datetime timeatual=D'2018.01.01 00:00';
+   return (timeatual);
+  }
 //+--------------------------------------------+
 //| VERIFICA QUANTOS STOPS OCORRERAM EM UM DIA |
 //+--------------------------------------------+
@@ -673,9 +723,9 @@ bool UltimaPosFechadaTake()
    return false;
   }
 //+------------------------------------------------------------------------------------------+
-//+------------------------------------------------------------------+
-//| VERIFICA SE A ÚLTIMA POSICAO FECHADA FOI DE TAKE PROFIT ATINGIDO |
-//+------------------------------------------------------------------+
+//+----------------------------------------------------------------+
+//| VERIFICA SE A ÚLTIMA POSICAO FECHADA FOI DE STOP LOSS ATINGIDO |
+//+----------------------------------------------------------------+
 bool UltimaPosFechadaStop()
   {
    HistorySelect(0,TimeCurrent());
@@ -1712,4 +1762,6 @@ double   puxatpsl(string tpsl)
   }
 //+------------------------------------------------------------------+
 //|                                                                  |
+//+------------------------------------------------------------------+
+
 //+------------------------------------------------------------------+
