@@ -42,16 +42,16 @@ for i in range(len(df)):
 #     for columns_  in  range(1,6):
 #         lines_tmp.append(df.iloc[i+3,columns_])
 #     lines.append(lines_tmp)        
-for i in range(len(df)-4):
+for i in range(len(df)-2):
     lines_tmp = []
     for columns_  in  range(0,6):
         lines_tmp.append(df.iloc[i,columns_])
-    for columns_  in  range(1,6):
-        lines_tmp.append(df.iloc[i+1,columns_])
-    for columns_  in  range(1,6):
-        lines_tmp.append(df.iloc[i+2,columns_])
-    for columns_  in  range(1,6):
-        lines_tmp.append(df.iloc[i+3,columns_])
+    # for columns_  in  range(1,6):
+    #     lines_tmp.append(df.iloc[i+1,columns_])
+    # for columns_  in  range(1,6):
+    #     lines_tmp.append(df.iloc[i+2,columns_])
+    # for columns_  in  range(1,6):
+    #     lines_tmp.append(df.iloc[i+3,columns_])
     lines.append(lines_tmp)
 
 df = pd.DataFrame(lines)
