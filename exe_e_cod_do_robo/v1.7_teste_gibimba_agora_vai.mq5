@@ -16,71 +16,82 @@
 
 enum ENUM_TP_MART
   {
-   mart1,        // [1]VOLUME FIBONACCI
-   mart2,        // [2]05 FIBO + 04 2x ANT
-   mart3,        // [3]2x VOL ANTERIOR
-   mart4,        // [4]2x VOL ACUMULADO
+   mart1,        //[1]VOLUME FIBONACCI
+   mart2,        //[2]05 FIBO + 04 2x ANT
+   mart3,        //[3]2x VOL ANTERIOR
+   mart4,        //[4]2x VOL ACUMULADO
   };
 
 enum ENUM_TP_ESTRAT
   {
-   estrat1,      // [1]ENVELOPE/RSI/BOLINGER
-   estrat2,      // [2]ENVELOPE/RSI
-   estrat3,      // [3]ENVELOPE/BOLINGER
-   estrat4,      // [4]RSI/BOLINGER
-   estrat5,      // [5]ENVELOPE
-   estrat6,      // [6]RSI
-   estrat7,      // [7]BOLINGER
-   estrat8,      // [8]NEURAL
-   estrat9,      // [9]NEURAL/RSI
-   estrat10,     // [10]MEURAL/BOLINGER
-   estrat11,     // [11]NEURAL/ENVELOPE
+   estrat1,      //[1]ENVELOPE/RSI/BOLINGER
+   estrat2,      //[2]ENVELOPE/RSI
+   estrat3,      //[3]ENVELOPE/BOLINGER
+   estrat4,      //[4]RSI/BOLINGER
+   estrat5,      //[5]ENVELOPE
+   estrat6,      //[6]RSI
+   estrat7,      //[7]BOLINGER
+   estrat8,      //[8]NEURAL
+   estrat9,      //[9]NEURAL/RSI
+   estrat10,     //[10]MEURAL/BOLINGER
+   estrat11,     //[11]NEURAL/ENVELOPE
+  };
+
+enum ENUM_TP_CONTA
+  {
+   tipocent,     //[1]CONTA CENT
+   tipoprime,    //[2]CONTA PRIME/ECN
   };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-input ulong              magicrobo           = 941;        // MAGIC NUMBER DO ROBÔ
-input int                PrevForaVal         = 3600;       // (S) TEMPO DE VALIDADE DA PREVISÃO
+input ulong              magicrobo           = 941;        //MAGIC NUMBER DO ROBÔ
 input group              "ABERTURA DE POSIÇÕES"
-input bool               ativaentradaea      = true;       // ATIVA ABERTURA
-input double             loteinicial         = 1;          // TAMANHO DO LOTE INICIAL
-input double             valoraumento        = 100000.00;  // [$] VALOR P/ AUMENTO DO VALOR DO LOTE
-input double             percentgain         = 0.1;        // [%] PORCENTAGEM DE STOP GAIN
-input double             percentloss         = 2.5;        // [%] PORCENTAGEM DE STOP LOSS
+input bool               ativaentradaea      = true;       //ATIVA ABERTURA
+input double             loteinicial         = 1;          //TAMANHO DO LOTE INICIAL
+input double             aumentoprop         = 1000.00;    //[$] VALOR P/ AUMENTO DO VALOR DO LOTE
+input ENUM_TP_CONTA      tipoconta           = tipocent;   //[TP] SELECIONE TIPO DE CONTA
+input double             percentgain         = 0.1;        //[%] PORCENTAGEM DE STOP GAIN
+input double             percentloss         = 2.5;        //[%] PORCENTAGEM DE STOP LOSS
 input group              "MARTINGALE"
-input ENUM_TP_MART       tipomartingale      = mart3;      // TIPO DE MARTINGALE
-input int                multiplicador       = 1;          // [INT] MULTIPLICADOR P/ MARTINGALE
-input int                ptsmartprimcompra   = 10000;      // [PTS] DISTANCIA PARA 2 OPERAÇÃO
-input double             prctmart            = 50;         // [%] MÍNIMA DAS 2 ORD ANT P/ PX ORD
+input ENUM_TP_MART       tipomartingale      = mart3;      //TIPO DE MARTINGALE
+input int                multiplicador       = 1;          //[INT] MULTIPLICADOR P/ MARTINGALE
+input int                ptsmartprimcompra   = 10000;      //[PTS] DISTANCIA PARA 2 OPERAÇÃO
+input double             prctmart            = 50;         //[%] MÍNIMA DAS 2 ORD ANT P/ PX ORD
 input group              "ESCOLHA DA ESTRATÉGIA"
-input ENUM_TP_ESTRAT     estrategia          = estrat1;    // ESCOLHA A ESTRATÉGIA
-input group              "VARIÁVEIS DE CONFIRMAÇÃO - VOLUME E PREÇO"
-input double             percentvol          = 70;         // [%] MÍNIMA DO VOL DO CAND1 EM REL AO 2
-input double             percentprice        = 70;         // [%] MÍNIMA DO TAM DO CAND1 EM REL AO 2
+input ENUM_TP_ESTRAT     estrategia          = estrat1;    //ESCOLHA A ESTRATÉGIA
 input group              "VALORES DEFINIDOS P/ RSI"
-input int                periodorsi          = 14;         // [INT] PERIODO P/ RSI
-input int                sobrevrsi           = 70;         // [%] PORCENTAGEM DE SOBREVENDA
-input int                sobrecrsi           = 30;         // [%] PORCENTAGEM DE SOBRECOMPRA
+input int                periodorsi          = 14;         //[INT] PERIODO P/ RSI
+input int                sobrevrsi           = 70;         //[%] PORCENTAGEM DE SOBREVENDA
+input int                sobrecrsi           = 30;         //[%] PORCENTAGEM DE SOBRECOMPRA
 input group              "VALORES DEFINIDOS P/ BANDAS DE BOLLINGER"
-input int                periodobb           = 14;         // [INT] PERIODO P/ BANDAS DE BOLINGER
-input double             desviobb            = 2.0;        // [DEC] DESVIO P/ BANDAS DE BOLINGER
+input int                periodobb           = 14;         //[INT] PERIODO P/ BANDAS DE BOLINGER
+input double             desviobb            = 2.0;        //[DEC] DESVIO P/ BANDAS DE BOLINGER
 input group              "VALORES DEFINIDOS P/ ENVELOPE"
-input int                periodm1            = 14;         // [INT] PERIODO DA MÉDIA P/ ENVELOPE
-input double             tamanhoenvelope     = 100000;     // [PTS] DISTÂNCIA P/ ENVELOPE
-input group              "BREAKEVEN/TRAILING STOP"
-input bool               ativbreak           = false;      // ATIVA BREAKEVEN/TRAILING STOP
-input double             pontosbreak         = 5;          // PTOS PROX AO TP PARA ATIV BREAKEVEN
-input double             pontosbreak2        = 5;          // PTOS P/ MOVER TP PARA FRENTE BREAKEVEN
-input double             pontosbesl          = 10;         // PTOS A MENOS PARA SL NOVO
-input double             pontosts            = 5;          // PTOS DO SL NOVO PARA ATIV TS
-input group              "GERENCIAMENTO DE RISCO - PARADA DIÁRIA DO ROBÔ COM STOP ALCANÇADO"
-input bool               ativastopdiario     = true;       // PARA O ROBÔ NO DIA QNDO STOP > N
-input int                qtdestops           = 3;          // QTDE MÁXIMA DE STOPS (N)
-input group              "GERENCIAMENTO DE RISCO - FECHAMENTO DE ORDENS COM PERDA MENOR"
-input bool               ativafecfinaldia    = false;      // ATIVA FECHAMENTO DE OPERAÇÕES FIM DO DIA
-input bool               ativafeclongas      = false;      // ATIVA FECHAMENTO DE ORDENS LONGAS
+input int                periodm1            = 14;         //[INT] PERIODO DA MÉDIA P/ ENVELOPE
+input double             tamanhoenvelope     = 100000;     //[PTS] DISTÂNCIA P/ ENVELOPE
+input group              "REDE NEURAL"
+input int                PrevForaVal         = 3600;       //(S) TEMPO DE VALIDADE DA PREVISÃO
+
+/*input group              "BREAKEVEN/TRAILING STOP"
+input bool               ativbreak           = false;      //ATIVA BREAKEVEN/TRAILING STOP
+input double             pontosbreak         = 5;          //PTOS PROX AO TP PARA ATIV BREAKEVEN
+input double             pontosbreak2        = 5;          //PTOS P/ MOVER TP PARA FRENTE BREAKEVEN
+input double             pontosbesl          = 10;         //PTOS A MENOS PARA SL NOVO
+input double             pontosts            = 5;          //PTOS DO SL NOVO PARA ATIV TS
+*/
+input group              "GERENCIAMENTO DE RISCO - PARADA DO ROBÔ COM STOPS ALCANÇADOS NO DIA"
+input bool               ativastopdiario     = true;       //PARA O ROBÔ NO DIA QNDO STOP > N
+input int                qtdestops           = 3;          //QTDE MÁXIMA DE STOPS (N)
+input group              "GERENCIAMENTO DE RISCO - FECHAMENTO DE ORDENS LONGAS COM PERDA MENOR"
+input bool               ativafeclongas      = false;      //ATIVA FECHAMENTO DE ORDENS LONGAS
 input group              "GERENCIAMENTO DE RISCO - STOP FULL"
-input bool               ativastopfull       = true;       // ATIVA STOP P/ LIMITE DE CAPITAL INVESTIDO
-input double             percentfull         = 5;          // % DO CAPITAL PARA FECHAR TODAS AS ORDENS
+input bool               ativastopfull       = true;       //ATIVA STOP P/ LIMITE DE CAPITAL INVESTIDO
+input double             percentfull         = 5;          //% DO CAPITAL PARA FECHAR TODAS AS ORDENS
+input group              "GERENCIAMENTO DE RISCO - HORÁRIOS DE P/ ABERTURA/FECHAMENTO DE ORDENS"
+input string             horainicial         = "01:00";    //HORA INICIAL P/ ABERTURA DE ORDENS
+input string             horafinal           = "22:59";    //HORA FINAL P/ ABERTURA DE ORDENS
+input bool               ativafecfinaldia    = false;      //ATIVA FECHAMENTO DE ORDENS
+input string             horafechamento      = "23:00";    //HORA PARA FECHAMENTO DE ORDENS
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 string                   shortname;
@@ -93,7 +104,7 @@ double                   takevenda           = 0.0;
 
 int                      handlebb,handlersi,handleMM,handlem2;
 
-double                   percent_margem, saldo, capital, lucro_prejuizo, volumemaximo, volumeoper, //
+double                   percent_margem, saldo, capital, lucro_prejuizo, volumemaximo, volumeoper, valoraumento, //
                          slcomprapadrao, slvendapadrao, tpcomprapadrao, tpvendapadrao, rsi[], bbu[], bbm[], bbd[], mediamovel[];
 
 //--- Definição das variáveis dos volumes para compra e venda quando utilizar martingale
@@ -106,7 +117,7 @@ double                   PM1, PM2, PM3, PM4, PM5, PM6, PM7;
 //--- Variáveis p/ ticks, candles e tempo
 MqlTick                  tick;
 MqlRates                 candle[];
-MqlDateTime              TempoStruct;
+MqlDateTime              hratualstruct,hrinicialstruct,hrfinalstruct,hrfechstruct;
 
 //--- Usa a classe responsável pela execução das ordens - Ctrade
 CTrade                   trade;
@@ -118,6 +129,10 @@ CDictionary *dict = new CDictionary();
 //+--------------------------------+
 int OnInit()
   {
+//--- Ajusta horarios segundo inputs inseridos
+   TimeToStruct(StringToTime(horainicial),hrinicialstruct);
+   TimeToStruct(StringToTime(horafinal),hrfinalstruct);
+   TimeToStruct(StringToTime(horafechamento),hrfechstruct);
 
 //--- Seta o magic number do robô
    trade.SetExpertMagicNumber(magicrobo);
@@ -133,6 +148,12 @@ int OnInit()
    ArraySetAsSeries(mediamovel,true);
 
    ReadFileToDictCSV("previsoes.csv");
+
+//--- Definição dos preços dos inputs em função do tipo de conta selecionada
+   if(tipoconta==tipocent)
+      valoraumento=aumentoprop*100;
+   if(tipoconta==tipoprime)
+      valoraumento=aumentoprop;
 
 //--- Definição dos preços de stoploss padrão quando não utilizando estratégias de SL e TP programados
    if(Symbol()=="EURUSD")
@@ -400,14 +421,13 @@ void OnTick()
          PM7 = (tick.bid*volnv8 + PrecoPosCompra()*VolumePos())/(volnv8+VolumePos());
      }
 
-//--- Ajuste da data/hora atual para tipo struct
-   TimeToStruct(TimeCurrent(),TempoStruct);
+   TimeToStruct(TimeCurrent(),hratualstruct);
    datetime aberturacandleatual=datetime(SeriesInfoInteger(_Symbol,_Period,SERIES_LASTBAR_DATE));
 
 ////////////////////////////////////////////
 //---| FECHA ORDENS NO FIM DO PREGÃO |----//
 ////////////////////////////////////////////
-   if(ativafecfinaldia==true && (PossuiPosCompra()||PossuiPosVenda()) && TempoStruct.hour==23 && TempoStruct.min==50)
+   if(ativafecfinaldia==true && (PossuiPosCompra()||PossuiPosVenda()) && hratualstruct.hour==hrfechstruct.hour && hratualstruct.min==hrfechstruct.min)
      {
       FechaTodasPosicoesAbertas();
      }
@@ -443,7 +463,7 @@ void OnTick()
 
 //   Print("ABERTURA DO CANDLE: ",aberturacandleatual);
 
-   if(ativaentradaea && !PossuiPosAbertaOutroAtivo() && TempoStruct.hour<=22 && TempoStruct.min<=59 && (percent_margem>3500||saldo==capital) /*&& DataHoraUltPosFechada()<aberturacandleatual*/)
+   if(ativaentradaea && !PossuiPosAbertaOutroAtivo() && HorarioEntrada()==true && (percent_margem>3500||saldo==capital) /*&& DataHoraUltPosFechada()<aberturacandleatual*/)
      {
       //      Print("QTDE STOPS: ",QtdeStops());
       if(NB2.IsNewBar(_Symbol,_Period) && QtdeStops()<qtdestops) //VERIFICA SE O CANDLE ACABOU DE ABRIR E SE NÃO STOPOU MUITO
@@ -634,7 +654,6 @@ void OnTick()
             if(previsao < tick.bid && previsao !=0 && candle[1].close>mediamovel[1]+tamanhoenvelope*_Point)
                VendasNormais();
            }
-
         }
      }
 
@@ -658,33 +677,33 @@ void OnTick()
 ////////////////////////////
 //---|BREAKEVEN E TS |----//
 ////////////////////////////
-   if(ativbreak==true)
-     {
-
-      if(PossuiPosCompra() && tick.bid>PrecoPosCompra() && StopUltimaPosAberta()==slcomprapadrao && tick.ask>TPUltimaPosAberta()-pontosbreak*_Point)
+   /*   if(ativbreak==true)
         {
-         trade.PositionModify(_Symbol,tick.bid-pontosbesl*_Point,TPUltimaPosAberta()+pontosbreak2*_Point);
-         Sleep(200);
-        }
-      if(PossuiPosCompra() && tick.bid>TPUltimaPosAberta()+pontosts*_Point && StopUltimaPosAberta()!=slcomprapadrao)
-        {
-         trade.PositionModify(_Symbol,TPUltimaPosAberta()+pontosts*_Point,TPUltimaPosAberta()+pontosts*_Point);
-         Sleep(200);
-        }
 
-      if(PossuiPosVenda() && tick.ask<PrecoPosCompra() && StopUltimaPosAberta()==slvendapadrao && tick.bid<TPUltimaPosAberta()+pontosbreak*_Point)
-        {
-         trade.PositionModify(_Symbol,tick.ask+pontosbesl*_Point,TPUltimaPosAberta()-pontosbreak2*_Point);
-         Sleep(200);
-        }
-      if(PossuiPosVenda() && tick.ask<TPUltimaPosAberta()-pontosts*_Point && StopUltimaPosAberta()!=slvendapadrao)
-        {
-         trade.PositionModify(_Symbol,TPUltimaPosAberta()-pontosts*_Point,TPUltimaPosAberta()-pontosts*_Point);
-         Sleep(200);
-        }
+         if(PossuiPosCompra() && tick.bid>PrecoPosCompra() && StopUltimaPosAberta()==slcomprapadrao && tick.ask>TPUltimaPosAberta()-pontosbreak*_Point)
+           {
+            trade.PositionModify(_Symbol,tick.bid-pontosbesl*_Point,TPUltimaPosAberta()+pontosbreak2*_Point);
+            Sleep(200);
+           }
+         if(PossuiPosCompra() && tick.bid>TPUltimaPosAberta()+pontosts*_Point && StopUltimaPosAberta()!=slcomprapadrao)
+           {
+            trade.PositionModify(_Symbol,TPUltimaPosAberta()+pontosts*_Point,TPUltimaPosAberta()+pontosts*_Point);
+            Sleep(200);
+           }
 
-     }
+         if(PossuiPosVenda() && tick.ask<PrecoPosCompra() && StopUltimaPosAberta()==slvendapadrao && tick.bid<TPUltimaPosAberta()+pontosbreak*_Point)
+           {
+            trade.PositionModify(_Symbol,tick.ask+pontosbesl*_Point,TPUltimaPosAberta()-pontosbreak2*_Point);
+            Sleep(200);
+           }
+         if(PossuiPosVenda() && tick.ask<TPUltimaPosAberta()-pontosts*_Point && StopUltimaPosAberta()!=slvendapadrao)
+           {
+            trade.PositionModify(_Symbol,TPUltimaPosAberta()-pontosts*_Point,TPUltimaPosAberta()-pontosts*_Point);
+            Sleep(200);
+           }
 
+        }
+   */
   }
 
 //+------------------------------------------------------------------------------------------+
@@ -1891,11 +1910,73 @@ double   puxatpsl(string tpsl)
    return(NULL);
   }
 //+------------------------------------------------------------------+
-//|                                                                  |
+//| FUNÇÃO DE VERIFICAÇÃO DE HORÁRIO DE PARA ABERTURA DE ORDENS      |
 //+------------------------------------------------------------------+
+bool HorarioEntrada() //VERIFICA SE ESTÁ NO HORARIO DE FUNCIONAMENTO DO ROBÔ
+  {
 
-//+------------------------------------------------------------------+
+// Hora dentro do horário de entradas
+   if(hratualstruct.hour >= hrinicialstruct.hour && hratualstruct.hour <= hrfinalstruct.hour)
+     {
+      // Hora atual igual a de início
+      if(hratualstruct.hour == hrinicialstruct.hour)
+         // Se minuto atual maior ou igual ao de início => está no horário de entradas
+         if(hratualstruct.min >= hrinicialstruct.min)
+            return true;
+      // Do contrário não está no horário de entradas
+         else
+            return false;
 
-//+------------------------------------------------------------------+
+      // Hora atual igual a de término
+      if(hratualstruct.hour == hrfinalstruct.hour)
+         // Se minuto atual menor ou igual ao de término => está no horário de entradas
+         if(hratualstruct.min <= hrfinalstruct.min)
+            return true;
+      // Do contrário não está no horário de entradas
+         else
+            return false;
 
+      // Hora atual maior que a de início e menor que a de término
+      return true;
+     }
+
+// Hora fora do horário de entradas
+   return false;
+  }
+//+------------------------------------------------------------------------------------------+
 //+------------------------------------------------------------------+
+//| FUNÇÃO DE VERIFICAÇÃO DE HORA PARA PAUSAR O ROBÔ CONTRA NOTÍCIAS |
+//+------------------------------------------------------------------+
+/*bool HorarioPausa1() //VERIFICA SE ESTÁ NO HORÁRIO DE PAUSA DO ROBÔ
+  {
+   TimeToStruct(TimeCurrent(), hratualstruct); // Obtenção do horário atual
+
+// Hora dentro do horário de entradas
+   if(hratualstruct.hour >= horario_inicio_pausa1.hour && hratualstruct.hour <= horario_termino_pausa1.hour)
+     {
+      // Hora atual igual a de início
+      if(hratualstruct.hour == horario_inicio_pausa1.hour)
+         // Se minuto atual maior ou igual ao de início => não está no horário de entradas
+         if(hratualstruct.min >= horario_inicio_pausa1.min)
+            return true;
+      // Do contrário está no horário de entradas
+         else
+            return false;
+
+      // Hora atual igual a de término
+      if(hratualstruct.hour == horario_termino_pausa1.hour)
+         // Se minuto atual menor ou igual ao de término => não está no horário de entradas
+         if(hratualstruct.min <= horario_termino_pausa1.min)
+            return true;
+      // Do contrário está no horário de entradas
+         else
+            return false;
+
+      // Hora atual maior que a de início da pausa1 e menor que a de término da pausa
+      return true;
+     }
+// Hora dentro do horário de entradas(fora do intervalo acima)
+   return false;
+  }
+  */
+//+------------------------------------------------------------------------------------------+
