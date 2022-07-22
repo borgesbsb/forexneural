@@ -59,6 +59,9 @@ input int                ptsmartprimcompra   = 10000;      //[PTS] DISTANCIA PAR
 input double             prctmart            = 50;         //[%] MÍNIMA DAS 2 ORD ANT P/ PX ORD
 input group              "ESCOLHA DA ESTRATÉGIA"
 input ENUM_TP_ESTRAT     estrategia          = estrat1;    //ESCOLHA A ESTRATÉGIA
+input group              "VARIÁVEIS DE CONFIRMAÇÃO - VOLUME E PREÇO"
+input double             percentvol          = 70;         //[%] MÍN DO VOL DO CAND1 EM REL AO 2
+input double             percentprice        = 70;         //[%] MÍN DO TAM DO CAND1 EM REL AO 2
 input group              "VALORES DEFINIDOS P/ RSI"
 input int                periodorsi          = 14;         //[INT] PERIODO P/ RSI
 input int                sobrevrsi           = 70;         //[%] PORCENTAGEM DE SOBREVENDA
@@ -102,7 +105,7 @@ double                   stopvenda           = 0.0;
 double                   takecompra          = 0.0;
 double                   takevenda           = 0.0;
 
-int                      handlebb,handlersi,handleMM,handlem2;
+int                      handlebb,handlersi,handleMM;
 
 double                   percent_margem, saldo, capital, lucro_prejuizo, volumemaximo, volumeoper, valoraumento, //
                          slcomprapadrao, slvendapadrao, tpcomprapadrao, tpvendapadrao, rsi[], bbu[], bbm[], bbd[], mediamovel[];
@@ -591,13 +594,15 @@ void OnTick()
             ///////////////////
             //---|COMPRAS|---//
             ///////////////////
-            if(previsao > tick.ask && previsao != 0)
+            if(previsao > tick.ask && previsao != 0 && candle[2].close>candle[2].open && candle[1].close>candle[1].open && candle[1].tick_volume>candle[2].tick_volume*(percentvol/100) //
+               && (candle[1].close-candle[1].open)>=(candle[2].close-candle[2].open)*(percentprice/100))
                ComprasNormais();
 
             //////////////////
             //---|VENDAS|---//
             //////////////////
-            if(previsao < tick.bid && previsao !=0)
+            if(previsao < tick.bid && previsao !=0 && candle[2].close<candle[2].open && candle[1].close<candle[1].open && candle[1].tick_volume>candle[2].tick_volume*(percentvol/100) //
+               && (candle[1].open-candle[1].close)>=(candle[2].open-candle[2].close)*(percentprice/100))
                VendasNormais();
            }
          ///////////////////////////////////
@@ -609,13 +614,15 @@ void OnTick()
             ///////////////////
             //---|COMPRAS|---//
             ///////////////////
-            if(previsao > tick.ask && previsao != 0 && rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/)
+            if(previsao > tick.ask && previsao != 0 && rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/ && candle[2].close>candle[2].open && candle[1].close>candle[1].open && candle[1].tick_volume>candle[2].tick_volume*(percentvol/100) //
+               && (candle[1].close-candle[1].open)>=(candle[2].close-candle[2].open)*(percentprice/100))
                ComprasNormais();
 
             //////////////////
             //---|VENDAS|---//
             //////////////////
-            if(previsao < tick.bid && previsao !=0 && rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/)
+            if(previsao < tick.bid && previsao !=0 && rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/ && candle[2].close<candle[2].open && candle[1].close<candle[1].open && candle[1].tick_volume>candle[2].tick_volume*(percentvol/100) //
+               && (candle[1].open-candle[1].close)>=(candle[2].open-candle[2].close)*(percentprice/100))
                VendasNormais();
            }
          ////////////////////////////////////////
@@ -627,13 +634,15 @@ void OnTick()
             ///////////////////
             //---|COMPRAS|---//
             ///////////////////
-            if(previsao > tick.ask && previsao != 0 && candle[1].close<bbd[1])
+            if(previsao > tick.ask && previsao != 0 && candle[1].close<bbd[1] && candle[2].close>candle[2].open && candle[1].close>candle[1].open && candle[1].tick_volume>candle[2].tick_volume*(percentvol/100) //
+               && (candle[1].close-candle[1].open)>=(candle[2].close-candle[2].open)*(percentprice/100))
                ComprasNormais();
 
             //////////////////
             //---|VENDAS|---//
             //////////////////
-            if(previsao < tick.bid && previsao !=0 && candle[1].close>bbu[1])
+            if(previsao < tick.bid && previsao !=0 && candle[1].close>bbu[1] && candle[2].close<candle[2].open && candle[1].close<candle[1].open && candle[1].tick_volume>candle[2].tick_volume*(percentvol/100) //
+               && (candle[1].open-candle[1].close)>=(candle[2].open-candle[2].close)*(percentprice/100))
                VendasNormais();
            }
          ///////////////////////////////////////
@@ -645,13 +654,15 @@ void OnTick()
             ///////////////////
             //---|COMPRAS|---//
             ///////////////////
-            if(previsao > tick.ask && previsao != 0 && candle[1].close<mediamovel[1]-tamanhoenvelope*_Point)
+            if(previsao > tick.ask && previsao != 0 && candle[1].close<mediamovel[1]-tamanhoenvelope*_Point && candle[2].close>candle[2].open && candle[1].close>candle[1].open && candle[1].tick_volume>candle[2].tick_volume*(percentvol/100) //
+               && (candle[1].close-candle[1].open)>=(candle[2].close-candle[2].open)*(percentprice/100))
                ComprasNormais();
 
             //////////////////
             //---|VENDAS|---//
             //////////////////
-            if(previsao < tick.bid && previsao !=0 && candle[1].close>mediamovel[1]+tamanhoenvelope*_Point)
+            if(previsao < tick.bid && previsao !=0 && candle[1].close>mediamovel[1]+tamanhoenvelope*_Point && candle[2].close<candle[2].open && candle[1].close<candle[1].open && candle[1].tick_volume>candle[2].tick_volume*(percentvol/100) //
+               && (candle[1].open-candle[1].close)>=(candle[2].open-candle[2].close)*(percentprice/100))
                VendasNormais();
            }
         }
