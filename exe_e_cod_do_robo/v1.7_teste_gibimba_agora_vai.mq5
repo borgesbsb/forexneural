@@ -80,6 +80,7 @@ input group              "REDE NEURAL"
 input int                PrevForaVal         = 3600;       //(S) TEMPO DE VALIDADE DA PREVISÃO
 input group              "FECHAMENTO EM PONTOS HERDADO DA V1.4"
 input bool               ativasaidaea        = true;       //ATIVA FECHAMENTO EM PONTOS
+input double             prcentabert         = 3500;       //[%] Ñ COMPRA S CAPIT <  Q ESSE VALOR
 input int                pontosc1            = 100;        //[PTS] DISTANCIA P/ FECHAM 1 ORDEM
 input int                pontosc2            = 60;         //[PTS] DISTANCIA P/ FECHAM 2 ORDENS
 input int                pontosc3            = 40;         //[PTS] DISTANCIA P/ FECHAM 3 ORDENS
@@ -488,7 +489,7 @@ void OnTick()
 
 //   Print("ABERTURA DO CANDLE: ",aberturacandleatual);
 
-   if(ativaentradaea && !PossuiPosAbertaOutroAtivo() && HorarioEntrada()==true && (percent_margem>3500||saldo==capital) /*&& DataHoraUltPosFechada()<aberturacandleatual*/)
+   if(ativaentradaea && !PossuiPosAbertaOutroAtivo() && HorarioEntrada()==true && (percent_margem>prcentabert||saldo==capital) /*&& DataHoraUltPosFechada()<aberturacandleatual*/)
      {
       //      Print("QTDE STOPS: ",QtdeStops());
       if(NB2.IsNewBar(_Symbol,_Period) && QtdeStops()<qtdestops) //VERIFICA SE O CANDLE ACABOU DE ABRIR E SE NÃO STOPOU MUITO
