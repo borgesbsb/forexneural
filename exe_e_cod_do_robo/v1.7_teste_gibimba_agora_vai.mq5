@@ -78,7 +78,16 @@ input int                periodm1            = 14;         //[INT] PERIODO DA M�
 input double             tamanhoenvelope     = 100000;     //[PTS] DISTÂNCIA P/ ENVELOPE
 input group              "REDE NEURAL"
 input int                PrevForaVal         = 3600;       //(S) TEMPO DE VALIDADE DA PREVISÃO
-
+input group              "FECHAMENTO EM PONTOS HERDADO DA V1.4"
+input bool               ativasaidaea        = true;       //ATIVA FECHAMENTO EM PONTOS
+input int                pontosc1            = 100;        //[PTS] DISTANCIA P/ FECHAM 1 ORDEM
+input int                pontosc2            = 60;         //[PTS] DISTANCIA P/ FECHAM 2 ORDENS
+input int                pontosc3            = 40;         //[PTS] DISTANCIA P/ FECHAM 3 ORDENS
+input int                pontosc4            = 40;         //[PTS] DISTANCIA P/ FECHAM 4 ORDENS
+input int                pontosc5            = 30;         //[PTS] DISTANCIA P/ FECHAM 5 ORDENS
+input int                pontosc6            = 20;         //[PTS] DISTANCIA P/ FECHAM 6 ORDENS
+input int                pontosc7            = 10;         //[PTS] DISTANCIA P/ FECHAM 7 ORDENS
+input int                pontosc8            = 10;         //[PTS] DISTANCIA P/ FECHAM 8 ORDENS
 /*input group              "BREAKEVEN/TRAILING STOP"
 input bool               ativbreak           = false;      //ATIVA BREAKEVEN/TRAILING STOP
 input double             pontosbreak         = 5;          //PTOS PROX AO TP PARA ATIV BREAKEVEN
@@ -694,7 +703,7 @@ void OnTick()
             //////////////////
             //---|VENDAS|---//
             //////////////////
-            if(previsao < tick.bid && previsao !=0 && sarnormalizado > tick.bid)
+            if(previsao < tick.bid && previsao != 0 && sarnormalizado > tick.bid)
                VendasNormais();
            }
 
@@ -718,6 +727,45 @@ void OnTick()
          return;
         }
 
+////////////////////////////////////
+//---|Fechamento das posições|----//
+////////////////////////////////////
+   if(ativasaidaea==true)
+     {
+      if(PossuiPosCompraComentada("C1") && tick.bid>PrecoPosCompra()+pontosc1*_Point)
+         FechaTodasPosicoesAbertas();
+      if(PossuiPosCompraComentada("C2") && tick.bid>PrecoPosCompra()+pontosc2*_Point)
+         FechaTodasPosicoesAbertas();
+      if(PossuiPosCompraComentada("C3") && tick.bid>PrecoPosCompra()+pontosc3*_Point)
+         FechaTodasPosicoesAbertas();
+      if(PossuiPosCompraComentada("C4") && tick.bid>PrecoPosCompra()+pontosc4*_Point)
+         FechaTodasPosicoesAbertas();
+      if(PossuiPosCompraComentada("C5") && tick.bid>PrecoPosCompra()+pontosc5*_Point)
+         FechaTodasPosicoesAbertas();
+      if(PossuiPosCompraComentada("C6") && tick.bid>PrecoPosCompra()+pontosc6*_Point)
+         FechaTodasPosicoesAbertas();
+      if(PossuiPosCompraComentada("C7") && tick.bid>PrecoPosCompra()+pontosc7*_Point)
+         FechaTodasPosicoesAbertas();
+      if(PossuiPosCompraComentada("C8") && tick.bid>PrecoPosCompra()+pontosc8*_Point)
+         FechaTodasPosicoesAbertas();
+
+      if(PossuiPosVendaComentada("V1") && tick.ask<PrecoPosCompra()-pontosc1*_Point)
+         FechaTodasPosicoesAbertas();
+      if(PossuiPosVendaComentada("V2") && tick.ask<PrecoPosCompra()-pontosc2*_Point)
+         FechaTodasPosicoesAbertas();
+      if(PossuiPosVendaComentada("V3") && tick.ask<PrecoPosCompra()-pontosc3*_Point)
+         FechaTodasPosicoesAbertas();
+      if(PossuiPosVendaComentada("V4") && tick.ask<PrecoPosCompra()-pontosc4*_Point)
+         FechaTodasPosicoesAbertas();
+      if(PossuiPosVendaComentada("V5") && tick.ask<PrecoPosCompra()-pontosc5*_Point)
+         FechaTodasPosicoesAbertas();
+      if(PossuiPosVendaComentada("V6") && tick.ask<PrecoPosCompra()-pontosc6*_Point)
+         FechaTodasPosicoesAbertas();
+      if(PossuiPosVendaComentada("V7") && tick.ask<PrecoPosCompra()-pontosc7*_Point)
+         FechaTodasPosicoesAbertas();
+      if(PossuiPosVendaComentada("V8") && tick.ask<PrecoPosCompra()-pontosc8*_Point)
+         FechaTodasPosicoesAbertas();
+     }
 ////////////////////////////
 //---|BREAKEVEN E TS |----//
 ////////////////////////////
