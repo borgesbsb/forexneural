@@ -474,6 +474,7 @@ void OnTick()
 
    TimeToStruct(TimeCurrent(),hratualstruct);
    datetime aberturacandleatual=datetime(SeriesInfoInteger(_Symbol,_Period,SERIES_LASTBAR_DATE));
+   double   sarnormalizado = NormalizeDouble(sar[0],5);
 
 ////////////////////////////////////////////
 //---| FECHA ORDENS NO FIM DO PREGÃO |----//
@@ -488,24 +489,24 @@ void OnTick()
 //////////////////////////////////
    if(ativafeclongas)
      {
-      if(PossuiPosCompra())
-        {
-         if((PossuiPosCompraComentada("C3")||PossuiPosCompraComentada("C4")||PossuiPosCompraComentada("C5")|| //
-             PossuiPosCompraComentada("C6")||PossuiPosCompraComentada("C7")||PossuiPosCompraComentada("C8")) && //
-            (candle[1].close>bbu[1]||candle[1].close>mediamovel[1]+tamanhoenvelope*_Point))
-           {
-            FechaTodasPosicoesAbertas();
-           }
-        }
-      if(PossuiPosVenda())
-        {
-         if((PossuiPosVendaComentada("V3")||PossuiPosVendaComentada("V4")||PossuiPosVendaComentada("V5")|| //
-             PossuiPosVendaComentada("V6")||PossuiPosVendaComentada("V7")||PossuiPosVendaComentada("V8")) && //
-            (candle[1].close<bbd[1]||candle[1].close<mediamovel[1]-tamanhoenvelope*_Point))
-           {
-            FechaTodasPosicoesAbertas();
-           }
-        }
+      if(PossuiPosCompra() && sarnormalizado > tick.bid)
+         //        {
+         //         if((PossuiPosCompraComentada("C3")||PossuiPosCompraComentada("C4")||PossuiPosCompraComentada("C5")|| //
+         //             PossuiPosCompraComentada("C6")||PossuiPosCompraComentada("C7")||PossuiPosCompraComentada("C8")) && //
+         //            (candle[1].close>bbu[1]||candle[1].close>mediamovel[1]+tamanhoenvelope*_Point))
+         //           {
+         FechaTodasPosicoesAbertas();
+      //           }
+      //        }
+      if(PossuiPosVenda() && sarnormalizado < tick.ask)
+         //        {
+         //         if((PossuiPosVendaComentada("V3")||PossuiPosVendaComentada("V4")||PossuiPosVendaComentada("V5")|| //
+         //             PossuiPosVendaComentada("V6")||PossuiPosVendaComentada("V7")||PossuiPosVendaComentada("V8")) && //
+         //            (candle[1].close<bbd[1]||candle[1].close<mediamovel[1]-tamanhoenvelope*_Point))
+         //           {
+         FechaTodasPosicoesAbertas();
+      //          }
+      //       }
      }
 
 //+------------------------------------------------------------------+
@@ -719,7 +720,7 @@ void OnTick()
          if(estrategia==estrat12)
            {
             double   previsao = NormalizeDouble(StringToDouble(dict.Get<string>(TimeCurrent())),5);
-            double   sarnormalizado = NormalizeDouble(sar[0],5);
+            //Print(previsao);
             ///////////////////
             //---|COMPRAS|---//
             ///////////////////
