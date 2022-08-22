@@ -477,7 +477,8 @@ void OnTick()
 
    TimeToStruct(TimeCurrent(),hratualstruct);
    datetime aberturacandleatual=datetime(SeriesInfoInteger(_Symbol,_Period,SERIES_LASTBAR_DATE));
-   double   sarnormalizado = NormalizeDouble(sar[0],5);
+   double   sarnormalizado0 = NormalizeDouble(sar[0],5);
+   double   sarnormalizado1 = NormalizeDouble(sar[1],5);
 
 ////////////////////////////////////////////
 //---| FECHA ORDENS NO FIM DO PREGÃO |----//
@@ -492,7 +493,7 @@ void OnTick()
 //////////////////////////////////
    if(ativafeclongas)
      {
-      if(PossuiPosCompra() /*&& sarnormalizado > tick.bid*/)
+      if(PossuiPosCompra() /*&& sarnormalizado0 > tick.bid*/)
         {
          if((PossuiPosCompraComentada("C3")||PossuiPosCompraComentada("C4")||PossuiPosCompraComentada("C5")|| //
              PossuiPosCompraComentada("C6")||PossuiPosCompraComentada("C7")||PossuiPosCompraComentada("C8")) && //
@@ -501,7 +502,7 @@ void OnTick()
             FechaTodasPosicoesAbertas();
            }
         }
-      if(PossuiPosVenda() /*&& sarnormalizado < tick.ask*/)
+      if(PossuiPosVenda() /*&& sarnormalizado0 < tick.ask*/)
         {
          if((PossuiPosVendaComentada("V3")||PossuiPosVendaComentada("V4")||PossuiPosVendaComentada("V5")|| //
              PossuiPosVendaComentada("V6")||PossuiPosVendaComentada("V7")||PossuiPosVendaComentada("V8")) && //
@@ -583,12 +584,12 @@ void OnTick()
                ///////////////////
                //---|COMPRAS|---//
                ///////////////////
-               if(candle[1].close<mediamovel[1]-tamanhoenvelope*_Point && sarnormalizado < tick.ask)
+               if(candle[1].close<mediamovel[1]-tamanhoenvelope*_Point && sarnormalizado0 < tick.ask && sarnormalizado1 < tick.ask)
                   ComprasNormais();
                //////////////////
                //---|VENDAS|---//
                //////////////////
-               if(candle[1].close>mediamovel[1]+tamanhoenvelope*_Point && sarnormalizado > tick.bid)
+               if(candle[1].close>mediamovel[1]+tamanhoenvelope*_Point && sarnormalizado0 > tick.bid && sarnormalizado1 > tick.bid)
                   VendasNormais();
               }
             /////////////////////////////////////
@@ -665,13 +666,13 @@ void OnTick()
                ///////////////////
                //---|COMPRAS|---//
                ///////////////////
-               if(sarnormalizado < tick.ask)
+               if(sarnormalizado0 < tick.ask && sarnormalizado1 < tick.ask)
                   ComprasNormais();
 
                //////////////////
                //---|VENDAS|---//
                //////////////////
-               if(sarnormalizado > tick.bid)
+               if(sarnormalizado0 > tick.bid && sarnormalizado1 > tick.bid)
                   VendasNormais();
               }
             ///////////////////////////////
@@ -764,13 +765,13 @@ void OnTick()
                ///////////////////
                //---|COMPRAS|---//
                ///////////////////
-               if(previsao > tick.ask && previsao != 0 && sarnormalizado < tick.ask)
+               if(previsao > tick.ask && previsao != 0 && sarnormalizado0 < tick.ask && sarnormalizado1 < tick.ask)
                   ComprasNormais();
 
                //////////////////
                //---|VENDAS|---//
                //////////////////
-               if(previsao < tick.bid && previsao != 0 && sarnormalizado > tick.bid)
+               if(previsao < tick.bid && previsao != 0 && sarnormalizado0 > tick.bid && sarnormalizado1 > tick.bid)
                   VendasNormais();
               }
            }
@@ -921,12 +922,12 @@ void OnTick()
                   ///////////////////
                   //---|COMPRAS|---//
                   ///////////////////
-                  if(candle[1].close<mediamovel[1]-tamanhoenvelope*_Point && sarnormalizado < tick.ask)
+                  if(candle[1].close<mediamovel[1]-tamanhoenvelope*_Point && sarnormalizado0 < tick.ask && sarnormalizado1 < tick.ask)
                      ComprasNormais();
                   //////////////////
                   //---|VENDAS|---//
                   //////////////////
-                  if(candle[1].close>mediamovel[1]+tamanhoenvelope*_Point && sarnormalizado > tick.bid)
+                  if(candle[1].close>mediamovel[1]+tamanhoenvelope*_Point && sarnormalizado0 > tick.bid && sarnormalizado1 > tick.bid)
                      VendasNormais();
                  }
                /////////////////////////////////////
@@ -1003,13 +1004,13 @@ void OnTick()
                   ///////////////////
                   //---|COMPRAS|---//
                   ///////////////////
-                  if(sarnormalizado < tick.ask)
+                  if(sarnormalizado0 < tick.ask && sarnormalizado1 < tick.ask)
                      ComprasNormais();
 
                   //////////////////
                   //---|VENDAS|---//
                   //////////////////
-                  if(sarnormalizado > tick.bid)
+                  if(sarnormalizado0 > tick.bid && sarnormalizado1 > tick.bid)
                      VendasNormais();
                  }
                ///////////////////////////////
@@ -1102,13 +1103,13 @@ void OnTick()
                   ///////////////////
                   //---|COMPRAS|---//
                   ///////////////////
-                  if(previsao > tick.ask && previsao != 0 && sarnormalizado < tick.ask)
+                  if(previsao > tick.ask && previsao != 0 && sarnormalizado0 < tick.ask && sarnormalizado1 < tick.ask)
                      ComprasNormais();
 
                   //////////////////
                   //---|VENDAS|---//
                   //////////////////
-                  if(previsao < tick.bid && previsao != 0 && sarnormalizado > tick.bid)
+                  if(previsao < tick.bid && previsao != 0 && sarnormalizado0 > tick.bid && sarnormalizado1 > tick.bid)
                      VendasNormais();
                  }
               }
