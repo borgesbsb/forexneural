@@ -27,15 +27,17 @@ enum ENUM_TP_ESTRAT
    estrat1,      //[1]ENVELOPE/RSI/BOLINGER
    estrat2,      //[2]ENVELOPE/RSI
    estrat3,      //[3]ENVELOPE/BOLINGER
-   estrat4,      //[4]RSI/BOLINGER
-   estrat5,      //[5]ENVELOPE
-   estrat6,      //[6]RSI
-   estrat7,      //[7]BOLINGER
-   estrat8,      //[8]NEURAL
-   estrat9,      //[9]NEURAL/RSI
-   estrat10,     //[10]NEURAL/BOLINGER
-   estrat11,     //[11]NEURAL/ENVELOPE
-   estrat12,     //[12]NEURAL/SAR
+   estrat4,      //[4]ENVELOPE/SAR
+   estrat5,      //[5]RSI/BOLINGER
+   estrat6,      //[6]ENVELOPE
+   estrat7,      //[7]RSI
+   estrat8,      //[8]BOLINGER
+   estrat9,      //[9]SAR
+   estrat10,     //[10]NEURAL
+   estrat11,     //[11]NEURAL/RSI
+   estrat12,     //[12]NEURAL/BOLINGER
+   estrat13,     //[13]NEURAL/ENVELOPE
+   estrat14,     //[14]NEURAL/SAR
   };
 
 enum ENUM_TP_CONTA
@@ -574,9 +576,25 @@ void OnTick()
                   VendasNormais();
               }
             /////////////////////////////////////
-            //---| ESTRATEGIA RSI/BOLINGER |---//
+            //---| ESTRATEGIA ENVELOPE/SAR |---//
             /////////////////////////////////////
             if(estrategia==estrat4)
+              {
+               ///////////////////
+               //---|COMPRAS|---//
+               ///////////////////
+               if(candle[1].close<mediamovel[1]-tamanhoenvelope*_Point && sarnormalizado < tick.ask)
+                  ComprasNormais();
+               //////////////////
+               //---|VENDAS|---//
+               //////////////////
+               if(candle[1].close>mediamovel[1]+tamanhoenvelope*_Point && sarnormalizado > tick.bid)
+                  VendasNormais();
+              }
+            /////////////////////////////////////
+            //---| ESTRATEGIA RSI/BOLINGER |---//
+            /////////////////////////////////////
+            if(estrategia==estrat5)
               {
                ///////////////////
                //---|COMPRAS|---//
@@ -592,7 +610,7 @@ void OnTick()
             /////////////////////////////////
             //---| ESTRATEGIA ENVELOPE |---//
             /////////////////////////////////
-            if(estrategia==estrat5)
+            if(estrategia==estrat6)
               {
                ///////////////////
                //---|COMPRAS|---//
@@ -609,7 +627,7 @@ void OnTick()
             ////////////////////////////
             //---| ESTRATEGIA RSI |---//
             ////////////////////////////
-            if(estrategia==estrat6)
+            if(estrategia==estrat7)
               {
                ///////////////////
                //---|COMPRAS|---//
@@ -625,7 +643,7 @@ void OnTick()
             /////////////////////////////////
             //---| ESTRATEGIA BOLINGER |---//
             /////////////////////////////////
-            if(estrategia==estrat7)
+            if(estrategia==estrat8)
               {
                ///////////////////
                //---|COMPRAS|---//
@@ -639,10 +657,27 @@ void OnTick()
                if(candle[1].close>bbu[1])
                   VendasNormais();
               }
+            ////////////////////////////
+            //---| ESTRATEGIA SAR |---//
+            ////////////////////////////
+            if(estrategia==estrat9)
+              {
+               ///////////////////
+               //---|COMPRAS|---//
+               ///////////////////
+               if(sarnormalizado < tick.ask)
+                  ComprasNormais();
+
+               //////////////////
+               //---|VENDAS|---//
+               //////////////////
+               if(sarnormalizado > tick.bid)
+                  VendasNormais();
+              }
             ///////////////////////////////
             //---| ESTRATEGIA NEURAL |---//
             ///////////////////////////////
-            if(estrategia==estrat8)
+            if(estrategia==estrat10)
               {
                double   previsao = NormalizeDouble(StringToDouble(dict.Get<string>(TimeCurrent())),5);
                ///////////////////
@@ -662,7 +697,7 @@ void OnTick()
             ///////////////////////////////////
             //---| ESTRATEGIA NEURAL/RSI |---//
             ///////////////////////////////////
-            if(estrategia==estrat9)
+            if(estrategia==estrat11)
               {
                double   previsao = NormalizeDouble(StringToDouble(dict.Get<string>(TimeCurrent())),5);
                ///////////////////
@@ -682,7 +717,7 @@ void OnTick()
             ////////////////////////////////////////
             //---| ESTRATEGIA NEURAL/BOLINGER |---//
             ////////////////////////////////////////
-            if(estrategia==estrat10)
+            if(estrategia==estrat12)
               {
                double   previsao = NormalizeDouble(StringToDouble(dict.Get<string>(TimeCurrent())),5);
                ///////////////////
@@ -702,7 +737,7 @@ void OnTick()
             ///////////////////////////////////////
             //---| ESTRATEGIA NEURAL/ENVELOPE |---//
             ///////////////////////////////////////
-            if(estrategia==estrat11)
+            if(estrategia==estrat13)
               {
                double   previsao = NormalizeDouble(StringToDouble(dict.Get<string>(TimeCurrent())),5);
                ///////////////////
@@ -722,7 +757,7 @@ void OnTick()
             ///////////////////////////////////
             //---| ESTRATEGIA NEURAL/SAR |---//
             ///////////////////////////////////
-            if(estrategia==estrat12)
+            if(estrategia==estrat14)
               {
                double   previsao = NormalizeDouble(StringToDouble(dict.Get<string>(TimeCurrent())),5);
                //Print(previsao);
@@ -879,9 +914,25 @@ void OnTick()
                      VendasNormais();
                  }
                /////////////////////////////////////
-               //---| ESTRATEGIA RSI/BOLINGER |---//
+               //---| ESTRATEGIA ENVELOPE/SAR |---//
                /////////////////////////////////////
                if(estrategia==estrat4)
+                 {
+                  ///////////////////
+                  //---|COMPRAS|---//
+                  ///////////////////
+                  if(candle[1].close<mediamovel[1]-tamanhoenvelope*_Point && sarnormalizado < tick.ask)
+                     ComprasNormais();
+                  //////////////////
+                  //---|VENDAS|---//
+                  //////////////////
+                  if(candle[1].close>mediamovel[1]+tamanhoenvelope*_Point && sarnormalizado > tick.bid)
+                     VendasNormais();
+                 }
+               /////////////////////////////////////
+               //---| ESTRATEGIA RSI/BOLINGER |---//
+               /////////////////////////////////////
+               if(estrategia==estrat5)
                  {
                   ///////////////////
                   //---|COMPRAS|---//
@@ -897,7 +948,7 @@ void OnTick()
                /////////////////////////////////
                //---| ESTRATEGIA ENVELOPE |---//
                /////////////////////////////////
-               if(estrategia==estrat5)
+               if(estrategia==estrat6)
                  {
                   ///////////////////
                   //---|COMPRAS|---//
@@ -914,7 +965,7 @@ void OnTick()
                ////////////////////////////
                //---| ESTRATEGIA RSI |---//
                ////////////////////////////
-               if(estrategia==estrat6)
+               if(estrategia==estrat7)
                  {
                   ///////////////////
                   //---|COMPRAS|---//
@@ -930,7 +981,7 @@ void OnTick()
                /////////////////////////////////
                //---| ESTRATEGIA BOLINGER |---//
                /////////////////////////////////
-               if(estrategia==estrat7)
+               if(estrategia==estrat8)
                  {
                   ///////////////////
                   //---|COMPRAS|---//
@@ -944,90 +995,107 @@ void OnTick()
                   if(candle[1].close>bbu[1])
                      VendasNormais();
                  }
+               ////////////////////////////
+               //---| ESTRATEGIA SAR |---//
+               ////////////////////////////
+               if(estrategia==estrat9)
+                 {
+                  ///////////////////
+                  //---|COMPRAS|---//
+                  ///////////////////
+                  if(sarnormalizado < tick.ask)
+                     ComprasNormais();
+
+                  //////////////////
+                  //---|VENDAS|---//
+                  //////////////////
+                  if(sarnormalizado > tick.bid)
+                     VendasNormais();
+                 }
                ///////////////////////////////
                //---| ESTRATEGIA NEURAL |---//
                ///////////////////////////////
-               if(estrategia==estrat8)
-                 {
-                  double   previsao = NormalizeDouble(StringToDouble(dict.Get<string>(TimeCurrent())),5);
-                  ///////////////////
-                  //---|COMPRAS|---//
-                  ///////////////////
-                  if(previsao > tick.ask && previsao != 0 /*&& candle[2].close>candle[2].open && candle[1].close>candle[1].open && candle[1].tick_volume>candle[2].tick_volume*(percentvol/100) //
-                     && (candle[1].close-candle[1].open)>=(candle[2].close-candle[2].open)*(percentprice/100)*/)
-                     ComprasNormais();
-
-                  //////////////////
-                  //---|VENDAS|---//
-                  //////////////////
-                  if(previsao < tick.bid && previsao !=0 /*&& candle[2].close>candle[2].open && candle[1].close>candle[1].open && candle[1].tick_volume>candle[2].tick_volume*(percentvol/100) //
-                     && (candle[1].close-candle[1].open)>=(candle[2].close-candle[2].open)*(percentprice/100)*/)
-                     VendasNormais();
-                 }
-               ///////////////////////////////////
-               //---| ESTRATEGIA NEURAL/RSI |---//
-               ///////////////////////////////////
-               if(estrategia==estrat9)
-                 {
-                  double   previsao = NormalizeDouble(StringToDouble(dict.Get<string>(TimeCurrent())),5);
-                  ///////////////////
-                  //---|COMPRAS|---//
-                  ///////////////////
-                  if(previsao > tick.ask && previsao != 0 && rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/ /*&& candle[2].close>candle[2].open && candle[1].close>candle[1].open && candle[1].tick_volume>candle[2].tick_volume*(percentvol/100) //
-                     && (candle[1].close-candle[1].open)>=(candle[2].close-candle[2].open)*(percentprice/100)*/)
-                     ComprasNormais();
-
-                  //////////////////
-                  //---|VENDAS|---//
-                  //////////////////
-                  if(previsao < tick.bid && previsao !=0 && rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/ /*&& candle[2].close>candle[2].open && candle[1].close>candle[1].open && candle[1].tick_volume>candle[2].tick_volume*(percentvol/100) //
-                     && (candle[1].close-candle[1].open)>=(candle[2].close-candle[2].open)*(percentprice/100)*/)
-                     VendasNormais();
-                 }
-               ////////////////////////////////////////
-               //---| ESTRATEGIA NEURAL/BOLINGER |---//
-               ////////////////////////////////////////
                if(estrategia==estrat10)
                  {
                   double   previsao = NormalizeDouble(StringToDouble(dict.Get<string>(TimeCurrent())),5);
                   ///////////////////
                   //---|COMPRAS|---//
                   ///////////////////
-                  if(previsao > tick.ask && previsao != 0 && candle[1].close<bbd[1] /*&& candle[2].close>candle[2].open && candle[1].close>candle[1].open && candle[1].tick_volume>candle[2].tick_volume*(percentvol/100) //
-                     && (candle[1].close-candle[1].open)>=(candle[2].close-candle[2].open)*(percentprice/100)*/)
+                  if(previsao > tick.ask && previsao != 0 /*&& candle[2].close>candle[2].open && candle[1].close>candle[1].open && candle[1].tick_volume>candle[2].tick_volume*(percentvol/100) //
+                  && (candle[1].close-candle[1].open)>=(candle[2].close-candle[2].open)*(percentprice/100)*/)
                      ComprasNormais();
 
                   //////////////////
                   //---|VENDAS|---//
                   //////////////////
-                  if(previsao < tick.bid && previsao !=0 && candle[1].close>bbu[1] /*&& candle[2].close>candle[2].open && candle[1].close>candle[1].open && candle[1].tick_volume>candle[2].tick_volume*(percentvol/100) //
-                     && (candle[1].close-candle[1].open)>=(candle[2].close-candle[2].open)*(percentprice/100)*/)
+                  if(previsao < tick.bid && previsao !=0 /*&& candle[2].close>candle[2].open && candle[1].close>candle[1].open && candle[1].tick_volume>candle[2].tick_volume*(percentvol/100) //
+                  && (candle[1].close-candle[1].open)>=(candle[2].close-candle[2].open)*(percentprice/100)*/)
                      VendasNormais();
                  }
-               ///////////////////////////////////////
-               //---| ESTRATEGIA NEURAL/ENVELOPE |---//
-               ///////////////////////////////////////
+               ///////////////////////////////////
+               //---| ESTRATEGIA NEURAL/RSI |---//
+               ///////////////////////////////////
                if(estrategia==estrat11)
                  {
                   double   previsao = NormalizeDouble(StringToDouble(dict.Get<string>(TimeCurrent())),5);
                   ///////////////////
                   //---|COMPRAS|---//
                   ///////////////////
+                  if(previsao > tick.ask && previsao != 0 && rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/ /*&& candle[2].close>candle[2].open && candle[1].close>candle[1].open && candle[1].tick_volume>candle[2].tick_volume*(percentvol/100) //
+                  && (candle[1].close-candle[1].open)>=(candle[2].close-candle[2].open)*(percentprice/100)*/)
+                     ComprasNormais();
+
+                  //////////////////
+                  //---|VENDAS|---//
+                  //////////////////
+                  if(previsao < tick.bid && previsao !=0 && rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/ /*&& candle[2].close>candle[2].open && candle[1].close>candle[1].open && candle[1].tick_volume>candle[2].tick_volume*(percentvol/100) //
+                  && (candle[1].close-candle[1].open)>=(candle[2].close-candle[2].open)*(percentprice/100)*/)
+                     VendasNormais();
+                 }
+               ////////////////////////////////////////
+               //---| ESTRATEGIA NEURAL/BOLINGER |---//
+               ////////////////////////////////////////
+               if(estrategia==estrat12)
+                 {
+                  double   previsao = NormalizeDouble(StringToDouble(dict.Get<string>(TimeCurrent())),5);
+                  ///////////////////
+                  //---|COMPRAS|---//
+                  ///////////////////
+                  if(previsao > tick.ask && previsao != 0 && candle[1].close<bbd[1] /*&& candle[2].close>candle[2].open && candle[1].close>candle[1].open && candle[1].tick_volume>candle[2].tick_volume*(percentvol/100) //
+                  && (candle[1].close-candle[1].open)>=(candle[2].close-candle[2].open)*(percentprice/100)*/)
+                     ComprasNormais();
+
+                  //////////////////
+                  //---|VENDAS|---//
+                  //////////////////
+                  if(previsao < tick.bid && previsao !=0 && candle[1].close>bbu[1] /*&& candle[2].close>candle[2].open && candle[1].close>candle[1].open && candle[1].tick_volume>candle[2].tick_volume*(percentvol/100) //
+                  && (candle[1].close-candle[1].open)>=(candle[2].close-candle[2].open)*(percentprice/100)*/)
+                     VendasNormais();
+                 }
+               ///////////////////////////////////////
+               //---| ESTRATEGIA NEURAL/ENVELOPE |---//
+               ///////////////////////////////////////
+               if(estrategia==estrat13)
+                 {
+                  double   previsao = NormalizeDouble(StringToDouble(dict.Get<string>(TimeCurrent())),5);
+                  ///////////////////
+                  //---|COMPRAS|---//
+                  ///////////////////
                   if(previsao > tick.ask && previsao != 0 && candle[1].close<mediamovel[1]-tamanhoenvelope*_Point /*&& candle[2].close>candle[2].open && candle[1].close>candle[1].open && candle[1].tick_volume>candle[2].tick_volume*(percentvol/100) //
-                     && (candle[1].close-candle[1].open)>=(candle[2].close-candle[2].open)*(percentprice/100)*/)
+                  && (candle[1].close-candle[1].open)>=(candle[2].close-candle[2].open)*(percentprice/100)*/)
                      ComprasNormais();
 
                   //////////////////
                   //---|VENDAS|---//
                   //////////////////
                   if(previsao < tick.bid && previsao !=0 && candle[1].close>mediamovel[1]+tamanhoenvelope*_Point /*&& candle[2].close>candle[2].open && candle[1].close>candle[1].open && candle[1].tick_volume>candle[2].tick_volume*(percentvol/100) //
-                     && (candle[1].close-candle[1].open)>=(candle[2].close-candle[2].open)*(percentprice/100)*/)
+                  && (candle[1].close-candle[1].open)>=(candle[2].close-candle[2].open)*(percentprice/100)*/)
                      VendasNormais();
                  }
                ///////////////////////////////////
                //---| ESTRATEGIA NEURAL/SAR |---//
                ///////////////////////////////////
-               if(estrategia==estrat12)
+               if(estrategia==estrat14)
                  {
                   double   previsao = NormalizeDouble(StringToDouble(dict.Get<string>(TimeCurrent())),5);
                   //Print(previsao);
@@ -1042,7 +1110,6 @@ void OnTick()
                   //////////////////
                   if(previsao < tick.bid && previsao != 0 && sarnormalizado > tick.bid)
                      VendasNormais();
-
                  }
               }
            }
