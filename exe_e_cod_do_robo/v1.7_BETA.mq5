@@ -233,6 +233,26 @@ int OnInit()
       slcomprapadrao=50.000;
       slvendapadrao=330.000;
      }
+   if(Symbol()=="USDCHF")
+     {
+      slcomprapadrao=0.50000;
+      slvendapadrao=2.00000;
+     }   
+   if(Symbol()=="USDCAD")
+     {
+      slcomprapadrao=0.50000;
+      slvendapadrao=2.00000;
+     }
+   if(Symbol()=="AUDUSD")
+     {
+      slcomprapadrao=0.40000;
+      slvendapadrao=1.50000;
+     }
+   if(Symbol()=="NZDUSD")
+     {
+      slcomprapadrao=0.40000;
+      slvendapadrao=1.00000;
+     }
    if(Symbol()=="XAUUSD")
      {
       slcomprapadrao=200.000;
