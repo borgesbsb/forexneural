@@ -515,6 +515,13 @@ void OnTick()
       FechaTodasPosicoesAbertas();
      }
 
+///////////////////////////////////////////
+//---| FECHA ORDENS - VIRADA DE MÃO |----//
+///////////////////////////////////////////
+   if((UltimaPosFechadaTakeCompra() && PossuiPosVenda())||(UltimaPosFechadaTakeVenda() && PossuiPosCompra()))
+     {
+      FechaTodasPosicoesAbertas();
+     }
 //////////////////////////////////
 //---| FECHA ORDENS LONGAS |----//
 //////////////////////////////////
@@ -1309,6 +1316,75 @@ bool UltimaPosFechadaTake()
    return false;
   }
 //+------------------------------------------------------------------------------------------+
+//+----------------------------------------------------------------------------------------+
+//| VERIFICA SE A ÚLTIMA POSICAO FECHADA FOI DE TAKE PROFIT ATINGIDO DE UMA ORDEM DE COMPRA|
+//+----------------------------------------------------------------------------------------+
+bool UltimaPosFechadaTakeCompra()
+  {
+   HistorySelect(0,TimeCurrent());
+   ulong    ticket=0;
+   string   symbol;
+   long     reason;
+   long     entry;
+   long     typeorder;
+   for(uint i=HistoryDealsTotal()-1; i >= 0; i--)
+     {
+      //--- tentar obter ticket negócios
+      if((ticket=HistoryDealGetTicket(i))>0)
+        {
+         //--- obter as propriedades negócios
+         symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+         reason=HistoryDealGetInteger(ticket,DEAL_REASON);
+         entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+         typeorder = HistoryDealGetInteger(ticket,DEAL_TYPE);
+         //--- apenas para o símbolo atual
+         if(reason==DEAL_REASON_TP && entry==DEAL_ENTRY_OUT && typeorder==DEAL_TYPE_BUY && symbol==_Symbol)
+           {
+            return true;
+            break;
+           }
+         return false;
+         break;
+        }
+     }
+   return false;
+  }
+//+------------------------------------------------------------------------------------------+
+//+---------------------------------------------------------------------------------------+
+//| VERIFICA SE A ÚLTIMA POSICAO FECHADA FOI DE TAKE PROFIT ATINGIDO DE UMA ORDEM DE VENDA|
+//+---------------------------------------------------------------------------------------+
+bool UltimaPosFechadaTakeVenda()
+  {
+   HistorySelect(0,TimeCurrent());
+   ulong    ticket=0;
+   string   symbol;
+   long     reason;
+   long     entry;
+   long     typeorder;
+   for(uint i=HistoryDealsTotal()-1; i >= 0; i--)
+     {
+      //--- tentar obter ticket negócios
+      if((ticket=HistoryDealGetTicket(i))>0)
+        {
+         //--- obter as propriedades negócios
+         symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+         reason=HistoryDealGetInteger(ticket,DEAL_REASON);
+         entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+         typeorder = HistoryDealGetInteger(ticket,DEAL_TYPE);
+         //--- apenas para o símbolo atual
+         if(reason==DEAL_REASON_TP && entry==DEAL_ENTRY_OUT && typeorder==DEAL_TYPE_SELL && symbol==_Symbol)
+           {
+            return true;
+            break;
+           }
+         return false;
+         break;
+        }
+     }
+   return false;
+  }
+//+------------------------------------------------------------------------------------------+
+
 //+----------------------------------------------------------------+
 //| VERIFICA SE A ÚLTIMA POSICAO FECHADA FOI DE STOP LOSS ATINGIDO |
 //+----------------------------------------------------------------+
