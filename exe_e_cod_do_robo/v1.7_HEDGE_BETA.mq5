@@ -516,9 +516,17 @@ void OnTick()
      }
 
 ///////////////////////////////////////////
+//---| FECHA ORDENS - VIRADA DE MÃO |----// OLD
+///////////////////////////////////////////
+//   if((UltimaPosFechadaTakeCompra() && PossuiPosVenda())||(UltimaPosFechadaTakeVenda() && PossuiPosCompra()))
+//     {
+//      FechaTodasPosicoesAbertas();
+//     }
+
+///////////////////////////////////////////
 //---| FECHA ORDENS - VIRADA DE MÃO |----//
 ///////////////////////////////////////////
-   if((UltimaPosFechadaTakeCompra() && PossuiPosVenda())||(UltimaPosFechadaTakeVenda() && PossuiPosCompra()))
+   if(PossuiPosCompra() && PossuiPosVenda() && LucroPrejuizoPosVendaAberta()==LucroPrejuizoPosCompraAberta())
      {
       FechaTodasPosicoesAbertas();
      }
@@ -2358,6 +2366,79 @@ double LucroPrejuizoPosAberta()
         {
          return LucroPrejuizo;
          break;
+        }
+     }
+   return NULL;
+  }
+//+------------------------------------------------------------------------------------------+
+//+-------------------------------------------------------+
+//| VERIFICA O LUCRO/PREJUIZO DA POSIÇÃO DE COMPRA ABERTA |
+//+-------------------------------------------------------+
+double LucroPrejuizoPosCompraAberta()
+  {
+   for(int i=PositionsTotal()-1; i >= 0; i--)
+     {
+      ulong ticket=PositionGetTicket(i);
+      string position_symbol = PositionGetString(POSITION_SYMBOL);
+      //ulong  magic = PositionGetInteger(POSITION_MAGIC);
+      double LucroPrejuizo = PositionGetDouble(POSITION_PROFIT);
+      ENUM_POSITION_TYPE TipoPosicao=(ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
+      if(TipoPosicao==POSITION_TYPE_BUY && position_symbol==_Symbol /*&& magic == magicrobo*/)
+        {
+         return LucroPrejuizo;
+         break;
+        }
+     }
+   return NULL;
+  }
+//+------------------------------------------------------------------------------------------+
+//+-------------------------------------------------------+
+//| VERIFICA O LUCRO/PREJUIZO DA POSIÇÃO DE VENDA ABERTA |
+//+-------------------------------------------------------+
+double LucroPrejuizoPosVendaAberta()
+  {
+   for(int i=PositionsTotal()-1; i >= 0; i--)
+     {
+      ulong ticket=PositionGetTicket(i);
+      string position_symbol = PositionGetString(POSITION_SYMBOL);
+      //ulong  magic = PositionGetInteger(POSITION_MAGIC);
+      double LucroPrejuizo = PositionGetDouble(POSITION_PROFIT);
+      ENUM_POSITION_TYPE TipoPosicao=(ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
+      if(TipoPosicao==POSITION_TYPE_SELL && position_symbol==_Symbol /*&& magic == magicrobo*/)
+        {
+         return LucroPrejuizo;
+         break;
+        }
+     }
+   return NULL;
+  }
+//+------------------------------------------------------------------------------------------+
+//+---------------------------------------------------------------------+
+//| VERIFICA O LUCRO/PREJUIZO DA ULTIMA POSIÇÃO DE COMPRA/VENDA FECHADA |
+//+---------------------------------------------------------------------+
+double LucroPrejuizoUltimaPosFechada()
+  {
+   HistorySelect(0,TimeCurrent());
+   ulong    ticket=0;
+   double   preco;
+   string   symbol;
+   long     reason;
+   long     entry;
+   for(uint i=HistoryDealsTotal()-1; i >= 0; i--)
+     {
+      //--- tentar obter ticket negócios
+      if((ticket=HistoryDealGetTicket(i))>0)
+        {
+         //--- obter as propriedades negócios
+         symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+         reason=HistoryDealGetInteger(ticket,DEAL_REASON);
+         entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+         //--- apenas para o símbolo atual
+         if(reason==DEAL_REASON_TP && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+           {
+            return preco;
+            break;
+           }
         }
      }
    return NULL;
