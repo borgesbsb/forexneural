@@ -16,10 +16,10 @@
 
 enum ENUM_TP_MART
   {
-   mart1,        //[1]VOLUME FIBONACCI
-   mart2,        //[2]05 FIBO + 04 2x ANT
-   mart3,        //[3]2x VOL ANTERIOR
-   mart4,        //[4]2x VOL ACUMULADO
+   mart1,        //[1]FIBONACCI
+   mart2,        //[2]05 FIBO + 04 N VEZES ANT
+   mart3,        //[3]N x VOL ANTERIOR
+   mart4,        //[4]N x VOL ANTERIOR ACUMULADO
   };
 
 enum ENUM_TP_ESTRAT
@@ -77,7 +77,7 @@ input double             percentloss         = 2.5;        //[%] DE STOP LOSS P/
 input int                stoppontos          = 500;        //[PTS] DE STOP LOSS P/ ABERTURA DE ORDENS
 input group              "MARTINGALE"
 input ENUM_TP_MART       tipomartingale      = mart3;      //TIPO DE MARTINGALE
-input int                multiplicador       = 1;          //[INT] MULTIPLICADOR P/ MARTINGALE
+input int                multiplicador       = 1;          //[INT] MULTIPLICADOR P/ MARTINGALE (N)
 //input bool               martpontos          = false;      //MARTINGALE APENAS EM PONTOS
 //input int                pontos2             = 50;         //[PTS] DISTÂNCIA P/ ABERT DA 2 ORDEM
 //input int                pontos3             = 50;         //[PTS] DISTÂNCIA P/ ABERT DA 3 ORDEM
@@ -372,7 +372,7 @@ void OnTick()
          volnv7             = 21*volumeoper;//21
          volnv8             = 34*volumeoper;//34
         }
-      if(tipomartingale==mart2)//mix - fibo ate a 5 ordem e o dobro do anterior nas proximas ordens
+      if(tipomartingale==mart2)//mix - fibo ate a 5 ordem e N vezes o anterior nas ordens seguintes
         {
          volnv2             = 2*volumeoper;//2
          volnv3             = 3*volumeoper;//3
@@ -392,7 +392,7 @@ void OnTick()
          volnv7             = volnv6*multiplicador;
          volnv8             = volnv7*multiplicador;
         }
-      if(tipomartingale==mart4)//dobro do volume acumulado
+      if(tipomartingale==mart4)//N vezes o volume anterior acumulado
         {
          volnv2             = volumeoper*multiplicador;//2
          volnv3             = (volumeoper+volnv2)*multiplicador;//6
@@ -2420,7 +2420,7 @@ double LucroPrejuizoUltimaPosFechada()
   {
    HistorySelect(0,TimeCurrent());
    ulong    ticket=0;
-   double   preco;
+   double   preco=0;
    string   symbol;
    long     reason;
    long     entry;
