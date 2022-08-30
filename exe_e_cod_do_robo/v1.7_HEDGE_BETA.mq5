@@ -120,6 +120,12 @@ input int                pontosc5            = 30;         //[PTS] DISTANCIA P/ 
 input int                pontosc6            = 20;         //[PTS] DISTANCIA P/ FECHAM 6 ORDENS
 input int                pontosc7            = 10;         //[PTS] DISTANCIA P/ FECHAM 7 ORDENS
 input int                pontosc8            = 10;         //[PTS] DISTANCIA P/ FECHAM 8 ORDENS
+input int                pontosc9            = 40;         //[PTS] DISTANCIA P/ FECHAM 9 ORDENS
+input int                pontosc10           = 40;         //[PTS] DISTANCIA P/ FECHAM 10 ORDENS
+input int                pontosc11           = 30;         //[PTS] DISTANCIA P/ FECHAM 11 ORDENS
+input int                pontosc12           = 20;         //[PTS] DISTANCIA P/ FECHAM 12 ORDENS
+input int                pontosc13           = 10;         //[PTS] DISTANCIA P/ FECHAM 13 ORDENS
+input int                pontosc14           = 10;         //[PTS] DISTANCIA P/ FECHAM 14 ORDENS
 /*input group              "BREAKEVEN/TRAILING STOP"
 input bool               ativbreak           = false;      //ATIVA BREAKEVEN/TRAILING STOP
 input double             pontosbreak         = 5;          //PTOS PROX AO TP PARA ATIV BREAKEVEN
@@ -132,8 +138,6 @@ input double             prcentabert         = 3500;       //[%] DO CAPIT MÍNIM
 input group              "GERENCIAMENTO DE RISCO - PARADA DO ROBÔ COM STOPS ALCANÇADOS NO DIA"
 input bool               ativastopdiario     = true;       //PARA O ROBÔ NO DIA QNDO STOP > N
 input int                qtdestops           = 3;          //QTDE MÁXIMA DE STOPS (N)
-//input group              "GERENCIAMENTO DE RISCO - FECHAMENTO DE ORDENS NO ROMPIMENTO INVERSO BOLLINGER/ENVELOPE"
-//input bool               ativafeclongas      = false;      //ATIVA FECHAMENTO DE ORDENS LONGAS
 input group              "GERENCIAMENTO DE RISCO - STOP FULL"
 input bool               ativastopfull       = true;       //ATIVA STOP P/ LIMITE DE CAPITAL INVESTIDO
 input double             percentfull         = 5;          //% DO CAPITAL PARA FECHAR TODAS AS ORDENS
@@ -160,11 +164,10 @@ double                   percent_margem, saldo, capital, lucro_prejuizo, volumem
                          slcomprapadrao, slvendapadrao, tpcomprapadrao, tpvendapadrao, rsi[], bbu[], bbm[], bbd[], mediamovel[], sar[];
 
 //--- Definição das variáveis dos volumes para compra e venda quando utilizar martingale
-double                   volnv2,volnv3,volnv4,volnv5,volnv6,volnv7,volnv8;
-double                   volnv_2,volnv_3,volnv_4,volnv_5,volnv_6,volnv_7,volnv_8;
+double                   volnv2,volnv3,volnv4,volnv5,volnv6,volnv7,volnv8,volnv9,volnv10,volnv11,volnv12,volnv13,volnv14;
 
 //--- Definição das variáveis dos preços médios para compra e venda quando utilizar martingale
-double                   PM1, PM2, PM3, PM4, PM5, PM6, PM7;
+double                   PM1, PM2, PM3, PM4, PM5, PM6, PM7, PM8, PM9, PM10, PM11, PM12, PM13, PM14;
 
 //--- Variáveis p/ ticks, candles e tempo
 MqlTick                  tick;
@@ -371,6 +374,12 @@ void OnTick()
          volnv6             = 13*volumeoper;//13
          volnv7             = 21*volumeoper;//21
          volnv8             = 34*volumeoper;//34
+         volnv9             = 55*volumeoper;//55
+         volnv10            = 89*volumeoper;//89
+         volnv11            = 144*volumeoper;//144
+         volnv12            = 233*volumeoper;//233
+         volnv13            = 377*volumeoper;//377
+         volnv14            = 610*volumeoper;//610
         }
       if(tipomartingale==mart2)//mix - fibo ate a 5 ordem e N vezes o anterior nas ordens seguintes
         {
@@ -380,7 +389,13 @@ void OnTick()
          volnv5             = 8*volumeoper;//8
          volnv6             = volnv5*multiplicador;
          volnv7             = volnv6*multiplicador;
-         volnv8             = volnv7*multiplicador;
+         volnv8             = volnv8*multiplicador;
+         volnv9             = volnv9*multiplicador;
+         volnv10            = volnv10*multiplicador;
+         volnv11            = volnv11*multiplicador;
+         volnv12            = volnv12*multiplicador;
+         volnv13            = volnv13*multiplicador;
+         volnv14            = volnv14*multiplicador;
         }
       if(tipomartingale==mart3)//N vezes o volume anterior conforme tabela de inputs
         {
@@ -391,6 +406,12 @@ void OnTick()
          volnv6             = volnv5*multiplicador;
          volnv7             = volnv6*multiplicador;
          volnv8             = volnv7*multiplicador;
+         volnv9             = volnv8*multiplicador;
+         volnv10            = volnv9*multiplicador;
+         volnv11            = volnv10*multiplicador;
+         volnv12            = volnv11*multiplicador;
+         volnv13            = volnv12*multiplicador;
+         volnv14            = volnv13*multiplicador;
         }
       if(tipomartingale==mart4)//N vezes o volume anterior acumulado
         {
@@ -401,6 +422,12 @@ void OnTick()
          volnv6             = (volumeoper+volnv2+volnv3+volnv4+volnv5)*multiplicador;//162
          volnv7             = (volumeoper+volnv2+volnv3+volnv4+volnv5+volnv6)*multiplicador;//486
          volnv8             = (volumeoper+volnv2+volnv3+volnv4+volnv5+volnv6+volnv7)*multiplicador;//1458
+         volnv9             = (volumeoper+volnv2+volnv3+volnv4+volnv5+volnv6+volnv7+volnv8)*multiplicador;//
+         volnv10            = (volumeoper+volnv2+volnv3+volnv4+volnv5+volnv6+volnv7+volnv8+volnv9)*multiplicador;//
+         volnv11            = (volumeoper+volnv2+volnv3+volnv4+volnv5+volnv6+volnv7+volnv8+volnv9+volnv10)*multiplicador;//
+         volnv12            = (volumeoper+volnv2+volnv3+volnv4+volnv5+volnv6+volnv7+volnv8+volnv9+volnv10+volnv11)*multiplicador;//
+         volnv13            = (volumeoper+volnv2+volnv3+volnv4+volnv5+volnv6+volnv7+volnv8+volnv9+volnv10+volnv11+volnv12)*multiplicador;//
+         volnv14            = (volumeoper+volnv2+volnv3+volnv4+volnv5+volnv6+volnv7+volnv8+volnv9+volnv10+volnv11+volnv12+volnv13)*multiplicador;//
         }
       if(volnv2>220.0)
          volnv2=0;
@@ -420,86 +447,62 @@ void OnTick()
      }
 
 //--- Definição dos preços médios para quando houver 2 ou mais compras/vendas
-   /*   if(PositionsTotal()>=1)
-        {
-         if(PossuiPosCompraComentada("C1") && !PossuiPosCompraComentada("C2"))
-            PM1 = (tick.ask*volnv2 + PrecoPosCompra()*volumeoper)/(volnv2+volumeoper);
-         if(PossuiPosCompraComentada("C2") && !PossuiPosCompraComentada("C3"))
-            PM2 = (tick.ask*volnv3 + PrecoAberturaPosCompra(2)*volnv2 + PrecoAberturaPosCompra(1)*volumeoper)/(volnv3+volnv2+volumeoper);
-         if(PossuiPosCompraComentada("C3") && !PossuiPosCompraComentada("C4"))
-            PM3 = (tick.ask*volnv4 + PrecoAberturaPosCompra(3)*volnv3 + PrecoAberturaPosCompra(2)*volnv2 + //
-                   PrecoAberturaPosCompra(1)*volumeoper)/(volnv4+volnv3+volnv2+volumeoper);
-         if(PossuiPosCompraComentada("C4") && !PossuiPosCompraComentada("C5"))
-            PM4 = (tick.ask*volnv5 + PrecoAberturaPosCompra(4)*volnv4 + PrecoAberturaPosCompra(3)*volnv3 + PrecoAberturaPosCompra(2)*volnv2 + //
-                   PrecoAberturaPosCompra(1)*volumeoper)/(volnv5+volnv4+volnv3+volnv2+volumeoper);
-         if(PossuiPosCompraComentada("C5") && !PossuiPosCompraComentada("C6"))
-            PM5 = (tick.ask*volnv6 + PrecoAberturaPosCompra(5)*volnv5 + PrecoAberturaPosCompra(4)*volnv4 + PrecoAberturaPosCompra(3)*volnv3 + //
-                   PrecoAberturaPosCompra(2)*volnv2 + PrecoAberturaPosCompra(1)*volumeoper)/(volnv6+volnv5+volnv4+volnv3+volnv2+volumeoper);
-         if(PossuiPosCompraComentada("C6") && !PossuiPosCompraComentada("C7"))
-            PM6 = (tick.ask*volnv7 + PrecoAberturaPosCompra(6)*volnv6 + PrecoAberturaPosCompra(5)*volnv5 + PrecoAberturaPosCompra(4)*volnv4 + //
-                   PrecoAberturaPosCompra(3)*volnv3 + PrecoAberturaPosCompra(2)*volnv2 + PrecoAberturaPosCompra(1)*volumeoper)/(volnv7+volnv6+volnv5+//
-                         volnv4+volnv3+volnv2+volumeoper);
-         if(PossuiPosCompraComentada("C7") && !PossuiPosCompraComentada("C8"))
-            PM7 = (tick.ask*volnv8 + PrecoAberturaPosCompra(7)*volnv7 + PrecoAberturaPosCompra(6)*volnv6 + PrecoAberturaPosCompra(5)*volnv5 + //
-                   PrecoAberturaPosCompra(4)*volnv4 + PrecoAberturaPosCompra(3)*volnv3 + PrecoAberturaPosCompra(2)*volnv2 + PrecoAberturaPosCompra(1)* //
-                   volumeoper)/(volnv8+volnv7+volnv6+volnv5+volnv4+volnv3+volnv2+volumeoper);
-
-         if(PossuiPosVendaComentada("C1") && !PossuiPosVendaComentada("C2"))
-            PM1 = (tick.bid*volnv2 + PrecoAberturaPosVenda(1)*volumeoper)/(volnv2+volumeoper);
-         if(PossuiPosVendaComentada("C2") && !PossuiPosVendaComentada("C3"))
-            PM2 = (tick.bid*volnv3 + PrecoAberturaPosVenda(2)*volnv2 + PrecoAberturaPosVenda(1)*volumeoper)/(volnv3+volnv2+volumeoper);
-         if(PossuiPosVendaComentada("C3") && !PossuiPosVendaComentada("C4"))
-            PM3 = (tick.bid*volnv4 + PrecoAberturaPosVenda(3)*volnv3 + PrecoAberturaPosVenda(2)*volnv2 + //
-                   PrecoAberturaPosVenda(1)*volumeoper)/(volnv4+volnv3+volnv2+volumeoper);
-         if(PossuiPosVendaComentada("C4") && !PossuiPosVendaComentada("C5"))
-            PM4 = (tick.bid*volnv5 + PrecoAberturaPosVenda(4)*volnv4 + PrecoAberturaPosVenda(3)*volnv3 + PrecoAberturaPosVenda(2)*volnv2 + //
-                   PrecoAberturaPosVenda(1)*volumeoper)/(volnv5+volnv4+volnv3+volnv2+volumeoper);
-         if(PossuiPosVendaComentada("C5") && !PossuiPosVendaComentada("C6"))
-            PM5 = (tick.bid*volnv6 + PrecoAberturaPosVenda(5)*volnv5 + PrecoAberturaPosVenda(4)*volnv4 + PrecoAberturaPosVenda(3)*volnv3 + //
-                   PrecoAberturaPosVenda(2)*volnv2 + PrecoAberturaPosVenda(1)*volumeoper)/(volnv6+volnv5+volnv4+volnv3+volnv2+volumeoper);
-         if(PossuiPosVendaComentada("C6") && !PossuiPosVendaComentada("C7"))
-            PM6 = (tick.bid*volnv7 + PrecoAberturaPosVenda(6)*volnv6 + PrecoAberturaPosVenda(5)*volnv5 + PrecoAberturaPosVenda(4)*volnv4 + //
-                   PrecoAberturaPosVenda(3)*volnv3 + PrecoAberturaPosVenda(2)*volnv2 + PrecoAberturaPosVenda(1)*volumeoper)/(volnv7+volnv6+volnv5+//
-                         volnv4+volnv3+volnv2+volumeoper);
-         if(PossuiPosVendaComentada("C7") && !PossuiPosVendaComentada("C8"))
-            PM7 = (tick.bid*volnv8 + PrecoAberturaPosVenda(7)*volnv7 + PrecoAberturaPosVenda(6)*volnv6 + PrecoAberturaPosVenda(5)*volnv5 + //
-                   PrecoAberturaPosVenda(4)*volnv4 + PrecoAberturaPosVenda(3)*volnv3 + PrecoAberturaPosVenda(2)*volnv2 + PrecoAberturaPosVenda(1)* //
-                   volumeoper)/(volnv8+volnv7+volnv6+volnv5+volnv4+volnv3+volnv2+volumeoper);
-        }
-   */
-
    if(PositionsTotal()==1)
 
      {
       if(PossuiPosCompraComentada("C1") && !PossuiPosCompraComentada("C2"))
-         PM1 = (tick.ask*volnv2 + PrecoPosCompra()*volumeoper)/(volnv2+volumeoper);
+         PM1 = (tick.ask*volnv2 + PrecoPosAberta()*volumeoper)/(volnv2+volumeoper);
       if(PossuiPosCompraComentada("C2") && !PossuiPosCompraComentada("C3"))
-         PM2 = (tick.ask*volnv3 + PrecoPosCompra()*VolumePos())/(volnv3+VolumePos());
+         PM2 = (tick.ask*volnv3 + PrecoPosAberta()*VolumePos())/(volnv3+VolumePos());
       if(PossuiPosCompraComentada("C3") && !PossuiPosCompraComentada("C4"))
-         PM3 = (tick.ask*volnv4 + PrecoPosCompra()*VolumePos())/(volnv4+VolumePos());
+         PM3 = (tick.ask*volnv4 + PrecoPosAberta()*VolumePos())/(volnv4+VolumePos());
       if(PossuiPosCompraComentada("C4") && !PossuiPosCompraComentada("C5"))
-         PM4 = (tick.ask*volnv5 + PrecoPosCompra()*VolumePos())/(volnv5+VolumePos());
+         PM4 = (tick.ask*volnv5 + PrecoPosAberta()*VolumePos())/(volnv5+VolumePos());
       if(PossuiPosCompraComentada("C5") && !PossuiPosCompraComentada("C6"))
-         PM5 = (tick.ask*volnv6 + PrecoPosCompra()*VolumePos())/(volnv6+VolumePos());
+         PM5 = (tick.ask*volnv6 + PrecoPosAberta()*VolumePos())/(volnv6+VolumePos());
       if(PossuiPosCompraComentada("C6") && !PossuiPosCompraComentada("C7"))
-         PM6 = (tick.ask*volnv7 + PrecoPosCompra()*VolumePos())/(volnv7+VolumePos());
+         PM6 = (tick.ask*volnv7 + PrecoPosAberta()*VolumePos())/(volnv7+VolumePos());
       if(PossuiPosCompraComentada("C7") && !PossuiPosCompraComentada("C8"))
-         PM7 = (tick.ask*volnv8 + PrecoPosCompra()*VolumePos())/(volnv8+VolumePos());
+         PM7 = (tick.ask*volnv8 + PrecoPosAberta()*VolumePos())/(volnv8+VolumePos());
+      if(PossuiPosCompraComentada("C8") && !PossuiPosCompraComentada("C9"))
+         PM8 = (tick.ask*volnv9 + PrecoPosAberta()*VolumePos())/(volnv9+VolumePos());
+      if(PossuiPosCompraComentada("C9") && !PossuiPosCompraComentada("C10"))
+         PM9 = (tick.ask*volnv10 + PrecoPosAberta()*VolumePos())/(volnv10+VolumePos());
+      if(PossuiPosCompraComentada("C10") && !PossuiPosCompraComentada("C11"))
+         PM10 = (tick.ask*volnv11 + PrecoPosAberta()*VolumePos())/(volnv11+VolumePos());
+      if(PossuiPosCompraComentada("C11") && !PossuiPosCompraComentada("C12"))
+         PM11 = (tick.ask*volnv12 + PrecoPosAberta()*VolumePos())/(volnv12+VolumePos());
+      if(PossuiPosCompraComentada("C12") && !PossuiPosCompraComentada("C13"))
+         PM12 = (tick.ask*volnv13 + PrecoPosAberta()*VolumePos())/(volnv13+VolumePos());
+      if(PossuiPosCompraComentada("C13") && !PossuiPosCompraComentada("C14"))
+         PM13 = (tick.ask*volnv14 + PrecoPosAberta()*VolumePos())/(volnv14+VolumePos());
 
       if(PossuiPosVendaComentada("V1") && !PossuiPosVendaComentada("V2"))
-         PM1 = (tick.bid*volnv2 + PrecoPosCompra()*volumeoper)/(volnv2+volumeoper);
+         PM1 = (tick.bid*volnv2 + PrecoPosAberta()*volumeoper)/(volnv2+volumeoper);
       if(PossuiPosVendaComentada("V2") && !PossuiPosVendaComentada("V3"))
-         PM2 = (tick.bid*volnv3 + PrecoPosCompra()*VolumePos())/(volnv3+VolumePos());
+         PM2 = (tick.bid*volnv3 + PrecoPosAberta()*VolumePos())/(volnv3+VolumePos());
       if(PossuiPosVendaComentada("V3") && !PossuiPosVendaComentada("V4"))
-         PM3 = (tick.bid*volnv4 + PrecoPosCompra()*VolumePos())/(volnv4+VolumePos());
+         PM3 = (tick.bid*volnv4 + PrecoPosAberta()*VolumePos())/(volnv4+VolumePos());
       if(PossuiPosVendaComentada("V4") && !PossuiPosVendaComentada("V5"))
-         PM4 = (tick.bid*volnv5 + PrecoPosCompra()*VolumePos())/(volnv5+VolumePos());
+         PM4 = (tick.bid*volnv5 + PrecoPosAberta()*VolumePos())/(volnv5+VolumePos());
       if(PossuiPosVendaComentada("V5") && !PossuiPosVendaComentada("V6"))
-         PM5 = (tick.bid*volnv6 + PrecoPosCompra()*VolumePos())/(volnv6+VolumePos());
+         PM5 = (tick.bid*volnv6 + PrecoPosAberta()*VolumePos())/(volnv6+VolumePos());
       if(PossuiPosVendaComentada("V6") && !PossuiPosVendaComentada("V7"))
-         PM6 = (tick.bid*volnv7 + PrecoPosCompra()*VolumePos())/(volnv7+VolumePos());
+         PM6 = (tick.bid*volnv7 + PrecoPosAberta()*VolumePos())/(volnv7+VolumePos());
       if(PossuiPosVendaComentada("V7") && !PossuiPosVendaComentada("V8"))
-         PM7 = (tick.bid*volnv8 + PrecoPosCompra()*VolumePos())/(volnv8+VolumePos());
+         PM7 = (tick.bid*volnv8 + PrecoPosAberta()*VolumePos())/(volnv8+VolumePos());
+      if(PossuiPosVendaComentada("V8") && !PossuiPosVendaComentada("V9"))
+         PM8 = (tick.bid*volnv9 + PrecoPosAberta()*VolumePos())/(volnv9+VolumePos());
+      if(PossuiPosVendaComentada("V9") && !PossuiPosVendaComentada("V10"))
+         PM9 = (tick.bid*volnv10 + PrecoPosAberta()*VolumePos())/(volnv10+VolumePos());
+      if(PossuiPosVendaComentada("V10") && !PossuiPosVendaComentada("V11"))
+         PM10 = (tick.bid*volnv11 + PrecoPosAberta()*VolumePos())/(volnv11+VolumePos());
+      if(PossuiPosVendaComentada("V11") && !PossuiPosVendaComentada("V12"))
+         PM11 = (tick.bid*volnv12 + PrecoPosAberta()*VolumePos())/(volnv12+VolumePos());
+      if(PossuiPosVendaComentada("V12") && !PossuiPosVendaComentada("V13"))
+         PM12 = (tick.bid*volnv13 + PrecoPosAberta()*VolumePos())/(volnv13+VolumePos());
+      if(PossuiPosVendaComentada("V13") && !PossuiPosVendaComentada("V14"))
+         PM13 = (tick.bid*volnv14 + PrecoPosAberta()*VolumePos())/(volnv14+VolumePos());
      }
 
    TimeToStruct(TimeCurrent(),hratualstruct);
@@ -511,22 +514,6 @@ void OnTick()
 //---| FECHA ORDENS NO FIM DO PREGÃO |----//
 ////////////////////////////////////////////
    if(ativafecfinaldia==true && (PossuiPosCompra()||PossuiPosVenda()) && hratualstruct.hour==hrfechstruct.hour && hratualstruct.min==hrfechstruct.min)
-     {
-      FechaTodasPosicoesAbertas();
-     }
-
-///////////////////////////////////////////
-//---| FECHA ORDENS - VIRADA DE MÃO |----// OLD
-///////////////////////////////////////////
-//   if((UltimaPosFechadaTakeCompra() && PossuiPosVenda())||(UltimaPosFechadaTakeVenda() && PossuiPosCompra()))
-//     {
-//      FechaTodasPosicoesAbertas();
-//     }
-
-///////////////////////////////////////////
-//---| FECHA ORDENS - VIRADA DE MÃO |----//
-///////////////////////////////////////////
-   if(PossuiPosCompra() && PossuiPosVenda() && LucroPrejuizoPosVendaAberta()==LucroPrejuizoPosCompraAberta())
      {
       FechaTodasPosicoesAbertas();
      }
@@ -565,31 +552,6 @@ void OnTick()
         }
      }
 
-//////////////////////////////////
-//---| FECHA ORDENS LONGAS |----//
-//////////////////////////////////
-   /*   if(ativafeclongas)
-        {
-         if(PossuiPosCompra())
-           {
-            if((PossuiPosCompraComentada("C3")||PossuiPosCompraComentada("C4")||PossuiPosCompraComentada("C5")|| //
-                PossuiPosCompraComentada("C6")||PossuiPosCompraComentada("C7")||PossuiPosCompraComentada("C8")) && //
-               (candle[1].close>bbu[1]||candle[1].close>mediamovel[1]+tamanhoenvelope*_Point))
-              {
-               FechaTodasPosicoesAbertas();
-              }
-           }
-         if(PossuiPosVenda())
-           {
-            if((PossuiPosVendaComentada("V3")||PossuiPosVendaComentada("V4")||PossuiPosVendaComentada("V5")|| //
-                PossuiPosVendaComentada("V6")||PossuiPosVendaComentada("V7")||PossuiPosVendaComentada("V8")) && //
-               (candle[1].close<bbd[1]||candle[1].close<mediamovel[1]-tamanhoenvelope*_Point))
-              {
-               FechaTodasPosicoesAbertas();
-              }
-           }
-        }
-   */
 //+------------------------------------------------------------------+
 //| OPERAÇÕES SEGUINDO A ESTRATÉGIA ESCOLHIDA |
 //+------------------------------------------------------------------+
@@ -1219,38 +1181,38 @@ void OnTick()
 /////////////////////////////////
    /*   if(ativasaidaea==true)
         {
-         if(PossuiPosCompraComentada("C1") && tick.bid>PrecoPosCompra()+pontosc1*_Point)
+         if(PossuiPosCompraComentada("C1") && tick.bid>PrecoPosAberta()+pontosc1*_Point)
             FechaTodasPosicoesAbertas();
-         if(PossuiPosCompraComentada("C2") && tick.bid>PrecoPosCompra()+pontosc2*_Point)
+         if(PossuiPosCompraComentada("C2") && tick.bid>PrecoPosAberta()+pontosc2*_Point)
             FechaTodasPosicoesAbertas();
-         if(PossuiPosCompraComentada("C3") && tick.bid>PrecoPosCompra()+pontosc3*_Point)
+         if(PossuiPosCompraComentada("C3") && tick.bid>PrecoPosAberta()+pontosc3*_Point)
             FechaTodasPosicoesAbertas();
-         if(PossuiPosCompraComentada("C4") && tick.bid>PrecoPosCompra()+pontosc4*_Point)
+         if(PossuiPosCompraComentada("C4") && tick.bid>PrecoPosAberta()+pontosc4*_Point)
             FechaTodasPosicoesAbertas();
-         if(PossuiPosCompraComentada("C5") && tick.bid>PrecoPosCompra()+pontosc5*_Point)
+         if(PossuiPosCompraComentada("C5") && tick.bid>PrecoPosAberta()+pontosc5*_Point)
             FechaTodasPosicoesAbertas();
-         if(PossuiPosCompraComentada("C6") && tick.bid>PrecoPosCompra()+pontosc6*_Point)
+         if(PossuiPosCompraComentada("C6") && tick.bid>PrecoPosAberta()+pontosc6*_Point)
             FechaTodasPosicoesAbertas();
-         if(PossuiPosCompraComentada("C7") && tick.bid>PrecoPosCompra()+pontosc7*_Point)
+         if(PossuiPosCompraComentada("C7") && tick.bid>PrecoPosAberta()+pontosc7*_Point)
             FechaTodasPosicoesAbertas();
-         if(PossuiPosCompraComentada("C8") && tick.bid>PrecoPosCompra()+pontosc8*_Point)
+         if(PossuiPosCompraComentada("C8") && tick.bid>PrecoPosAberta()+pontosc8*_Point)
             FechaTodasPosicoesAbertas();
 
-         if(PossuiPosVendaComentada("V1") && tick.ask<PrecoPosCompra()-pontosc1*_Point)
+         if(PossuiPosVendaComentada("V1") && tick.ask<PrecoPosAberta()-pontosc1*_Point)
             FechaTodasPosicoesAbertas();
-         if(PossuiPosVendaComentada("V2") && tick.ask<PrecoPosCompra()-pontosc2*_Point)
+         if(PossuiPosVendaComentada("V2") && tick.ask<PrecoPosAberta()-pontosc2*_Point)
             FechaTodasPosicoesAbertas();
-         if(PossuiPosVendaComentada("V3") && tick.ask<PrecoPosCompra()-pontosc3*_Point)
+         if(PossuiPosVendaComentada("V3") && tick.ask<PrecoPosAberta()-pontosc3*_Point)
             FechaTodasPosicoesAbertas();
-         if(PossuiPosVendaComentada("V4") && tick.ask<PrecoPosCompra()-pontosc4*_Point)
+         if(PossuiPosVendaComentada("V4") && tick.ask<PrecoPosAberta()-pontosc4*_Point)
             FechaTodasPosicoesAbertas();
-         if(PossuiPosVendaComentada("V5") && tick.ask<PrecoPosCompra()-pontosc5*_Point)
+         if(PossuiPosVendaComentada("V5") && tick.ask<PrecoPosAberta()-pontosc5*_Point)
             FechaTodasPosicoesAbertas();
-         if(PossuiPosVendaComentada("V6") && tick.ask<PrecoPosCompra()-pontosc6*_Point)
+         if(PossuiPosVendaComentada("V6") && tick.ask<PrecoPosAberta()-pontosc6*_Point)
             FechaTodasPosicoesAbertas();
-         if(PossuiPosVendaComentada("V7") && tick.ask<PrecoPosCompra()-pontosc7*_Point)
+         if(PossuiPosVendaComentada("V7") && tick.ask<PrecoPosAberta()-pontosc7*_Point)
             FechaTodasPosicoesAbertas();
-         if(PossuiPosVendaComentada("V8") && tick.ask<PrecoPosCompra()-pontosc8*_Point)
+         if(PossuiPosVendaComentada("V8") && tick.ask<PrecoPosAberta()-pontosc8*_Point)
             FechaTodasPosicoesAbertas();
         }
         */
@@ -1260,7 +1222,7 @@ void OnTick()
    /*   if(ativbreak==true)
         {
 
-         if(PossuiPosCompra() && tick.bid>PrecoPosCompra() && StopUltimaPosAberta()==slcomprapadrao && tick.ask>TPUltimaPosAberta()-pontosbreak*_Point)
+         if(PossuiPosCompra() && tick.bid>PrecoPosAberta() && StopUltimaPosAberta()==slcomprapadrao && tick.ask>TPUltimaPosAberta()-pontosbreak*_Point)
            {
             trade.PositionModify(_Symbol,tick.bid-pontosbesl*_Point,TPUltimaPosAberta()+pontosbreak2*_Point);
             Sleep(200);
@@ -1271,7 +1233,7 @@ void OnTick()
             Sleep(200);
            }
 
-         if(PossuiPosVenda() && tick.ask<PrecoPosCompra() && StopUltimaPosAberta()==slvendapadrao && tick.bid<TPUltimaPosAberta()+pontosbreak*_Point)
+         if(PossuiPosVenda() && tick.ask<PrecoPosAberta() && StopUltimaPosAberta()==slvendapadrao && tick.bid<TPUltimaPosAberta()+pontosbreak*_Point)
            {
             trade.PositionModify(_Symbol,tick.ask+pontosbesl*_Point,TPUltimaPosAberta()-pontosbreak2*_Point);
             Sleep(200);
@@ -1317,7 +1279,7 @@ bool PrevForaVal()
          symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
          type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
          entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
-         Alert(hora_atual-hora_oper);
+         //Alert(hora_atual-hora_oper);
          //--- apenas para o símbolo atual
          if((type==DEAL_TYPE_BUY || type==DEAL_TYPE_SELL) && entry==DEAL_ENTRY_IN && symbol==_Symbol && hora_atual-hora_oper>PrevForaVal)
            {
@@ -1334,9 +1296,9 @@ bool PrevForaVal()
    return false;
   }
 //+------------------------------------------------------------------------------------------+
-//+----------------------------------------------+
-//| FUNÇÃO PARA LER OS ARQUIVOS E SUAS PREVISÕES |
-//+----------------------------------------------+
+//+--------------------------+
+//| LER ARQUIVOS E PREVISÕES |
+//+--------------------------+
 void ReadFileToDictCSV(string FileName)
   {
    int h=FileOpen(FileName,FILE_READ|FILE_ANSI|FILE_CSV|FILE_COMMON);
@@ -1416,7 +1378,7 @@ int QtdeStops()
             contador++;
         }
       else
-         return(contador);
+         return contador;
      }
    return contador;
   }
@@ -1726,6 +1688,104 @@ double VolumePosCompra(uint j)
               }
             break;
            }
+      case  8:
+         if((ticket=HistoryDealGetTicket(k-8))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  9:
+         if((ticket=HistoryDealGetTicket(k-9))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  10:
+         if((ticket=HistoryDealGetTicket(k-10))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  11:
+         if((ticket=HistoryDealGetTicket(k-11))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  12:
+         if((ticket=HistoryDealGetTicket(k-12))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  13:
+         if((ticket=HistoryDealGetTicket(k-13))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  14:
+         if((ticket=HistoryDealGetTicket(k-14))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
 
       default:
          break;
@@ -1847,6 +1907,105 @@ double VolumePosVenda(uint j)
               }
             break;
            }
+      case  8:
+         if((ticket=HistoryDealGetTicket(k-8))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  9:
+         if((ticket=HistoryDealGetTicket(k-9))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  10:
+         if((ticket=HistoryDealGetTicket(k-10))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  11:
+         if((ticket=HistoryDealGetTicket(k-11))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  12:
+         if((ticket=HistoryDealGetTicket(k-12))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  13:
+         if((ticket=HistoryDealGetTicket(k-13))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  14:
+         if((ticket=HistoryDealGetTicket(k-14))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+
 
       default:
          break;
@@ -1906,60 +2065,6 @@ void FechaTodasPosicoesAbertas()
      }
   }
 //+------------------------------------------------------------------------------------------+
-//+--------------------------------------------------+
-//| VERIFICA SE EXISTE PELO MENOS UMA ORDEM PENDENTE |
-//+--------------------------------------------------+
-bool PossuiOrdemPendente()
-  {
-   int total = OrdersTotal();
-   for(int i = total-1; i >= 0; i--)
-     {
-      ulong  order_ticket = OrderGetTicket(i);
-      string order_symbol = OrderGetString(ORDER_SYMBOL);
-      //ulong  magic = OrderGetInteger(ORDER_MAGIC);
-      ENUM_ORDER_TYPE type=(ENUM_ORDER_TYPE)OrderGetInteger(ORDER_TYPE);
-      if(order_symbol==_Symbol /*&& magic == magicrobo*/ && (type == ORDER_TYPE_BUY_LIMIT || type == ORDER_TYPE_SELL_LIMIT || //
-            type == ORDER_TYPE_BUY_STOP || type == ORDER_TYPE_SELL_STOP))
-        {
-         return true;
-         break;
-        }
-     }
-   return false;
-  }
-//+------------------------------------------------------------------------------------------
-//+-------------------------------------------+
-//| EXCLUI TODOS OS TIPOS DE ORDENS PENDENTES |
-//+-------------------------------------------+
-void ExcluiOrdensPendentes()
-  {
-   int total = OrdersTotal(); // número de ordens pendentes
-   for(int i = total-1; i >= 0; i--)
-     {
-      //--- aquisição dos parâmetros da posição para posterior composição da ordem de fechamento
-      ulong  order_ticket = OrderGetTicket(i);
-      string order_symbol = OrderGetString(ORDER_SYMBOL);
-      //ulong  magic = OrderGetInteger(ORDER_MAGIC);
-      ENUM_ORDER_TYPE type=(ENUM_ORDER_TYPE)OrderGetInteger(ORDER_TYPE);
-      if(order_symbol==_Symbol /*&& magic == magicrobo*/ && (type == ORDER_TYPE_BUY_LIMIT || type == ORDER_TYPE_SELL_LIMIT || //
-            type == ORDER_TYPE_BUY_STOP || type == ORDER_TYPE_SELL_STOP))
-        {
-         //--- everyrging is ready, trying to modify a buy position
-         if(!trade.OrderDelete(order_ticket))
-           {
-            //--- failure message
-            Print("OrderDelete() method failed. Return code=",trade.ResultRetcode(),
-                  ". Descrição do código: ",trade.ResultRetcodeDescription());
-           }
-         else
-           {
-            Print("OrderDelete() method executed successfully. Return code=",trade.ResultRetcode(),
-                  " (",trade.ResultRetcodeDescription(),")");
-           }
-        }
-     }
-  }
-//+------------------------------------------------------------------------------------------+
 //+---------------------------------------------------------------------+
 //| VERIFICA SE HÁ POSIÇÃO DE COMPRA ABERTA COM COMENTÁRIO PRÉ DEFINIDO |
 //+---------------------------------------------------------------------+
@@ -2005,7 +2110,7 @@ bool PossuiPosVendaComentada(string comentario)
 //+--------------------------------------------------+
 //| RETORNA O PREÇO DA MAIOR POSIÇÃO DE VENDA ABERTA |
 //+--------------------------------------------------+
-double MaiorPrecoPosCompra()
+double MaiorPrecoPosAberta()
   {
    double precomaior=0.0;
    int posabertas = PositionsTotal();
@@ -2025,7 +2130,7 @@ double MaiorPrecoPosCompra()
 //+--------------------------------------------------+
 //|RETORNA O PREÇO DA MENOR POSIÇÃO DE COMPRA ABERTA |
 //+--------------------------------------------------+
-double MenorPrecoPosCompra()
+double MenorPrecoPosAberta()
   {
    double precomenor=200000.0;
    int posabertas = PositionsTotal();
@@ -2143,6 +2248,104 @@ double PrecoAberturaPosCompra(uint j)
            }
       case  7:
          if((ticket=HistoryDealGetTicket(k-7))>0)
+           {
+            price =HistoryDealGetDouble(ticket,DEAL_PRICE);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return price;
+               break;
+              }
+            break;
+           }
+      case  8:
+         if((ticket=HistoryDealGetTicket(k-8))>0)
+           {
+            price =HistoryDealGetDouble(ticket,DEAL_PRICE);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return price;
+               break;
+              }
+            break;
+           }
+      case  9:
+         if((ticket=HistoryDealGetTicket(k-9))>0)
+           {
+            price =HistoryDealGetDouble(ticket,DEAL_PRICE);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return price;
+               break;
+              }
+            break;
+           }
+      case  10:
+         if((ticket=HistoryDealGetTicket(k-10))>0)
+           {
+            price =HistoryDealGetDouble(ticket,DEAL_PRICE);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return price;
+               break;
+              }
+            break;
+           }
+      case  11:
+         if((ticket=HistoryDealGetTicket(k-11))>0)
+           {
+            price =HistoryDealGetDouble(ticket,DEAL_PRICE);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return price;
+               break;
+              }
+            break;
+           }
+      case  12:
+         if((ticket=HistoryDealGetTicket(k-12))>0)
+           {
+            price =HistoryDealGetDouble(ticket,DEAL_PRICE);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return price;
+               break;
+              }
+            break;
+           }
+      case  13:
+         if((ticket=HistoryDealGetTicket(k-13))>0)
+           {
+            price =HistoryDealGetDouble(ticket,DEAL_PRICE);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return price;
+               break;
+              }
+            break;
+           }
+      case  14:
+         if((ticket=HistoryDealGetTicket(k-14))>0)
            {
             price =HistoryDealGetDouble(ticket,DEAL_PRICE);
             symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
@@ -2276,6 +2479,104 @@ double PrecoAberturaPosVenda(uint j)
               }
             break;
            }
+      case  8:
+         if((ticket=HistoryDealGetTicket(k-8))>0)
+           {
+            price =HistoryDealGetDouble(ticket,DEAL_PRICE);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return price;
+               break;
+              }
+            break;
+           }
+      case  9:
+         if((ticket=HistoryDealGetTicket(k-9))>0)
+           {
+            price =HistoryDealGetDouble(ticket,DEAL_PRICE);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return price;
+               break;
+              }
+            break;
+           }
+      case  10:
+         if((ticket=HistoryDealGetTicket(k-10))>0)
+           {
+            price =HistoryDealGetDouble(ticket,DEAL_PRICE);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return price;
+               break;
+              }
+            break;
+           }
+      case  11:
+         if((ticket=HistoryDealGetTicket(k-11))>0)
+           {
+            price =HistoryDealGetDouble(ticket,DEAL_PRICE);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return price;
+               break;
+              }
+            break;
+           }
+      case  12:
+         if((ticket=HistoryDealGetTicket(k-12))>0)
+           {
+            price =HistoryDealGetDouble(ticket,DEAL_PRICE);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return price;
+               break;
+              }
+            break;
+           }
+      case  13:
+         if((ticket=HistoryDealGetTicket(k-13))>0)
+           {
+            price =HistoryDealGetDouble(ticket,DEAL_PRICE);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return price;
+               break;
+              }
+            break;
+           }
+      case  14:
+         if((ticket=HistoryDealGetTicket(k-14))>0)
+           {
+            price =HistoryDealGetDouble(ticket,DEAL_PRICE);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return price;
+               break;
+              }
+            break;
+           }
 
       default:
          break;
@@ -2284,10 +2585,10 @@ double PrecoAberturaPosVenda(uint j)
    return NULL;
   }
 //+------------------------------------------------------------------------------------------+
-//+-----------------------------------+
-//| RETORNA O PREÇO DA POSIÇÃO ABERTA |
-//+-----------------------------------+
-double PrecoPosCompra()
+//+------------------------------------------+
+//| RETORNA O PREÇO DA ÚLTIMA POSIÇÃO ABERTA |
+//+------------------------------------------+
+double PrecoPosAberta()
   {
    int posabertas = PositionsTotal();
    for(int i = posabertas-1; i >= 0; i--)
@@ -2350,9 +2651,9 @@ double TPUltimaPosAberta()
    return NULL;
   }
 //+------------------------------------------------------------------------------------------+
-//+-------------------------------------------------------------+
-//| VERIFICA O LUCRO/PREJUIZO DA POSIÇÃO DE COMPRA/VENDA ABERTA |
-//+-------------------------------------------------------------+
+//+--------------------------------------------------------------------+
+//| VERIFICA O LUCRO/PREJUIZO DA ÚLTIMA POSIÇÃO DE COMPRA/VENDA ABERTA |
+//+--------------------------------------------------------------------+
 double LucroPrejuizoPosAberta()
   {
    for(int i=PositionsTotal()-1; i >= 0; i--)
@@ -2371,52 +2672,448 @@ double LucroPrejuizoPosAberta()
    return NULL;
   }
 //+------------------------------------------------------------------------------------------+
-//+-------------------------------------------------------+
-//| VERIFICA O LUCRO/PREJUIZO DA POSIÇÃO DE COMPRA ABERTA |
-//+-------------------------------------------------------+
-double LucroPrejuizoPosCompraAberta()
+//+------------------------------------------------------+
+//| VERIFICA O PROFIT DA N-ESIMA ORDEM DE COMPRA FECHADA |
+//+------------------------------------------------------+
+double ProfitNPosCompra(uint j)
   {
-   for(int i=PositionsTotal()-1; i >= 0; i--)
+   HistorySelect(0,TimeCurrent());
+   string   name;
+   ulong    ticket=0;
+   double   profit;
+   string   symbol;
+   long     type;
+   long     entry;
+   uint     k = HistoryDealsTotal();
+   switch(j)
      {
-      ulong ticket=PositionGetTicket(i);
-      string position_symbol = PositionGetString(POSITION_SYMBOL);
-      //ulong  magic = PositionGetInteger(POSITION_MAGIC);
-      double LucroPrejuizo = PositionGetDouble(POSITION_PROFIT);
-      ENUM_POSITION_TYPE TipoPosicao=(ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
-      if(TipoPosicao==POSITION_TYPE_BUY && position_symbol==_Symbol /*&& magic == magicrobo*/)
-        {
-         return LucroPrejuizo;
+      case  1:
+         if((ticket=HistoryDealGetTicket(k-1))>0)
+           {
+            profit=HistoryDealGetDouble(ticket,DEAL_PROFIT);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+              {
+               return profit;
+               break;
+              }
+            break;
+           }
+      case  2:
+         if((ticket=HistoryDealGetTicket(k-2))>0)
+           {
+            profit=HistoryDealGetDouble(ticket,DEAL_PROFIT);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+              {
+               return profit;
+               break;
+              }
+            break;
+           }
+      case  3:
+         if((ticket=HistoryDealGetTicket(k-3))>0)
+           {
+            profit=HistoryDealGetDouble(ticket,DEAL_PROFIT);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+              {
+               return profit;
+               break;
+              }
+            break;
+           }
+      case  4:
+         if((ticket=HistoryDealGetTicket(k-4))>0)
+           {
+            profit=HistoryDealGetDouble(ticket,DEAL_PROFIT);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+              {
+               return profit;
+               break;
+              }
+            break;
+           }
+      case  5:
+         if((ticket=HistoryDealGetTicket(k-5))>0)
+           {
+            profit=HistoryDealGetDouble(ticket,DEAL_PROFIT);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+              {
+               return profit;
+               break;
+              }
+            break;
+           }
+      case  6:
+         if((ticket=HistoryDealGetTicket(k-6))>0)
+           {
+            profit=HistoryDealGetDouble(ticket,DEAL_PROFIT);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+              {
+               return profit;
+               break;
+              }
+            break;
+           }
+      case  7:
+         if((ticket=HistoryDealGetTicket(k-7))>0)
+           {
+            profit=HistoryDealGetDouble(ticket,DEAL_PROFIT);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+              {
+               return profit;
+               break;
+              }
+            break;
+           }
+      case  8:
+         if((ticket=HistoryDealGetTicket(k-8))>0)
+           {
+            profit=HistoryDealGetDouble(ticket,DEAL_PROFIT);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+              {
+               return profit;
+               break;
+              }
+            break;
+           }
+      case  9:
+         if((ticket=HistoryDealGetTicket(k-9))>0)
+           {
+            profit=HistoryDealGetDouble(ticket,DEAL_PROFIT);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+              {
+               return profit;
+               break;
+              }
+            break;
+           }
+      case  10:
+         if((ticket=HistoryDealGetTicket(k-10))>0)
+           {
+            profit=HistoryDealGetDouble(ticket,DEAL_PROFIT);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+              {
+               return profit;
+               break;
+              }
+            break;
+           }
+      case  11:
+         if((ticket=HistoryDealGetTicket(k-11))>0)
+           {
+            profit=HistoryDealGetDouble(ticket,DEAL_PROFIT);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+              {
+               return profit;
+               break;
+              }
+            break;
+           }
+      case  12:
+         if((ticket=HistoryDealGetTicket(k-12))>0)
+           {
+            profit=HistoryDealGetDouble(ticket,DEAL_PROFIT);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+              {
+               return profit;
+               break;
+              }
+            break;
+           }
+      case  13:
+         if((ticket=HistoryDealGetTicket(k-13))>0)
+           {
+            profit=HistoryDealGetDouble(ticket,DEAL_PROFIT);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+              {
+               return profit;
+               break;
+              }
+            break;
+           }
+      case  14:
+         if((ticket=HistoryDealGetTicket(k-14))>0)
+           {
+            profit=HistoryDealGetDouble(ticket,DEAL_PROFIT);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+              {
+               return profit;
+               break;
+              }
+            break;
+           }
+
+      default:
          break;
-        }
      }
+
    return NULL;
   }
 //+------------------------------------------------------------------------------------------+
-//+-------------------------------------------------------+
-//| VERIFICA O LUCRO/PREJUIZO DA POSIÇÃO DE VENDA ABERTA |
-//+-------------------------------------------------------+
-double LucroPrejuizoPosVendaAberta()
+//+---------------------------------------------------+
+//| VERIFICA PROFIT DA N-ESIMA ORDEM DE VENDA FECHADA |
+//+---------------------------------------------------+
+double ProfitNPosVenda(uint j)
   {
-   for(int i=PositionsTotal()-1; i >= 0; i--)
+   HistorySelect(0,TimeCurrent());
+   string   name;
+   ulong    ticket=0;
+   double   profit;
+   string   symbol;
+   long     type;
+   long     entry;
+   uint     k = HistoryDealsTotal();
+   switch(j)
      {
-      ulong ticket=PositionGetTicket(i);
-      string position_symbol = PositionGetString(POSITION_SYMBOL);
-      //ulong  magic = PositionGetInteger(POSITION_MAGIC);
-      double LucroPrejuizo = PositionGetDouble(POSITION_PROFIT);
-      ENUM_POSITION_TYPE TipoPosicao=(ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
-      if(TipoPosicao==POSITION_TYPE_SELL && position_symbol==_Symbol /*&& magic == magicrobo*/)
-        {
-         return LucroPrejuizo;
+      case  1:
+         if((ticket=HistoryDealGetTicket(k-1))>0)
+           {
+            profit=HistoryDealGetDouble(ticket,DEAL_PROFIT);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+              {
+               return profit;
+               break;
+              }
+            break;
+           }
+      case  2:
+         if((ticket=HistoryDealGetTicket(k-2))>0)
+           {
+            profit=HistoryDealGetDouble(ticket,DEAL_PROFIT);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+              {
+               return profit;
+               break;
+              }
+            break;
+           }
+      case  3:
+         if((ticket=HistoryDealGetTicket(k-3))>0)
+           {
+            profit=HistoryDealGetDouble(ticket,DEAL_PROFIT);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+              {
+               return profit;
+               break;
+              }
+            break;
+           }
+      case  4:
+         if((ticket=HistoryDealGetTicket(k-4))>0)
+           {
+            profit=HistoryDealGetDouble(ticket,DEAL_PROFIT);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+              {
+               return profit;
+               break;
+              }
+            break;
+           }
+      case  5:
+         if((ticket=HistoryDealGetTicket(k-5))>0)
+           {
+            profit=HistoryDealGetDouble(ticket,DEAL_PROFIT);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+              {
+               return profit;
+               break;
+              }
+            break;
+           }
+      case  6:
+         if((ticket=HistoryDealGetTicket(k-6))>0)
+           {
+            profit=HistoryDealGetDouble(ticket,DEAL_PROFIT);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+              {
+               return profit;
+               break;
+              }
+            break;
+           }
+      case  7:
+         if((ticket=HistoryDealGetTicket(k-7))>0)
+           {
+            profit=HistoryDealGetDouble(ticket,DEAL_PROFIT);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+              {
+               return profit;
+               break;
+              }
+            break;
+           }
+      case  8:
+         if((ticket=HistoryDealGetTicket(k-8))>0)
+           {
+            profit=HistoryDealGetDouble(ticket,DEAL_PROFIT);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+              {
+               return profit;
+               break;
+              }
+            break;
+           }
+      case  9:
+         if((ticket=HistoryDealGetTicket(k-9))>0)
+           {
+            profit=HistoryDealGetDouble(ticket,DEAL_PROFIT);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+              {
+               return profit;
+               break;
+              }
+            break;
+           }
+      case  10:
+         if((ticket=HistoryDealGetTicket(k-10))>0)
+           {
+            profit=HistoryDealGetDouble(ticket,DEAL_PROFIT);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+              {
+               return profit;
+               break;
+              }
+            break;
+           }
+      case  11:
+         if((ticket=HistoryDealGetTicket(k-11))>0)
+           {
+            profit=HistoryDealGetDouble(ticket,DEAL_PROFIT);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+              {
+               return profit;
+               break;
+              }
+            break;
+           }
+      case  12:
+         if((ticket=HistoryDealGetTicket(k-12))>0)
+           {
+            profit=HistoryDealGetDouble(ticket,DEAL_PROFIT);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+              {
+               return profit;
+               break;
+              }
+            break;
+           }
+      case  13:
+         if((ticket=HistoryDealGetTicket(k-13))>0)
+           {
+            profit=HistoryDealGetDouble(ticket,DEAL_PROFIT);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+              {
+               return profit;
+               break;
+              }
+            break;
+           }
+      case  14:
+         if((ticket=HistoryDealGetTicket(k-14))>0)
+           {
+            profit=HistoryDealGetDouble(ticket,DEAL_PROFIT);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+              {
+               return profit;
+               break;
+              }
+            break;
+           }
+
+      default:
          break;
-        }
      }
+
    return NULL;
   }
 //+------------------------------------------------------------------------------------------+
-//+---------------------------------------------------------------------+
-//| VERIFICA O LUCRO/PREJUIZO DA ULTIMA POSIÇÃO DE COMPRA/VENDA FECHADA |
-//+---------------------------------------------------------------------+
-double LucroPrejuizoUltimaPosFechada()
+//+---------------------------------------------------------------+
+//| VERIFICA O LUCRO/PREJUIZO DA ULTIMA POSIÇÃO DE COMPRA FECHADA |
+//+---------------------------------------------------------------+
+double LucroPrejuizoUltimaPosCompraFechada()
   {
    HistorySelect(0,TimeCurrent());
    ulong    ticket=0;
@@ -2424,6 +3121,7 @@ double LucroPrejuizoUltimaPosFechada()
    string   symbol;
    long     reason;
    long     entry;
+   long     type;
    for(uint i=HistoryDealsTotal()-1; i >= 0; i--)
      {
       //--- tentar obter ticket negócios
@@ -2433,8 +3131,42 @@ double LucroPrejuizoUltimaPosFechada()
          symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
          reason=HistoryDealGetInteger(ticket,DEAL_REASON);
          entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+         type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
          //--- apenas para o símbolo atual
-         if(reason==DEAL_REASON_TP && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+         if(type==DEAL_TYPE_BUY && reason==DEAL_REASON_TP && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+           {
+            return preco;
+            break;
+           }
+        }
+     }
+   return NULL;
+  }
+//+------------------------------------------------------------------------------------------+
+//+--------------------------------------------------------------+
+//| VERIFICA O LUCRO/PREJUIZO DA ULTIMA POSIÇÃO DE VENDA FECHADA |
+//+--------------------------------------------------------------+
+double LucroPrejuizoUltimaPosVendaFechada()
+  {
+   HistorySelect(0,TimeCurrent());
+   ulong    ticket=0;
+   double   preco=0;
+   string   symbol;
+   long     reason;
+   long     entry;
+   long     type;
+   for(uint i=HistoryDealsTotal()-1; i >= 0; i--)
+     {
+      //--- tentar obter ticket negócios
+      if((ticket=HistoryDealGetTicket(i))>0)
+        {
+         //--- obter as propriedades negócios
+         symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+         reason=HistoryDealGetInteger(ticket,DEAL_REASON);
+         entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+         type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+         //--- apenas para o símbolo atual
+         if(type==DEAL_TYPE_SELL && reason==DEAL_REASON_TP && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
            {
             return preco;
             break;
@@ -2478,52 +3210,94 @@ void AjustaTPSL()
 //////////////////////////////////////////
 void  ComprasMartingale()
   {
-   if(PossuiPosCompraComentada("C1") && !PossuiPosCompraComentada("C2") && tick.ask<MenorPrecoPosCompra()/*&& tick.ask<PrecoAberturaPosCompra(1)-ptsmartprimcompra*_Point*/ //
+   if(PossuiPosCompraComentada("C1") && !PossuiPosCompraComentada("C2") && tick.ask<MenorPrecoPosAberta()/*&& tick.ask<PrecoAberturaPosCompra(1)-ptsmartprimcompra*_Point*/ //
       && VolumePos()<=500 && volnv2!=0)
      {
       trade.Buy(volnv2,_Symbol,tick.ask,puxatpsl("SLC1"),puxatpsl("TPC1"),"C2");
       Sleep(500);
       return;
      }
-   if(PossuiPosCompraComentada("C2") && !PossuiPosCompraComentada("C3") && tick.ask<MenorPrecoPosCompra()/*&& (PrecoAberturaPosCompra(1)-tick.ask)/_Point> //
+   if(PossuiPosCompraComentada("C2") && !PossuiPosCompraComentada("C3") && tick.ask<MenorPrecoPosAberta()/*&& (PrecoAberturaPosCompra(1)-tick.ask)/_Point> //
          (PrecoAberturaPosCompra(2)-PrecoAberturaPosCompra(1))/_Point*prctmart/100*/ && VolumePos()<=500 && volnv3!=0)
      {
       trade.Buy(volnv3,_Symbol,tick.ask,puxatpsl("SLC2"),puxatpsl("TPC2"),"C3");
       Sleep(500);
       return;
      }
-   if(PossuiPosCompraComentada("C3") && !PossuiPosCompraComentada("C4") && tick.ask<MenorPrecoPosCompra()/*&& (PrecoAberturaPosCompra(1)-tick.ask)/_Point> //
+   if(PossuiPosCompraComentada("C3") && !PossuiPosCompraComentada("C4") && tick.ask<MenorPrecoPosAberta()/*&& (PrecoAberturaPosCompra(1)-tick.ask)/_Point> //
          (PrecoAberturaPosCompra(2)-PrecoAberturaPosCompra(1))/_Point*prctmart/100*/ && VolumePos()<=500 && volnv4!=0)
      {
       trade.Buy(volnv4,_Symbol,tick.ask,puxatpsl("SLC3"),puxatpsl("TPC3"),"C4");
       Sleep(500);
       return;
      }
-   if(PossuiPosCompraComentada("C4") && !PossuiPosCompraComentada("C5") && tick.ask<MenorPrecoPosCompra()/*&& (PrecoAberturaPosCompra(1)-tick.ask)/_Point> //
+   if(PossuiPosCompraComentada("C4") && !PossuiPosCompraComentada("C5") && tick.ask<MenorPrecoPosAberta()/*&& (PrecoAberturaPosCompra(1)-tick.ask)/_Point> //
          (PrecoAberturaPosCompra(2)-PrecoAberturaPosCompra(1))/_Point*prctmart/100*/ && VolumePos()<=500 && volnv5!=0)
      {
       trade.Buy(volnv5,_Symbol,tick.ask,puxatpsl("SLC4"),puxatpsl("TPC4"),"C5");
       Sleep(500);
       return;
      }
-   if(PossuiPosCompraComentada("C5") && !PossuiPosCompraComentada("C6") && tick.ask<MenorPrecoPosCompra()/*&& (PrecoAberturaPosCompra(1)-tick.ask)/_Point> //
+   if(PossuiPosCompraComentada("C5") && !PossuiPosCompraComentada("C6") && tick.ask<MenorPrecoPosAberta()/*&& (PrecoAberturaPosCompra(1)-tick.ask)/_Point> //
          (PrecoAberturaPosCompra(2)-PrecoAberturaPosCompra(1))/_Point*prctmart/100*/ && VolumePos()<=500 && volnv6!=0)
      {
       trade.Buy(volnv6,_Symbol,tick.ask,puxatpsl("SLC5"),puxatpsl("TPC5"),"C6");
       Sleep(500);
       return;
      }
-   if(PossuiPosCompraComentada("C6") && !PossuiPosCompraComentada("C7") && tick.ask<MenorPrecoPosCompra()/*&& (PrecoAberturaPosCompra(1)-tick.ask)/_Point> //
+   if(PossuiPosCompraComentada("C6") && !PossuiPosCompraComentada("C7") && tick.ask<MenorPrecoPosAberta()/*&& (PrecoAberturaPosCompra(1)-tick.ask)/_Point> //
          (PrecoAberturaPosCompra(2)-PrecoAberturaPosCompra(1))/_Point*prctmart/100*/ && VolumePos()<=500 && volnv7!=0)
      {
       trade.Buy(volnv7,_Symbol,tick.ask,puxatpsl("SLC6"),puxatpsl("TPC6"),"C7");
       Sleep(500);
       return;
      }
-   if(PossuiPosCompraComentada("C7") && !PossuiPosCompraComentada("C8") && tick.ask<MenorPrecoPosCompra()/*&& (PrecoAberturaPosCompra(1)-tick.ask)/_Point> //
+   if(PossuiPosCompraComentada("C7") && !PossuiPosCompraComentada("C8") && tick.ask<MenorPrecoPosAberta()/*&& (PrecoAberturaPosCompra(1)-tick.ask)/_Point> //
          (PrecoAberturaPosCompra(2)-PrecoAberturaPosCompra(1))/_Point*prctmart/100*/ && VolumePos()<=500 && volnv8!=0)
      {
       trade.Buy(volnv8,_Symbol,tick.ask,puxatpsl("SLC7"),puxatpsl("TPC7"),"C8");
+      Sleep(500);
+      return;
+     }
+   if(PossuiPosCompraComentada("C8") && !PossuiPosCompraComentada("C9") && tick.ask<MenorPrecoPosAberta()/*&& (PrecoAberturaPosCompra(1)-tick.ask)/_Point> //
+         (PrecoAberturaPosCompra(2)-PrecoAberturaPosCompra(1))/_Point*prctmart/100*/ && VolumePos()<=500 && volnv9!=0)
+     {
+      trade.Buy(volnv9,_Symbol,tick.ask,puxatpsl("SLC8"),puxatpsl("TPC8"),"C9");
+      Sleep(500);
+      return;
+     }
+   if(PossuiPosCompraComentada("C9") && !PossuiPosCompraComentada("C10") && tick.ask<MenorPrecoPosAberta()/*&& (PrecoAberturaPosCompra(1)-tick.ask)/_Point> //
+         (PrecoAberturaPosCompra(2)-PrecoAberturaPosCompra(1))/_Point*prctmart/100*/ && VolumePos()<=500 && volnv10!=0)
+     {
+      trade.Buy(volnv10,_Symbol,tick.ask,puxatpsl("SLC9"),puxatpsl("TPC9"),"C10");
+      Sleep(500);
+      return;
+     }
+   if(PossuiPosCompraComentada("C10") && !PossuiPosCompraComentada("C11") && tick.ask<MenorPrecoPosAberta()/*&& (PrecoAberturaPosCompra(1)-tick.ask)/_Point> //
+         (PrecoAberturaPosCompra(2)-PrecoAberturaPosCompra(1))/_Point*prctmart/100*/ && VolumePos()<=500 && volnv11!=0)
+     {
+      trade.Buy(volnv11,_Symbol,tick.ask,puxatpsl("SLC10"),puxatpsl("TPC10"),"C11");
+      Sleep(500);
+      return;
+     }
+   if(PossuiPosCompraComentada("C11") && !PossuiPosCompraComentada("C12") && tick.ask<MenorPrecoPosAberta()/*&& (PrecoAberturaPosCompra(1)-tick.ask)/_Point> //
+         (PrecoAberturaPosCompra(2)-PrecoAberturaPosCompra(1))/_Point*prctmart/100*/ && VolumePos()<=500 && volnv12!=0)
+     {
+      trade.Buy(volnv12,_Symbol,tick.ask,puxatpsl("SLC11"),puxatpsl("TPC11"),"C12");
+      Sleep(500);
+      return;
+     }
+   if(PossuiPosCompraComentada("C12") && !PossuiPosCompraComentada("C13") && tick.ask<MenorPrecoPosAberta()/*&& (PrecoAberturaPosCompra(1)-tick.ask)/_Point> //
+         (PrecoAberturaPosCompra(2)-PrecoAberturaPosCompra(1))/_Point*prctmart/100*/ && VolumePos()<=500 && volnv13!=0)
+     {
+      trade.Buy(volnv13,_Symbol,tick.ask,puxatpsl("SLC12"),puxatpsl("TPC12"),"C13");
+      Sleep(500);
+      return;
+     }
+   if(PossuiPosCompraComentada("C13") && !PossuiPosCompraComentada("C14") && tick.ask<MenorPrecoPosAberta()/*&& (PrecoAberturaPosCompra(1)-tick.ask)/_Point> //
+         (PrecoAberturaPosCompra(2)-PrecoAberturaPosCompra(1))/_Point*prctmart/100*/ && VolumePos()<=500 && volnv14!=0)
+     {
+      trade.Buy(volnv14,_Symbol,tick.ask,puxatpsl("SLC13"),puxatpsl("TPC13"),"C14");
       Sleep(500);
       return;
      }
@@ -2534,55 +3308,98 @@ void  ComprasMartingale()
 /////////////////////////////////////////
 void  VendasMartingale()
   {
-   if(PossuiPosVendaComentada("V1") && !PossuiPosVendaComentada("V2") && tick.bid>MaiorPrecoPosCompra()/*&& tick.bid>PrecoAberturaPosVenda(1)+ptsmartprimcompra*_Point*///
+   if(PossuiPosVendaComentada("V1") && !PossuiPosVendaComentada("V2") && tick.bid>MaiorPrecoPosAberta()/*&& tick.bid>PrecoAberturaPosVenda(1)+ptsmartprimcompra*_Point*///
       && VolumePos()<=500 && volnv2!=0)
      {
       trade.Sell(volnv2,_Symbol,tick.bid,puxatpsl("SLV1"),puxatpsl("TPV1"),"V2");
       Sleep(500);
       return;
      }
-   if(PossuiPosVendaComentada("V2") && !PossuiPosVendaComentada("V3") && tick.bid>MaiorPrecoPosCompra()/*&& (tick.bid-PrecoAberturaPosVenda(1))/_Point> //
+   if(PossuiPosVendaComentada("V2") && !PossuiPosVendaComentada("V3") && tick.bid>MaiorPrecoPosAberta()/*&& (tick.bid-PrecoAberturaPosVenda(1))/_Point> //
          (PrecoAberturaPosVenda(1)-PrecoAberturaPosVenda(2))/_Point*prctmart/100*/ && VolumePos()<=500 && volnv3!=0)
      {
       trade.Sell(volnv3,_Symbol,tick.bid,puxatpsl("SLV2"),puxatpsl("TPV2"),"V3");
       Sleep(500);
       return;
      }
-   if(PossuiPosVendaComentada("V3") && !PossuiPosVendaComentada("V4") && tick.bid>MaiorPrecoPosCompra()/*&& (tick.bid-PrecoAberturaPosVenda(1))/_Point> //
+   if(PossuiPosVendaComentada("V3") && !PossuiPosVendaComentada("V4") && tick.bid>MaiorPrecoPosAberta()/*&& (tick.bid-PrecoAberturaPosVenda(1))/_Point> //
          (PrecoAberturaPosVenda(1)-PrecoAberturaPosVenda(2))/_Point*prctmart/100*/ && VolumePos()<=500 && volnv4!=0)
      {
       trade.Sell(volnv4,_Symbol,tick.bid,puxatpsl("SLV3"),puxatpsl("TPV3"),"V4");
       Sleep(500);
       return;
      }
-   if(PossuiPosVendaComentada("V4") && !PossuiPosVendaComentada("V5") && tick.bid>MaiorPrecoPosCompra()/*&& (tick.bid-PrecoAberturaPosVenda(1))/_Point> //
+   if(PossuiPosVendaComentada("V4") && !PossuiPosVendaComentada("V5") && tick.bid>MaiorPrecoPosAberta()/*&& (tick.bid-PrecoAberturaPosVenda(1))/_Point> //
          (PrecoAberturaPosVenda(1)-PrecoAberturaPosVenda(2))/_Point*prctmart/100*/ && VolumePos()<=500 && volnv5!=0)
      {
       trade.Sell(volnv5,_Symbol,tick.bid,puxatpsl("SLV4"),puxatpsl("TPV4"),"V5");
       Sleep(500);
       return;
      }
-   if(PossuiPosVendaComentada("V5") && !PossuiPosVendaComentada("V6") && tick.bid>MaiorPrecoPosCompra()/*&& (tick.bid-PrecoAberturaPosVenda(1))/_Point> //
+   if(PossuiPosVendaComentada("V5") && !PossuiPosVendaComentada("V6") && tick.bid>MaiorPrecoPosAberta()/*&& (tick.bid-PrecoAberturaPosVenda(1))/_Point> //
          (PrecoAberturaPosVenda(1)-PrecoAberturaPosVenda(2))/_Point*prctmart/100*/ && VolumePos()<=500 && volnv6!=0)
      {
       trade.Sell(volnv6,_Symbol,tick.bid,puxatpsl("SLV5"),puxatpsl("TPV5"),"V6");
       Sleep(500);
       return;
      }
-   if(PossuiPosVendaComentada("V6") && !PossuiPosVendaComentada("V7") && tick.bid>MaiorPrecoPosCompra()/*&& (tick.bid-PrecoAberturaPosVenda(1))/_Point> //
+   if(PossuiPosVendaComentada("V6") && !PossuiPosVendaComentada("V7") && tick.bid>MaiorPrecoPosAberta()/*&& (tick.bid-PrecoAberturaPosVenda(1))/_Point> //
          (PrecoAberturaPosVenda(1)-PrecoAberturaPosVenda(2))/_Point*prctmart/100*/ && VolumePos()<=500 && volnv7!=0)
      {
       trade.Sell(volnv7,_Symbol,tick.bid,puxatpsl("SLV6"),puxatpsl("TPV6"),"V7");
       Sleep(500);
       return;
      }
-   if(PossuiPosVendaComentada("V7") && !PossuiPosVendaComentada("V8") && tick.bid>MaiorPrecoPosCompra()/*&& (tick.bid-PrecoAberturaPosVenda(1))/_Point> //
+   if(PossuiPosVendaComentada("V7") && !PossuiPosVendaComentada("V8") && tick.bid>MaiorPrecoPosAberta()/*&& (tick.bid-PrecoAberturaPosVenda(1))/_Point> //
          (PrecoAberturaPosVenda(1)-PrecoAberturaPosVenda(2))/_Point*prctmart/100*/ && VolumePos()<=500 && volnv8!=0)
      {
       trade.Sell(volnv8,_Symbol,tick.bid,puxatpsl("SLV7"),puxatpsl("TPV7"),"V8");
       Sleep(500);
       return;
      }
+   if(PossuiPosVendaComentada("V8") && !PossuiPosVendaComentada("V9") && tick.bid>MaiorPrecoPosAberta()/*&& (tick.bid-PrecoAberturaPosVenda(1))/_Point> //
+         (PrecoAberturaPosVenda(1)-PrecoAberturaPosVenda(2))/_Point*prctmart/100*/ && VolumePos()<=500 && volnv9!=0)
+     {
+      trade.Sell(volnv9,_Symbol,tick.bid,puxatpsl("SLV8"),puxatpsl("TPV8"),"V9");
+      Sleep(500);
+      return;
+     }
+   if(PossuiPosVendaComentada("V9") && !PossuiPosVendaComentada("V10") && tick.bid>MaiorPrecoPosAberta()/*&& (tick.bid-PrecoAberturaPosVenda(1))/_Point> //
+         (PrecoAberturaPosVenda(1)-PrecoAberturaPosVenda(2))/_Point*prctmart/100*/ && VolumePos()<=500 && volnv10!=0)
+     {
+      trade.Sell(volnv10,_Symbol,tick.bid,puxatpsl("SLV9"),puxatpsl("TPV9"),"V10");
+      Sleep(500);
+      return;
+     }
+   if(PossuiPosVendaComentada("V10") && !PossuiPosVendaComentada("V11") && tick.bid>MaiorPrecoPosAberta()/*&& (tick.bid-PrecoAberturaPosVenda(1))/_Point> //
+         (PrecoAberturaPosVenda(1)-PrecoAberturaPosVenda(2))/_Point*prctmart/100*/ && VolumePos()<=500 && volnv11!=0)
+     {
+      trade.Sell(volnv11,_Symbol,tick.bid,puxatpsl("SLV10"),puxatpsl("TPV10"),"V11");
+      Sleep(500);
+      return;
+     }
+   if(PossuiPosVendaComentada("V11") && !PossuiPosVendaComentada("V12") && tick.bid>MaiorPrecoPosAberta()/*&& (tick.bid-PrecoAberturaPosVenda(1))/_Point> //
+         (PrecoAberturaPosVenda(1)-PrecoAberturaPosVenda(2))/_Point*prctmart/100*/ && VolumePos()<=500 && volnv12!=0)
+     {
+      trade.Sell(volnv12,_Symbol,tick.bid,puxatpsl("SLV11"),puxatpsl("TPV11"),"V12");
+      Sleep(500);
+      return;
+     }
+   if(PossuiPosVendaComentada("V12") && !PossuiPosVendaComentada("V13") && tick.bid>MaiorPrecoPosAberta()/*&& (tick.bid-PrecoAberturaPosVenda(1))/_Point> //
+         (PrecoAberturaPosVenda(1)-PrecoAberturaPosVenda(2))/_Point*prctmart/100*/ && VolumePos()<=500 && volnv13!=0)
+     {
+      trade.Sell(volnv13,_Symbol,tick.bid,puxatpsl("SLV12"),puxatpsl("TPV12"),"V13");
+      Sleep(500);
+      return;
+     }
+   if(PossuiPosVendaComentada("V13") && !PossuiPosVendaComentada("V14") && tick.bid>MaiorPrecoPosAberta()/*&& (tick.bid-PrecoAberturaPosVenda(1))/_Point> //
+         (PrecoAberturaPosVenda(1)-PrecoAberturaPosVenda(2))/_Point*prctmart/100*/ && VolumePos()<=500 && volnv14!=0)
+     {
+      trade.Sell(volnv14,_Symbol,tick.bid,puxatpsl("SLV13"),puxatpsl("TPV13"),"V14");
+      Sleep(500);
+      return;
+     }
+
   }
 //+---------------------------------------------------------------------------------------------------------------------------------+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2612,6 +3429,20 @@ double   puxatpsl(string tpsl)
             return(PM6*(1+percentloss/100));
          if(str=="SLV7")
             return(PM7*(1+percentloss/100));
+         if(str=="SLV8")
+            return(PM8*(1+percentloss/100));
+         if(str=="SLV9")
+            return(PM9*(1+percentloss/100));
+         if(str=="SLV10")
+            return(PM10*(1+percentloss/100));
+         if(str=="SLV11")
+            return(PM11*(1+percentloss/100));
+         if(str=="SLV12")
+            return(PM12*(1+percentloss/100));
+         if(str=="SLV13")
+            return(PM13*(1+percentloss/100));
+         if(str=="SLV14")
+            return(PM14*(1+percentloss/100));
 
          if(str=="SLC0")
             return(tick.ask*(1-percentloss/100));
@@ -2629,12 +3460,28 @@ double   puxatpsl(string tpsl)
             return(PM6*(1-percentloss/100));
          if(str=="SLC7")
             return(PM7*(1-percentloss/100));
+         if(str=="SLC8")
+            return(PM8*(1-percentloss/100));
+         if(str=="SLC9")
+            return(PM9*(1-percentloss/100));
+         if(str=="SLC10")
+            return(PM10*(1-percentloss/100));
+         if(str=="SLC11")
+            return(PM11*(1-percentloss/100));
+         if(str=="SLC12")
+            return(PM12*(1-percentloss/100));
+         if(str=="SLC13")
+            return(PM13*(1-percentloss/100));
+         if(str=="SLC14")
+            return(PM14*(1-percentloss/100));
         }
       if(tipooper==tipohedge)
         {
-         if(str=="SLV0"||str=="SLV1"||str=="SLV2"||str=="SLV3"||str=="SLV4"||str=="SLV5"||str=="SLV6"||str=="SLV7")
+         if(str=="SLV0"||str=="SLV1"||str=="SLV2"||str=="SLV3"||str=="SLV4"||str=="SLV5"||str=="SLV6"||str=="SLV7"|| //
+            str=="SLV8"||str=="SLV9"||str=="SLV10"||str=="SLV11"||str=="SLV12"||str=="SLV13"||str=="SLV14")
             return(tick.bid*(1+percentloss/100));
-         if(str=="SLC0"||str=="SLC1"||str=="SLC2"||str=="SLC3"||str=="SLC4"||str=="SLC5"||str=="SLC6"||str=="SLC7")
+         if(str=="SLC0"||str=="SLC1"||str=="SLC2"||str=="SLC3"||str=="SLC4"||str=="SLC5"||str=="SLC6"||str=="SLC7"|| //
+            str=="SLC8"||str=="SLC9"||str=="SLC10"||str=="SLC11"||str=="SLC12"||str=="SLC13"||str=="SLC14")
             return(tick.ask*(1-percentloss/100));
         }
      }
@@ -2658,6 +3505,20 @@ double   puxatpsl(string tpsl)
             return(PM6+stoppontos*_Point);
          if(str=="SLV7")
             return(PM7+stoppontos*_Point);
+         if(str=="SLV8")
+            return(PM8+stoppontos*_Point);
+         if(str=="SLV9")
+            return(PM9+stoppontos*_Point);
+         if(str=="SLV10")
+            return(PM10+stoppontos*_Point);
+         if(str=="SLV11")
+            return(PM11+stoppontos*_Point);
+         if(str=="SLV12")
+            return(PM12+stoppontos*_Point);
+         if(str=="SLV13")
+            return(PM13+stoppontos*_Point);
+         if(str=="SLV14")
+            return(PM14+stoppontos*_Point);
 
          if(str=="SLC0")
             return(tick.ask-stoppontos*_Point);
@@ -2675,12 +3536,28 @@ double   puxatpsl(string tpsl)
             return(PM6-stoppontos*_Point);
          if(str=="SLC7")
             return(PM7-stoppontos*_Point);
+         if(str=="SLC8")
+            return(PM8-stoppontos*_Point);
+         if(str=="SLC9")
+            return(PM9-stoppontos*_Point);
+         if(str=="SLC10")
+            return(PM10-stoppontos*_Point);
+         if(str=="SLC11")
+            return(PM11-stoppontos*_Point);
+         if(str=="SLC12")
+            return(PM12-stoppontos*_Point);
+         if(str=="SLC13")
+            return(PM13-stoppontos*_Point);
+         if(str=="SLC14")
+            return(PM14-stoppontos*_Point);
         }
       if(tipooper==tipohedge)
         {
-         if(str=="SLV0"||str=="SLV1"||str=="SLV2"||str=="SLV3"||str=="SLV4"||str=="SLV5"||str=="SLV6"||str=="SLV7")
+         if(str=="SLV0"||str=="SLV1"||str=="SLV2"||str=="SLV3"||str=="SLV4"||str=="SLV5"||str=="SLV6"||str=="SLV7"|| //
+            str=="SLV8"||str=="SLV9"||str=="SLV10"||str=="SLV11"||str=="SLV12"||str=="SLV13"||str=="SLV14")
             return(tick.bid+stoppontos*_Point);
-         if(str=="SLC0"||str=="SLC1"||str=="SLC2"||str=="SLC3"||str=="SLC4"||str=="SLC5"||str=="SLC6"||str=="SLC7")
+         if(str=="SLC0"||str=="SLC1"||str=="SLC2"||str=="SLC3"||str=="SLC4"||str=="SLC5"||str=="SLC6"||str=="SLC7"|| //
+            str=="SLC8"||str=="SLC9"||str=="SLC10"||str=="SLC11"||str=="SLC12"||str=="SLC13"||str=="SLC14")
             return(tick.ask-stoppontos*_Point);
         }
      }
@@ -2704,6 +3581,20 @@ double   puxatpsl(string tpsl)
             return(PM6*(1+percentgain/100));
          if(str=="TPC7")
             return(PM7*(1+percentgain/100));
+         if(str=="TPC8")
+            return(PM8*(1+percentgain/100));
+         if(str=="TPC9")
+            return(PM9*(1+percentgain/100));
+         if(str=="TPC10")
+            return(PM10*(1+percentgain/100));
+         if(str=="TPC11")
+            return(PM11*(1+percentgain/100));
+         if(str=="TPC12")
+            return(PM12*(1+percentgain/100));
+         if(str=="TPC13")
+            return(PM13*(1+percentgain/100));
+         if(str=="TPC14")
+            return(PM14*(1+percentgain/100));
 
          if(str=="TPV0")
             return(tick.ask*(1-percentgain/100));
@@ -2721,12 +3612,28 @@ double   puxatpsl(string tpsl)
             return(PM6*(1-percentgain/100));
          if(str=="TPV7")
             return(PM7*(1-percentgain/100));
+         if(str=="TPV8")
+            return(PM8*(1-percentgain/100));
+         if(str=="TPV9")
+            return(PM9*(1-percentgain/100));
+         if(str=="TPV10")
+            return(PM10*(1-percentgain/100));
+         if(str=="TPV11")
+            return(PM11*(1-percentgain/100));
+         if(str=="TPV12")
+            return(PM12*(1-percentgain/100));
+         if(str=="TPV13")
+            return(PM13*(1-percentgain/100));
+         if(str=="TPV14")
+            return(PM14*(1-percentgain/100));
         }
       if(tipooper==tipohedge)
         {
-         if(str=="TPV0"||str=="TPV1"||str=="TPV2"||str=="TPV3"||str=="TPV4"||str=="TPV5"||str=="TPV6"||str=="TPV7")
+         if(str=="TPV0"||str=="TPV1"||str=="TPV2"||str=="TPV3"||str=="TPV4"||str=="TPV5"||str=="TPV6"||str=="TPV7"|| //
+            str=="TPV8"||str=="TPV9"||str=="TPV10"||str=="TPV11"||str=="TPV12"||str=="TPV13"||str=="TPV14")
             return(tick.ask*(1-percentgain/100));
-         if(str=="TPC0"||str=="TPC1"||str=="TPC2"||str=="TPC3"||str=="TPC4"||str=="TPC5"||str=="TPC6"||str=="TPC7")
+         if(str=="TPC0"||str=="TPC1"||str=="TPC2"||str=="TPC3"||str=="TPC4"||str=="TPC5"||str=="TPC6"||str=="TPC7"|| //
+            str=="TPC8"||str=="TPC9"||str=="TPC10"||str=="TPC11"||str=="TPC12"||str=="TPC13"||str=="TPC14")
             return(tick.bid*(1+percentgain/100));
         }
      }
@@ -2750,7 +3657,19 @@ double   puxatpsl(string tpsl)
             return(PM6+pontosc7*_Point);
          if(str=="TPC7")
             return(PM7+pontosc8*_Point);
-
+         if(str=="TPC8")
+            return(PM8+pontosc9*_Point);
+         if(str=="TPC9")
+            return(PM9+pontosc10*_Point);
+         if(str=="TPC10")
+            return(PM10+pontosc11*_Point);
+         if(str=="TPC11")
+            return(PM11+pontosc12*_Point);
+         if(str=="TPC12")
+            return(PM12+pontosc13*_Point);
+         if(str=="TPC13")
+            return(PM13+pontosc14*_Point);
+            
          if(str=="TPV0")
             return(tick.ask-pontosc1*_Point);
          if(str=="TPV1")
@@ -2767,12 +3686,26 @@ double   puxatpsl(string tpsl)
             return(PM6-pontosc7*_Point);
          if(str=="TPV7")
             return(PM7-pontosc8*_Point);
+         if(str=="TPV8")
+            return(PM8-pontosc9*_Point);
+         if(str=="TPV9")
+            return(PM9-pontosc10*_Point);
+         if(str=="TPV10")
+            return(PM10-pontosc11*_Point);
+         if(str=="TPV11")
+            return(PM11-pontosc12*_Point);
+         if(str=="TPV12")
+            return(PM12-pontosc13*_Point);
+         if(str=="TPV13")
+            return(PM13-pontosc14*_Point);
         }
       if(tipooper==tipohedge)
         {
-         if(str=="TPV0"||str=="TPV1"||str=="TPV2"||str=="TPV3"||str=="TPV4"||str=="TPV5"||str=="TPV6"||str=="TPV7")
+         if(str=="TPV0"||str=="TPV1"||str=="TPV2"||str=="TPV3"||str=="TPV4"||str=="TPV5"||str=="TPV6"||str=="TPV7"|| //
+            str=="TPV8"||str=="TPV9"||str=="TPV10"||str=="TPV11"||str=="TPV12"||str=="TPV13"||str=="TPV14")
             return(tick.ask-pontosc1*_Point);
-         if(str=="TPC0"||str=="TPC1"||str=="TPC2"||str=="TPC3"||str=="TPC4"||str=="TPC5"||str=="TPC6"||str=="TPC7")
+         if(str=="TPC0"||str=="TPC1"||str=="TPC2"||str=="TPC3"||str=="TPC4"||str=="TPC5"||str=="TPC6"||str=="TPC7"|| //
+            str=="TPC8"||str=="TPC9"||str=="TPC10"||str=="TPC11"||str=="TPC12"||str=="TPC13"||str=="TPC14")
             return(tick.bid+pontosc1*_Point);
         }
      }
@@ -2849,9 +3782,3 @@ bool HorarioEntrada() //VERIFICA SE ESTÁ NO HORARIO DE FUNCIONAMENTO DO ROBÔ
   }
   */
 //+------------------------------------------------------------------------------------------+
-
-//+------------------------------------------------------------------+
-
-//+------------------------------------------------------------------+
-
-//+------------------------------------------------------------------+
