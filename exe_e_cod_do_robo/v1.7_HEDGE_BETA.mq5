@@ -552,6 +552,52 @@ void OnTick()
         }
      }
 
+////////////////////////////////////////////////////////////////////////////////
+//---| FECHA ORDENS DE COMPRA QNDO MÃO VIRADA DE VENDA COMPENSAR A PERDA |----//
+////////////////////////////////////////////////////////////////////////////////
+   if(PossuiPosCompra() && UltimaPosFechadaTakeVenda() && DataHoraUltPosVendaFechada()>DataHoraUltPosCompraAberta())
+     {
+      for(int i=0; i<PositionsTotal(); i++)
+        {
+         ulong ticket=PositionGetTicket(i);
+         string position_symbol = PositionGetString(POSITION_SYMBOL);
+         //ulong  magic = PositionGetInteger(POSITION_MAGIC);
+         double prejuPOS = PositionGetDouble(POSITION_PROFIT);
+         ENUM_POSITION_TYPE TipoPosicao=(ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
+         if(TipoPosicao==POSITION_TYPE_BUY && position_symbol==_Symbol)
+           {
+            HistorySelect(0,TimeCurrent());
+            ulong    ticket1=0;
+            string   symbol;
+            long     reason;
+            long     entry;
+            long     type;
+            double   lucro;
+            double   lucrotemp=0;
+            for(uint i=HistoryDealsTotal()-1; i >= 0; i--)
+              {
+               //--- tentar obter ticket negócios
+               if((ticket=HistoryDealGetTicket(i))>0)
+                 {
+                  //--- obter as propriedades negócios
+                  symbol=HistoryDealGetString(ticket1,DEAL_SYMBOL);
+                  reason=HistoryDealGetInteger(ticket1,DEAL_REASON);
+                  entry =HistoryDealGetInteger(ticket1,DEAL_ENTRY);
+                  type  =HistoryDealGetInteger(ticket1,DEAL_TYPE);
+                  lucro =HistoryDealGetDouble(ticket1,DEAL_PROFIT);
+                  lucrotemp=0;
+                  //--- apenas para o símbolo atual
+                  if(reason==DEAL_REASON_TP && entry==DEAL_ENTRY_OUT && type==DEAL_TYPE_BUY && symbol==_Symbol && MathAbs(lucrotemp)>MathAbs(prejuPOS))
+                    {
+                    Print("teste");
+                    }
+                 }
+              }
+           }
+        }
+     }
+
+
 //+------------------------------------------------------------------+
 //| OPERAÇÕES SEGUINDO A ESTRATÉGIA ESCOLHIDA |
 //+------------------------------------------------------------------+
@@ -1169,7 +1215,7 @@ void OnTick()
 //---|STOP FULL |----//
 ///////////////////////
    if(ativastopfull==true)
-      if(MathAbs((LucroPrejuizoPosAberta()/capital)*100)>=percentfull && LucroPrejuizoPosAberta()<0 && saldo!=capital)
+      if(MathAbs((LucroPrejuUltPosAberta()/capital)*100)>=percentfull && LucroPrejuUltPosAberta()<0 && saldo!=capital)
         {
          FechaTodasPosicoesAbertas();
          Sleep(100);
@@ -1323,15 +1369,60 @@ void ReadFileToDictCSV(string FileName)
    FileClose(h);
   }
 //+------------------------------------------------------------------+
-//+---------------------------------------------------+
-//| RETORNA A DATA/HORA DO FECHAMENTO DA ULTIMA ORDEM |
-//+---------------------------------------------------+
-datetime DataHoraUltPosFechada()
+//+-------------------------------------------------------------+
+//| RETORNA A DATA/HORA DO ABERTURA DA ULTIMA POSIÇÃO DE COMPRA |
+//+-------------------------------------------------------------+
+datetime DataHoraUltPosCompraAberta()
+  {
+   for(int i=PositionsTotal()-1; i >= 0; i--)
+     {
+      ulong ticket=PositionGetTicket(i);
+      string position_symbol = PositionGetString(POSITION_SYMBOL);
+      datetime position_time = (datetime)PositionGetInteger(POSITION_TIME);
+      //ulong  magic = PositionGetInteger(POSITION_MAGIC);
+      ENUM_POSITION_TYPE TipoPosicao=(ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
+      if(TipoPosicao==POSITION_TYPE_BUY && position_symbol==_Symbol /*&& magic == magicrobo*/)
+        {
+         return position_time;
+         break;
+        }
+     }
+   datetime timeatual=D'2001.01.01 00:00';
+   return (timeatual);
+  }
+//+------------------------------------------------------------------+
+//+------------------------------------------------------------+
+//| RETORNA A DATA/HORA DO ABERTURA DA ULTIMA POSIÇÃO DE VENDA |
+//+------------------------------------------------------------+
+datetime DataHoraUltPosVendaAberta()
+  {
+   for(int i=PositionsTotal()-1; i >= 0; i--)
+     {
+      ulong ticket=PositionGetTicket(i);
+      string position_symbol = PositionGetString(POSITION_SYMBOL);
+      datetime position_time = (datetime)PositionGetInteger(POSITION_TIME);
+      //ulong  magic = PositionGetInteger(POSITION_MAGIC);
+      ENUM_POSITION_TYPE TipoPosicao=(ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
+      if(TipoPosicao==POSITION_TYPE_SELL && position_symbol==_Symbol /*&& magic == magicrobo*/)
+        {
+         return position_time;
+         break;
+        }
+     }
+   datetime timeatual=D'2001.01.01 00:00';
+   return (timeatual);
+  }
+//+------------------------------------------------------------------+
+//+----------------------------------------------------+
+//| RETORNA A DATA/HORA DO FECHAMENTO DA ULTIMA COMPRA |
+//+----------------------------------------------------+
+datetime DataHoraUltPosCompraFechada()
   {
    HistorySelect(0,TimeCurrent());
    ulong       ticket=0;
    string      symbol;
    long        entry;
+   long        type;
    datetime    time;
    for(uint i=HistoryDealsTotal()-1; i >= 0; i--)
      {
@@ -1340,16 +1431,48 @@ datetime DataHoraUltPosFechada()
          time  =(datetime)HistoryDealGetInteger(ticket,DEAL_TIME);
          symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
          entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
-         if(entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+         type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+         if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
            {
             return time;
             break;
            }
         }
      }
-   datetime timeatual=D'2018.01.01 00:00';
+   datetime timeatual=D'2001.01.01 00:00';
    return (timeatual);
   }
+//+------------------------------------------------------------------+
+//+---------------------------------------------------+
+//| RETORNA A DATA/HORA DO FECHAMENTO DA ULTIMA VENDA |
+//+---------------------------------------------------+
+datetime DataHoraUltPosVendaFechada()
+  {
+   HistorySelect(0,TimeCurrent());
+   ulong       ticket=0;
+   string      symbol;
+   long        entry;
+   long        type;
+   datetime    time;
+   for(uint i=HistoryDealsTotal()-1; i >= 0; i--)
+     {
+      if((ticket=HistoryDealGetTicket(i))>0)
+        {
+         time  =(datetime)HistoryDealGetInteger(ticket,DEAL_TIME);
+         symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+         entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+         type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+         if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+           {
+            return time;
+            break;
+           }
+        }
+     }
+   datetime timeatual=D'2001.01.01 00:00';
+   return (timeatual);
+  }
+//+------------------------------------------------------------------+
 //+--------------------------------------------+
 //| VERIFICA QUANTOS STOPS OCORRERAM EM UM DIA |
 //+--------------------------------------------+
@@ -1575,444 +1698,6 @@ bool PossuiPosAbertaOutroAtivo()
      }
    return false;
   }
-//+-------------------------------------------------+
-//| VERIFICA VOLUME DE ABERTURA POSIÇÃO DE COMPRA N |
-//+-------------------------------------------------+
-double VolumePosCompra(uint j)
-  {
-   HistorySelect(0,TimeCurrent());
-   string   name;
-   ulong    ticket=0;
-   double   volume;
-   string   symbol;
-   long     type;
-   long     entry;
-   uint     k = HistoryDealsTotal();
-   switch(j)
-     {
-      case  1:
-         if((ticket=HistoryDealGetTicket(k-1))>0)
-           {
-            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
-            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
-            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
-            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
-            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
-              {
-               return volume;
-               break;
-              }
-            break;
-           }
-      case  2:
-         if((ticket=HistoryDealGetTicket(k-2))>0)
-           {
-            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
-            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
-            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
-            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
-            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
-              {
-               return volume;
-               break;
-              }
-            break;
-           }
-      case  3:
-         if((ticket=HistoryDealGetTicket(k-3))>0)
-           {
-            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
-            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
-            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
-            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
-            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
-              {
-               return volume;
-               break;
-              }
-            break;
-           }
-      case  4:
-         if((ticket=HistoryDealGetTicket(k-4))>0)
-           {
-            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
-            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
-            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
-            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
-            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
-              {
-               return volume;
-               break;
-              }
-            break;
-           }
-      case  5:
-         if((ticket=HistoryDealGetTicket(k-5))>0)
-           {
-            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
-            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
-            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
-            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
-            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
-              {
-               return volume;
-               break;
-              }
-            break;
-           }
-      case  6:
-         if((ticket=HistoryDealGetTicket(k-6))>0)
-           {
-            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
-            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
-            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
-            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
-            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
-              {
-               return volume;
-               break;
-              }
-            break;
-           }
-      case  7:
-         if((ticket=HistoryDealGetTicket(k-7))>0)
-           {
-            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
-            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
-            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
-            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
-            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
-              {
-               return volume;
-               break;
-              }
-            break;
-           }
-      case  8:
-         if((ticket=HistoryDealGetTicket(k-8))>0)
-           {
-            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
-            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
-            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
-            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
-            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
-              {
-               return volume;
-               break;
-              }
-            break;
-           }
-      case  9:
-         if((ticket=HistoryDealGetTicket(k-9))>0)
-           {
-            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
-            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
-            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
-            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
-            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
-              {
-               return volume;
-               break;
-              }
-            break;
-           }
-      case  10:
-         if((ticket=HistoryDealGetTicket(k-10))>0)
-           {
-            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
-            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
-            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
-            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
-            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
-              {
-               return volume;
-               break;
-              }
-            break;
-           }
-      case  11:
-         if((ticket=HistoryDealGetTicket(k-11))>0)
-           {
-            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
-            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
-            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
-            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
-            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
-              {
-               return volume;
-               break;
-              }
-            break;
-           }
-      case  12:
-         if((ticket=HistoryDealGetTicket(k-12))>0)
-           {
-            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
-            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
-            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
-            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
-            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
-              {
-               return volume;
-               break;
-              }
-            break;
-           }
-      case  13:
-         if((ticket=HistoryDealGetTicket(k-13))>0)
-           {
-            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
-            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
-            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
-            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
-            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
-              {
-               return volume;
-               break;
-              }
-            break;
-           }
-      case  14:
-         if((ticket=HistoryDealGetTicket(k-14))>0)
-           {
-            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
-            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
-            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
-            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
-            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
-              {
-               return volume;
-               break;
-              }
-            break;
-           }
-
-      default:
-         break;
-     }
-
-   return NULL;
-  }
-//+------------------------------------------------------------------------------------------+
-//+------------------------------------------------+
-//| VERIFICA VOLUME DE ABERTURA POSIÇÃO DE VENDA N |
-//+------------------------------------------------+
-double VolumePosVenda(uint j)
-  {
-   HistorySelect(0,TimeCurrent());
-   string   name;
-   ulong    ticket=0;
-   double   volume;
-   string   symbol;
-   long     type;
-   long     entry;
-   uint     k = HistoryDealsTotal();
-   switch(j)
-     {
-      case  1:
-         if((ticket=HistoryDealGetTicket(k-1))>0)
-           {
-            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
-            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
-            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
-            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
-            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
-              {
-               return volume;
-               break;
-              }
-            break;
-           }
-      case  2:
-         if((ticket=HistoryDealGetTicket(k-2))>0)
-           {
-            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
-            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
-            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
-            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
-            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
-              {
-               return volume;
-               break;
-              }
-            break;
-           }
-      case  3:
-         if((ticket=HistoryDealGetTicket(k-3))>0)
-           {
-            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
-            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
-            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
-            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
-            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
-              {
-               return volume;
-               break;
-              }
-            break;
-           }
-      case  4:
-         if((ticket=HistoryDealGetTicket(k-4))>0)
-           {
-            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
-            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
-            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
-            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
-            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
-              {
-               return volume;
-               break;
-              }
-            break;
-           }
-      case  5:
-         if((ticket=HistoryDealGetTicket(k-5))>0)
-           {
-            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
-            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
-            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
-            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
-            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
-              {
-               return volume;
-               break;
-              }
-            break;
-           }
-      case  6:
-         if((ticket=HistoryDealGetTicket(k-6))>0)
-           {
-            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
-            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
-            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
-            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
-            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
-              {
-               return volume;
-               break;
-              }
-            break;
-           }
-      case  7:
-         if((ticket=HistoryDealGetTicket(k-7))>0)
-           {
-            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
-            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
-            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
-            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
-            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
-              {
-               return volume;
-               break;
-              }
-            break;
-           }
-      case  8:
-         if((ticket=HistoryDealGetTicket(k-8))>0)
-           {
-            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
-            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
-            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
-            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
-            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
-              {
-               return volume;
-               break;
-              }
-            break;
-           }
-      case  9:
-         if((ticket=HistoryDealGetTicket(k-9))>0)
-           {
-            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
-            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
-            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
-            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
-            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
-              {
-               return volume;
-               break;
-              }
-            break;
-           }
-      case  10:
-         if((ticket=HistoryDealGetTicket(k-10))>0)
-           {
-            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
-            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
-            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
-            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
-            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
-              {
-               return volume;
-               break;
-              }
-            break;
-           }
-      case  11:
-         if((ticket=HistoryDealGetTicket(k-11))>0)
-           {
-            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
-            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
-            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
-            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
-            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
-              {
-               return volume;
-               break;
-              }
-            break;
-           }
-      case  12:
-         if((ticket=HistoryDealGetTicket(k-12))>0)
-           {
-            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
-            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
-            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
-            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
-            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
-              {
-               return volume;
-               break;
-              }
-            break;
-           }
-      case  13:
-         if((ticket=HistoryDealGetTicket(k-13))>0)
-           {
-            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
-            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
-            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
-            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
-            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
-              {
-               return volume;
-               break;
-              }
-            break;
-           }
-      case  14:
-         if((ticket=HistoryDealGetTicket(k-14))>0)
-           {
-            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
-            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
-            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
-            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
-            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
-              {
-               return volume;
-               break;
-              }
-            break;
-           }
-
-
-      default:
-         break;
-     }
-
-   return NULL;
-  }
 //+------------------------------------------------------------------------------------------+
 //+------------------------------------+
 //| RETORNA O VOLUME DA POSIÇÃO ABERTA |
@@ -2145,6 +1830,28 @@ double MenorPrecoPosAberta()
          precomenor=preco;
      }
    return precomenor;
+  }
+//+------------------------------------------------------------------------------------------+
+//+------------------------------------------+
+//| RETORNA O PREÇO DA ÚLTIMA POSIÇÃO ABERTA |
+//+------------------------------------------+
+double PrecoPosAberta()
+  {
+   int posabertas = PositionsTotal();
+   for(int i = posabertas-1; i >= 0; i--)
+     {
+      ulong ticket = PositionGetTicket(i);
+      string position_symbol = PositionGetString(POSITION_SYMBOL);
+      //ulong  magic = PositionGetInteger(POSITION_MAGIC);
+      double preco = PositionGetDouble(POSITION_PRICE_OPEN);
+      ENUM_POSITION_TYPE tipo =(ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
+      if((tipo == POSITION_TYPE_BUY||tipo == POSITION_TYPE_SELL) && position_symbol==_Symbol /*&& magic == magicrobo*/)
+        {
+         return preco;
+         break;
+        }
+     }
+   return NULL;
   }
 //+------------------------------------------------------------------------------------------+
 //+------------------------------------------------+
@@ -2582,93 +2289,6 @@ double PrecoAberturaPosVenda(uint j)
          break;
      }
 
-   return NULL;
-  }
-//+------------------------------------------------------------------------------------------+
-//+------------------------------------------+
-//| RETORNA O PREÇO DA ÚLTIMA POSIÇÃO ABERTA |
-//+------------------------------------------+
-double PrecoPosAberta()
-  {
-   int posabertas = PositionsTotal();
-   for(int i = posabertas-1; i >= 0; i--)
-     {
-      ulong ticket = PositionGetTicket(i);
-      string position_symbol = PositionGetString(POSITION_SYMBOL);
-      //ulong  magic = PositionGetInteger(POSITION_MAGIC);
-      double preco = PositionGetDouble(POSITION_PRICE_OPEN);
-      ENUM_POSITION_TYPE tipo =(ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
-      if((tipo == POSITION_TYPE_BUY||tipo == POSITION_TYPE_SELL) && position_symbol==_Symbol /*&& magic == magicrobo*/)
-        {
-         return preco;
-         break;
-        }
-     }
-   return NULL;
-  }
-//+------------------------------------------------------------------------------------------+
-//+---------------------------------------------+
-//| RETORNA O STOPLOSS DA ÚLTIMA POSIÇÃO ABERTA |
-//+---------------------------------------------+
-double StopUltimaPosAberta()
-  {
-   int posabertas = PositionsTotal();
-   for(int i = posabertas-1; i >= 0; i--)
-     {
-      ulong ticket = PositionGetTicket(i);
-      string position_symbol = PositionGetString(POSITION_SYMBOL);
-      //ulong  magic = PositionGetInteger(POSITION_MAGIC);
-      double sl = PositionGetDouble(POSITION_SL);
-      ENUM_POSITION_TYPE tipo =(ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
-      if((tipo == POSITION_TYPE_BUY || tipo == POSITION_TYPE_SELL) && position_symbol==_Symbol /*&& magic == magicrobo*/)
-        {
-         return sl;
-         break;
-        }
-     }
-   return NULL;
-  }
-//+------------------------------------------------------------------------------------------+
-//+------------------------------------------------+
-//| RETORNA O TAKE PROFIT DA ÚLTIMA POSIÇÃO ABERTA |
-//+------------------------------------------------+
-double TPUltimaPosAberta()
-  {
-   int posabertas = PositionsTotal();
-   for(int i = posabertas-1; i >= 0; i--)
-     {
-      ulong ticket = PositionGetTicket(i);
-      string position_symbol = PositionGetString(POSITION_SYMBOL);
-      //ulong  magic = PositionGetInteger(POSITION_MAGIC);
-      double tp = PositionGetDouble(POSITION_TP);
-      ENUM_POSITION_TYPE tipo =(ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
-      if((tipo == POSITION_TYPE_BUY || tipo == POSITION_TYPE_SELL) && position_symbol==_Symbol /*&& magic == magicrobo*/)
-        {
-         return tp;
-         break;
-        }
-     }
-   return NULL;
-  }
-//+------------------------------------------------------------------------------------------+
-//+--------------------------------------------------------------------+
-//| VERIFICA O LUCRO/PREJUIZO DA ÚLTIMA POSIÇÃO DE COMPRA/VENDA ABERTA |
-//+--------------------------------------------------------------------+
-double LucroPrejuizoPosAberta()
-  {
-   for(int i=PositionsTotal()-1; i >= 0; i--)
-     {
-      ulong ticket=PositionGetTicket(i);
-      string position_symbol = PositionGetString(POSITION_SYMBOL);
-      //ulong  magic = PositionGetInteger(POSITION_MAGIC);
-      double LucroPrejuizo = PositionGetDouble(POSITION_PROFIT);
-      ENUM_POSITION_TYPE TipoPosicao=(ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
-      if((TipoPosicao==POSITION_TYPE_BUY||TipoPosicao==POSITION_TYPE_SELL) && position_symbol==_Symbol /*&& magic == magicrobo*/)
-        {
-         return LucroPrejuizo;
-         break;
-        }
-     }
    return NULL;
   }
 //+------------------------------------------------------------------------------------------+
@@ -3110,10 +2730,470 @@ double ProfitNPosVenda(uint j)
    return NULL;
   }
 //+------------------------------------------------------------------------------------------+
+//+-------------------------------------------------+
+//| VERIFICA VOLUME DE ABERTURA POSIÇÃO DE COMPRA N |
+//+-------------------------------------------------+
+double VolumePosCompra(uint j)
+  {
+   HistorySelect(0,TimeCurrent());
+   string   name;
+   ulong    ticket=0;
+   double   volume;
+   string   symbol;
+   long     type;
+   long     entry;
+   uint     k = HistoryDealsTotal();
+   switch(j)
+     {
+      case  1:
+         if((ticket=HistoryDealGetTicket(k-1))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  2:
+         if((ticket=HistoryDealGetTicket(k-2))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  3:
+         if((ticket=HistoryDealGetTicket(k-3))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  4:
+         if((ticket=HistoryDealGetTicket(k-4))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  5:
+         if((ticket=HistoryDealGetTicket(k-5))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  6:
+         if((ticket=HistoryDealGetTicket(k-6))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  7:
+         if((ticket=HistoryDealGetTicket(k-7))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  8:
+         if((ticket=HistoryDealGetTicket(k-8))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  9:
+         if((ticket=HistoryDealGetTicket(k-9))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  10:
+         if((ticket=HistoryDealGetTicket(k-10))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  11:
+         if((ticket=HistoryDealGetTicket(k-11))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  12:
+         if((ticket=HistoryDealGetTicket(k-12))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  13:
+         if((ticket=HistoryDealGetTicket(k-13))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  14:
+         if((ticket=HistoryDealGetTicket(k-14))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+
+      default:
+         break;
+     }
+
+   return NULL;
+  }
+//+------------------------------------------------------------------------------------------+
+//+------------------------------------------------+
+//| VERIFICA VOLUME DE ABERTURA POSIÇÃO DE VENDA N |
+//+------------------------------------------------+
+double VolumePosVenda(uint j)
+  {
+   HistorySelect(0,TimeCurrent());
+   string   name;
+   ulong    ticket=0;
+   double   volume;
+   string   symbol;
+   long     type;
+   long     entry;
+   uint     k = HistoryDealsTotal();
+   switch(j)
+     {
+      case  1:
+         if((ticket=HistoryDealGetTicket(k-1))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  2:
+         if((ticket=HistoryDealGetTicket(k-2))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  3:
+         if((ticket=HistoryDealGetTicket(k-3))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  4:
+         if((ticket=HistoryDealGetTicket(k-4))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  5:
+         if((ticket=HistoryDealGetTicket(k-5))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  6:
+         if((ticket=HistoryDealGetTicket(k-6))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  7:
+         if((ticket=HistoryDealGetTicket(k-7))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  8:
+         if((ticket=HistoryDealGetTicket(k-8))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  9:
+         if((ticket=HistoryDealGetTicket(k-9))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  10:
+         if((ticket=HistoryDealGetTicket(k-10))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  11:
+         if((ticket=HistoryDealGetTicket(k-11))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  12:
+         if((ticket=HistoryDealGetTicket(k-12))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  13:
+         if((ticket=HistoryDealGetTicket(k-13))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+      case  14:
+         if((ticket=HistoryDealGetTicket(k-14))>0)
+           {
+            volume =HistoryDealGetDouble(ticket,DEAL_VOLUME);
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_IN && symbol==_Symbol)
+              {
+               return volume;
+               break;
+              }
+            break;
+           }
+
+
+      default:
+         break;
+     }
+
+   return NULL;
+  }
+//+------------------------------------------------------------------------------------------+
+//+--------------------------------------------------------------------+
+//| VERIFICA O LUCRO/PREJUIZO DA ÚLTIMA POSIÇÃO DE COMPRA/VENDA ABERTA |
+//+--------------------------------------------------------------------+
+double LucroPrejuUltPosAberta()
+  {
+   for(int i=PositionsTotal()-1; i >= 0; i--)
+     {
+      ulong ticket=PositionGetTicket(i);
+      string position_symbol = PositionGetString(POSITION_SYMBOL);
+      //ulong  magic = PositionGetInteger(POSITION_MAGIC);
+      double LucroPrejuizo = PositionGetDouble(POSITION_PROFIT);
+      ENUM_POSITION_TYPE TipoPosicao=(ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
+      if((TipoPosicao==POSITION_TYPE_BUY||TipoPosicao==POSITION_TYPE_SELL) && position_symbol==_Symbol /*&& magic == magicrobo*/)
+        {
+         return LucroPrejuizo;
+         break;
+        }
+     }
+   return NULL;
+  }
+//+------------------------------------------------------------------------------------------+
 //+---------------------------------------------------------------+
 //| VERIFICA O LUCRO/PREJUIZO DA ULTIMA POSIÇÃO DE COMPRA FECHADA |
 //+---------------------------------------------------------------+
-double LucroPrejuizoUltimaPosCompraFechada()
+double LucroPrejuUltPosCompraAberta()
   {
    HistorySelect(0,TimeCurrent());
    ulong    ticket=0;
@@ -3146,7 +3226,7 @@ double LucroPrejuizoUltimaPosCompraFechada()
 //+--------------------------------------------------------------+
 //| VERIFICA O LUCRO/PREJUIZO DA ULTIMA POSIÇÃO DE VENDA FECHADA |
 //+--------------------------------------------------------------+
-double LucroPrejuizoUltimaPosVendaFechada()
+double LucroPrejuUltPosVendaFechada()
   {
    HistorySelect(0,TimeCurrent());
    ulong    ticket=0;
@@ -3669,7 +3749,7 @@ double   puxatpsl(string tpsl)
             return(PM12+pontosc13*_Point);
          if(str=="TPC13")
             return(PM13+pontosc14*_Point);
-            
+
          if(str=="TPV0")
             return(tick.ask-pontosc1*_Point);
          if(str=="TPV1")
@@ -3782,3 +3862,8 @@ bool HorarioEntrada() //VERIFICA SE ESTÁ NO HORARIO DE FUNCIONAMENTO DO ROBÔ
   }
   */
 //+------------------------------------------------------------------------------------------+
+
+//+------------------------------------------------------------------+
+
+
+//+------------------------------------------------------------------+
