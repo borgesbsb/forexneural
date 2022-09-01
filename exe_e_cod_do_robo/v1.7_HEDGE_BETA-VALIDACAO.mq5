@@ -158,18 +158,20 @@ double                   stopvenda           = 0.0;
 double                   takecompra          = 0.0;
 double                   takevenda           = 0.0;
 
-int                      handlebb,handlersi,handleMM,handleSAR;
+int                      handlebb,handlersi,handleMM,handleSAR,handleSARh4;
 
 ulong                    magicrobo           = 941;
 
 double                   percent_margem, saldo, capital, lucro_prejuizo, volumemaximo, volumeoper, valoraumento, //
-                         slcomprapadrao, slvendapadrao, tpcomprapadrao, tpvendapadrao, rsi[], bbu[], bbm[], bbd[], mediamovel[], sar[];
+                         slcomprapadrao, slvendapadrao, tpcomprapadrao, tpvendapadrao, rsi[], bbu[], bbm[], bbd[], mediamovel[], sar[], sarh4[];
 
 //--- Definição das variáveis dos volumes para compra e venda quando utilizar martingale
 double                   volnv2,volnv3,volnv4,volnv5,volnv6,volnv7,volnv8,volnv9,volnv10,volnv11,volnv12,volnv13,volnv14;
 
 //--- Definição das variáveis dos preços médios para compra e venda quando utilizar martingale
 double                   PM1, PM2, PM3, PM4, PM5, PM6, PM7, PM8, PM9, PM10, PM11, PM12, PM13, PM14;
+
+bool                     condicaoSAR         = false;
 
 //--- Variáveis p/ ticks, candles e tempo
 MqlTick                  tick;
@@ -198,6 +200,7 @@ int OnInit()
    handlebb = iBands(_Symbol,_Period,periodobb,0,desviobb,PRICE_CLOSE);
    handleMM = iMA(_Symbol,_Period,periodm1,0,MODE_SMA,PRICE_CLOSE);
    handleSAR = iSAR(_Symbol,_Period,stepSAR,maximumSAR);
+   handleSARh4 = iSAR(_Symbol,PERIOD_H4,stepSAR,maximumSAR);
    ArraySetAsSeries(candle,true);
    ArraySetAsSeries(rsi,true);
    ArraySetAsSeries(bbu,true);
@@ -205,6 +208,7 @@ int OnInit()
    ArraySetAsSeries(bbd,true);
    ArraySetAsSeries(mediamovel,true);
    ArraySetAsSeries(sar,true);
+   ArraySetAsSeries(sarh4,true);
 
    ReadFileToDictCSV("previsoes.csv");
 
@@ -340,15 +344,20 @@ void OnTick()
       Alert("Erro ao copiar dados de Média Móvel: ", GetLastError());
       return;
      }
-   CopyBuffer(handleSAR,0,0,16,sar);
-   if(CopyBuffer(handleSAR,0,0,16,sar)<0)
+   CopyBuffer(handleSAR,0,0,5,sar);
+   if(CopyBuffer(handleSAR,0,0,5,sar)<0)
      {
       Alert("Erro ao copiar dados de SAR: ", GetLastError());
       return;
      }
+   CopyBuffer(handleSARh4,0,0,16,sarh4);
+   if(CopyBuffer(handleSARh4,0,0,16,sarh4)<0)
+     {
+      Alert("Erro ao copiar dados de SARh4: ", GetLastError());
+      return;
+     }
 
-
-   static CIsNewBar NB1,NB2/*,NB3,NB4,NB5,NB6,NB7,NB8,NB9,NB10,NB11,NB12,NB13,NB14,NB15,NB16,NB17,NB18,NB19,NB20,NB21,NB22*/;
+   static CIsNewBar NB1,NB2,NB3/*,NB4,NB5,NB6,NB7,NB8,NB9,NB10,NB11,NB12,NB13,NB14,NB15,NB16,NB17,NB18,NB19,NB20,NB21,NB22*/;
 
 //   double margem = NormalizeDouble(AccountInfoDouble(ACCOUNT_MARGIN),2);
 //   double margem_livre = NormalizeDouble(AccountInfoDouble(ACCOUNT_FREEMARGIN),2);
@@ -512,6 +521,9 @@ void OnTick()
    double   sarnormalizado0 = NormalizeDouble(sar[0],5);
    double   sarnormalizado1 = NormalizeDouble(sar[1],5);
 
+   if((PossuiPosCompra() && SarOk("COMPRA")==true) || (PossuiPosVenda() && SarOk("VENDA")==true))
+      condicaoSAR = true;
+      
 ////////////////////////////////////////////
 //---| FECHA ORDENS NO FIM DO PREGÃO |----//
 ////////////////////////////////////////////
@@ -954,8 +966,7 @@ void OnTick()
                   trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),puxatpsl("TPV0"),"V1");
               }
            }
-
-         if(PositionsTotal()>=1 /*&& ((PossuiPosCompra() && SarOk("COMPRA")==true && QtdeComprasAbertas()<qtdesarmax+1) || (PossuiPosVenda() && SarOk("VENDA")==true && QtdeVendasAbertas()<qtdesarmax+1))*/)
+         if(PositionsTotal()>=1 && condicaoSAR==true)
            {
             //////////////////////////////////////////////
             //---| ESTRATEGIA ENVELOPE/RSI/BOLINGER |---//
@@ -1350,24 +1361,24 @@ bool PrevForaVal()
 bool  SarOk(string tipo)
   {
    bool C1 = true;
-   if(tipo=="COMPRA" && sar[qtdesarmax+1]>0 && candle[qtdesarmax+1].high>0)
+   if(tipo=="COMPRA" && sarh4[qtdesarmax+1]>0 && candle[qtdesarmax+1].high>0)
      {
       for(int i=0; i<qtdesarmax+1; i++)
         {
-         if(candle[i].high<sar[i])
+         if(candle[i].high<sarh4[i])
             C1 = false;
         }
-      if(sar[qtdesarmax]>tick.ask+pontos1SAR*_Point)
+      if(sarh4[qtdesarmax]>tick.ask+pontos1SAR*_Point)
          C1 = false;
      }
-   if(tipo=="VENDA" && sar[qtdesarmax+1]>0 && candle[qtdesarmax+1].low>0)
+   if(tipo=="VENDA" && sarh4[qtdesarmax+1]>0 && candle[qtdesarmax+1].low>0)
      {
       for(int i=0; i<qtdesarmax+1; i++)
         {
-         if(candle[i].low>sar[i])
+         if(candle[i].low>sarh4[i])
             C1 = false;
         }
-      if(tick.bid>sar[qtdesarmax]+pontos1SAR*_Point)
+      if(tick.bid>sarh4[qtdesarmax]+pontos1SAR*_Point)
          C1 = false;
      }
    return C1;
