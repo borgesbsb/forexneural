@@ -94,7 +94,7 @@ input group              "VALORES DEFINIDOS P/ SAR"
 input double             stepSAR             = 0.02;       //STEP do SAR
 input double             maximumSAR          = 0.2;        //MAXIMUM do SAR
 input int                qtdesarmax          = 15;         //QTDE MÁXIMA DE SAR'S P/ ABERT DE ORDENS
-input int                pontos1SAR          = 700;        //QTDE MÁXIMA DE PONTOS DO 1o SAR P/ ABERT
+input int                pontos1SAR          = 1300;       //QTDE MÁXIMA DE PONTOS DO 1o SAR P/ ABERT
 //input group              "VARIÁVEIS DE CONFIRMAÇÃO - VOLUME E PREÇO"
 //input double             percentvol          = 70;         //[%] MÍN DO VOL DO CAND1 EM REL AO 2
 //input double             percentprice        = 70;         //[%] MÍN DO TAM DO CAND1 EM REL AO 2
@@ -308,8 +308,8 @@ void OnTick()
       Alert("Erro ao obter informações de Mqlticks: ", GetLastError());
       return;
      }
-   CopyRates(_Symbol,_Period,0,16,candle);
-   if(CopyRates(_Symbol,_Period,0,16,candle)<0)
+   CopyRates(_Symbol,_Period,0,2*qtdesarmax,candle);
+   if(CopyRates(_Symbol,_Period,0,2*qtdesarmax,candle)<0)
      {
       Alert("Erro ao obter informações de Mqlrates: ", GetLastError());
       return;
@@ -350,8 +350,8 @@ void OnTick()
       Alert("Erro ao copiar dados de SAR: ", GetLastError());
       return;
      }
-   CopyBuffer(handleSARh4,0,0,16,sarh4);
-   if(CopyBuffer(handleSARh4,0,0,16,sarh4)<0)
+   CopyBuffer(handleSARh4,0,0,2*qtdesarmax,sarh4);
+   if(CopyBuffer(handleSARh4,0,0,2*qtdesarmax,sarh4)<0)
      {
       Alert("Erro ao copiar dados de SARh4: ", GetLastError());
       return;
