@@ -201,7 +201,7 @@ int OnInit()
    handlebb = iBands(_Symbol,_Period,periodobb,0,desviobb,PRICE_CLOSE);
    handleMM = iMA(_Symbol,_Period,periodm1,0,MODE_SMA,PRICE_CLOSE);
    handleSAR = iSAR(_Symbol,_Period,stepSAR,maximumSAR);
-   handleSARh4 = iSAR(_Symbol,PERIOD_H4,stepSAR,maximumSAR);
+   //handleSARh4 = iSAR(_Symbol,PERIOD_H4,stepSAR,maximumSAR);
    ArraySetAsSeries(candle,true);
    ArraySetAsSeries(rsi,true);
    ArraySetAsSeries(bbu,true);
@@ -209,7 +209,7 @@ int OnInit()
    ArraySetAsSeries(bbd,true);
    ArraySetAsSeries(mediamovel,true);
    ArraySetAsSeries(sar,true);
-   ArraySetAsSeries(sarh4,true);
+   //ArraySetAsSeries(sarh4,true);
 
    ReadFileToDictCSV("previsoes.csv");
 
@@ -309,8 +309,8 @@ void OnTick()
       Alert("Erro ao obter informações de Mqlticks: ", GetLastError());
       return;
      }
-   CopyRates(_Symbol,_Period,0,2*qtdesarmax,candle);
-   if(CopyRates(_Symbol,_Period,0,2*qtdesarmax,candle)<0)
+   CopyRates(_Symbol,_Period,0,5/*2*qtdesarmax*/,candle);
+   if(CopyRates(_Symbol,_Period,0,5/*2*qtdesarmax*/,candle)<0)
      {
       Alert("Erro ao obter informações de Mqlrates: ", GetLastError());
       return;
@@ -351,12 +351,12 @@ void OnTick()
       Alert("Erro ao copiar dados de SAR: ", GetLastError());
       return;
      }
-   CopyBuffer(handleSARh4,0,0,2*qtdesarmax,sarh4);
-   if(CopyBuffer(handleSARh4,0,0,2*qtdesarmax,sarh4)<0)
-     {
-      Alert("Erro ao copiar dados de SARh4: ", GetLastError());
-      return;
-     }
+   //CopyBuffer(handleSARh4,0,0,2*qtdesarmax,sarh4);
+   //if(CopyBuffer(handleSARh4,0,0,2*qtdesarmax,sarh4)<0)
+   //  {
+   //   Alert("Erro ao copiar dados de SARh4: ", GetLastError());
+   //   return;
+   //  }
 
    static CIsNewBar NB1,NB2,NB3/*,NB4,NB5,NB6,NB7,NB8,NB9,NB10,NB11,NB12,NB13,NB14,NB15,NB16,NB17,NB18,NB19,NB20,NB21,NB22*/;
 
