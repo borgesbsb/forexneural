@@ -78,6 +78,7 @@ input int                stoppontos          = 500;        //[PTS] DE STOP LOSS 
 input group              "MARTINGALE"
 input ENUM_TP_MART       tipomartingale      = mart3;      //TIPO DE MARTINGALE
 input int                multiplicador       = 1;          //[INT] MULTIPLICADOR P/ MARTINGALE (N)
+input int                qtdecandle          = 2;          //[INT] QTOS CANDLES P/ PX ENTRADA
 //input bool               martpontos          = false;      //MARTINGALE APENAS EM PONTOS
 //input int                pontos2             = 50;         //[PTS] DISTÂNCIA P/ ABERT DA 2 ORDEM
 //input int                pontos3             = 50;         //[PTS] DISTÂNCIA P/ ABERT DA 3 ORDEM
@@ -523,7 +524,7 @@ void OnTick()
 
    if((PossuiPosCompra() && SarOk("COMPRA")==true) || (PossuiPosVenda() && SarOk("VENDA")==true))
       condicaoSAR = true;
-      
+
 ////////////////////////////////////////////
 //---| FECHA ORDENS NO FIM DO PREGÃO |----//
 ////////////////////////////////////////////
@@ -569,48 +570,49 @@ void OnTick()
 ////////////////////////////////////////////////////////////////////////////////
 //---| FECHA ORDENS DE COMPRA QNDO MÃO VIRADA DE VENDA COMPENSAR A PERDA |----//
 ////////////////////////////////////////////////////////////////////////////////
-   /*if(PossuiPosCompra() && UltimaPosFechadaTakeVenda() && DataHoraUltPosVendaFechada()>DataHoraUltPosCompraAberta())
-     {
-      for(int i=0; i<PositionsTotal(); i++)
-        {
-         ulong ticket=PositionGetTicket(i);
-         string position_symbol = PositionGetString(POSITION_SYMBOL);
-         //ulong  magic = PositionGetInteger(POSITION_MAGIC);
-         double prejuPOS = PositionGetDouble(POSITION_PROFIT);
-         ENUM_POSITION_TYPE TipoPosicao=(ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
-         if(TipoPosicao==POSITION_TYPE_BUY && position_symbol==_Symbol)
-           {
-            HistorySelect(0,TimeCurrent());
-            ulong    ticket1=0;
-            string   symbol;
-            long     reason;
-            long     entry;
-            long     type;
-            double   lucro;
-            double   lucrotemp=0;
-            for(uint i=HistoryDealsTotal()-1; i >= 0; i--)
-              {
-               //--- tentar obter ticket negócios
-               if((ticket=HistoryDealGetTicket(i))>0)
-                 {
-                  //--- obter as propriedades negócios
-                  symbol=HistoryDealGetString(ticket1,DEAL_SYMBOL);
-                  reason=HistoryDealGetInteger(ticket1,DEAL_REASON);
-                  entry =HistoryDealGetInteger(ticket1,DEAL_ENTRY);
-                  type  =HistoryDealGetInteger(ticket1,DEAL_TYPE);
-                  lucro =HistoryDealGetDouble(ticket1,DEAL_PROFIT);
-                  lucrotemp=0;
-                  //--- apenas para o símbolo atual
-                  if(reason==DEAL_REASON_TP && entry==DEAL_ENTRY_OUT && type==DEAL_TYPE_BUY && symbol==_Symbol && MathAbs(lucrotemp)>MathAbs(prejuPOS))
-                    {
-                    Print("teste");
-                    }
-                 }
-              }
-           }
-        }
-     }
-   */
+   /*
+    if(PossuiPosCompra() && UltimaPosFechadaTakeVenda() && DataHoraUltPosVendaFechada()>DataHoraUltPosCompraAberta())
+      {
+       for(int i=0; i<PositionsTotal(); i++)
+         {
+          ulong ticket=PositionGetTicket(i);
+          string position_symbol = PositionGetString(POSITION_SYMBOL);
+          //ulong  magic = PositionGetInteger(POSITION_MAGIC);
+          double prejuPOS = PositionGetDouble(POSITION_PROFIT);
+          ENUM_POSITION_TYPE TipoPosicao=(ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
+          if(TipoPosicao==POSITION_TYPE_BUY && position_symbol==_Symbol)
+            {
+             HistorySelect(0,TimeCurrent());
+             ulong    ticket1=0;
+             string   symbol;
+             long     reason;
+             long     entry;
+             long     type;
+             double   lucro;
+             double   lucrotemp=0;
+             for(uint i=HistoryDealsTotal()-1; i >= 0; i--)
+               {
+                //--- tentar obter ticket negócios
+                if((ticket=HistoryDealGetTicket(i))>0)
+                  {
+                   //--- obter as propriedades negócios
+                   symbol=HistoryDealGetString(ticket1,DEAL_SYMBOL);
+                   reason=HistoryDealGetInteger(ticket1,DEAL_REASON);
+                   entry =HistoryDealGetInteger(ticket1,DEAL_ENTRY);
+                   type  =HistoryDealGetInteger(ticket1,DEAL_TYPE);
+                   lucro =HistoryDealGetDouble(ticket1,DEAL_PROFIT);
+                   lucrotemp=0;
+                   //--- apenas para o símbolo atual
+                   if(reason==DEAL_REASON_TP && entry==DEAL_ENTRY_OUT && type==DEAL_TYPE_BUY && symbol==_Symbol && MathAbs(lucrotemp)>MathAbs(prejuPOS))
+                     {
+                     Print("teste");
+                     }
+                  }
+               }
+            }
+         }
+      }
+    */
 
 //+------------------------------------------------------------------+
 //| OPERAÇÕES SEGUINDO A ESTRATÉGIA ESCOLHIDA |
@@ -966,7 +968,7 @@ void OnTick()
                   trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),puxatpsl("TPV0"),"V1");
               }
            }
-         if(PositionsTotal()>=1 && condicaoSAR==true)
+         if(PositionsTotal()>=1 && condicaoSAR==true && ((PossuiPosCompra() && QtdeCandles("COMPRA")>qtdecandle) || (PossuiPosVenda() && QtdeCandles("VENDA")>qtdecandle)))
            {
             //////////////////////////////////////////////
             //---| ESTRATEGIA ENVELOPE/RSI/BOLINGER |---//
@@ -1382,6 +1384,19 @@ bool  SarOk(string tipo)
          C1 = false;
      }
    return C1;
+  }
+//+------------------------------------------------------------------------------------------+
+//+---------------------------------------------+
+//| CONTADOR DE CANDLES DESDE ÚLTIMA POS ABERTA |
+//+---------------------------------------------+
+int   QtdeCandles(string tipo)
+  {
+   int qtdebars=0;
+   if(PossuiPosCompra() && tipo=="COMPRA")
+      qtdebars = Bars(_Symbol,_Period,DataHoraUltPosCompraAberta(),TimeCurrent());
+   if(PossuiPosVenda() && tipo=="VENDA")
+      qtdebars = Bars(_Symbol,_Period,DataHoraUltPosVendaAberta(),TimeCurrent());
+   return qtdebars;
   }
 //+------------------------------------------------------------------------------------------+
 //+--------------------------+
