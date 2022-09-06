@@ -68,28 +68,28 @@ enum ENUM_TP_GAIN
 //input ulong              magicrobo           = 941;        //MAGIC NUMBER DO ROBÔ
 input group              "ABERTURA DE ORDENS"
 input bool               ativaentradaea      = true;       //ATIVA ABERTURA AUTOMÁTICA DE ORDENS
-input double             loteinicial         = 1;          //TAMANHO DO LOTE INICIAL
-input double             aumentoprop         = 1000.00;    //[$] VALOR P/ AUMENTO PROPORCIONAL DO LOTE
-input ENUM_TP_CONTA      tipoconta           = tipocent;   //[TP] SELECIONE O TIPO DE CONTA
-ENUM_TP_OPER       tipooper            = tipohedge;  //[TP] SELECIONE O TIPO DE OPERAÇÃO
-input ENUM_TP_STOP       tipostop            = tpstopprct; //[TP] SELECIONE O TIPO DE STOP LOSS
-input double             percentloss         = 2.5;        //[%] DE STOP LOSS P/ ABERTURA DE ORDEM
-input int                stoppontos          = 500;        //[PTS] DE STOP LOSS P/ ABERTURA DE ORDENS
+input double             loteinicial         = 0.1;        //TAMANHO DO LOTE INICIAL
+input double             aumentoprop         = 1000.00;    //VALOR P/ AUMENTO PROPORCIONAL DO LOTE
+input ENUM_TP_CONTA      tipoconta           = tipocent;   //SELECIONE O TIPO DE CONTA
+ENUM_TP_OPER       tipooper            = tipohedge;  //SELECIONE O TIPO DE OPERAÇÃO
+input ENUM_TP_STOP       tipostop            = tpstopprct; //SELECIONE O TIPO DE STOP LOSS
+input double             percentloss         = 2.5;        //% DE STOP LOSS P/ ABERTURA DE ORDEM
+input int                stoppontos          = 500;        //PTS DE STOP LOSS P/ ABERTURA DE ORDENS
 input group              "MARTINGALE"
 input ENUM_TP_MART       tipomartingale      = mart3;      //TIPO DE MARTINGALE
-input int                multiplicador       = 1;          //[INT] MULTIPLICADOR P/ MARTINGALE (N)
-input int                qtdecandle          = 2;          //[INT] QTOS CANDLES P/ PX ENTRADA
-//input int                qtdeordensmart      = 4;          //[INT] MIN DE ORDENS P/ FECHAR NO 0x0
+input int                multiplicador       = 1;          //MULTIPLICADOR P/ MARTINGALE (N)
+input int                qtdecandle          = 2;          //QTOS CANDLES P/ PX ENTRADA
+//input int                qtdeordensmart      = 4;          //MIN DE ORDENS P/ FECHAR NO 0x0
 //input bool               martpontos          = false;      //MARTINGALE APENAS EM PONTOS
-//input int                pontos2             = 50;         //[PTS] DISTÂNCIA P/ ABERT DA 2 ORDEM
-//input int                pontos3             = 50;         //[PTS] DISTÂNCIA P/ ABERT DA 3 ORDEM
-//input int                pontos4             = 50;         //[PTS] DISTÂNCIA P/ ABERT DA 4 ORDEM
-//input int                pontos5             = 50;         //[PTS] DISTÂNCIA P/ ABERT DA 5 ORDEM
-//input int                pontos6             = 50;         //[PTS] DISTÂNCIA P/ ABERT DA 6 ORDEM
-//input int                pontos7             = 50;         //[PTS] DISTÂNCIA P/ ABERT DA 7 ORDEM
-//input int                pontos8             = 50;         //[PTS] DISTÂNCIA P/ ABERT DA 8 ORDEM
-//input int                ptsmartprimcompra   = 10000;      //[PTS] DISTANCIA PARA 2 OPERAÇÃO
-//input double             prctmart            = 50;         //[%] MÍNIMA DAS 2 ORD ANT P/ PX ORD
+//input int                pontos2             = 50;         //DISTÂNCIA P/ ABERT DA 2 ORDEM
+//input int                pontos3             = 50;         //DISTÂNCIA P/ ABERT DA 3 ORDEM
+//input int                pontos4             = 50;         //DISTÂNCIA P/ ABERT DA 4 ORDEM
+//input int                pontos5             = 50;         //DISTÂNCIA P/ ABERT DA 5 ORDEM
+//input int                pontos6             = 50;         //DISTÂNCIA P/ ABERT DA 6 ORDEM
+//input int                pontos7             = 50;         //DISTÂNCIA P/ ABERT DA 7 ORDEM
+//input int                pontos8             = 50;         //DISTÂNCIA P/ ABERT DA 8 ORDEM
+//input int                ptsmartprimcompra   = 10000;      //DISTANCIA PARA 2 OPERAÇÃO
+//input double             prctmart            = 50;         //% MÍNIMA DAS 2 ORD ANT P/ PX ORD
 input group              "ESCOLHA DA ESTRATÉGIA"
 input ENUM_TP_ESTRAT     estrategia          = estrat1;    //ESCOLHA A ESTRATÉGIA
 input group              "VALORES DEFINIDOS P/ SAR"
@@ -98,35 +98,35 @@ input double             maximumSAR          = 0.2;        //MAXIMUM do SAR
 //input int                qtdesarmax          = 15;         //QTDE MÁXIMA DE SAR'S P/ ABERT DE ORDENS
 //input int                pontos1SAR          = 1300;       //QTDE MÁXIMA DE PONTOS DO 1o SAR P/ ABERT
 input group              "VALORES DEFINIDOS P/ RSI"
-input int                periodorsi          = 14;         //[INT] PERIODO P/ RSI
-input int                sobrevrsi           = 70;         //[%] PORCENTAGEM DE SOBREVENDA
-input int                sobrecrsi           = 30;         //[%] PORCENTAGEM DE SOBRECOMPRA
+input int                periodorsi          = 14;         //PERIODO P/ RSI
+input int                sobrevrsi           = 70;         //PORCENTAGEM DE SOBREVENDA
+input int                sobrecrsi           = 30;         //PORCENTAGEM DE SOBRECOMPRA
 input group              "VALORES DEFINIDOS P/ BANDAS DE BOLLINGER"
-input int                periodobb           = 14;         //[INT] PERIODO P/ BANDAS DE BOLINGER
-input double             desviobb            = 2.0;        //[DEC] DESVIO P/ BANDAS DE BOLINGER
+input int                periodobb           = 14;         //PERIODO P/ BANDAS DE BOLINGER
+input double             desviobb            = 2.0;        //DESVIO P/ BANDAS DE BOLINGER
 input group              "VALORES DEFINIDOS P/ ENVELOPE"
-input int                periodm1            = 14;         //[INT] PERIODO DA MÉDIA P/ ENVELOPE
-input double             tamanhoenvelope     = 100000;     //[PTS] DISTÂNCIA P/ ENVELOPE
+input int                periodm1            = 14;         //PERIODO DA MÉDIA P/ ENVELOPE
+input double             tamanhoenvelope     = 100000;     //DISTÂNCIA P/ ENVELOPE
 input group              "REDE NEURAL"
-input int                PrevForaVal         = 3600;       //(S) TEMPO DE VALIDADE DA PREVISÃO
+input int                PrevForaVal         = 3600;       //TEMPO DE VALIDADE DA PREVISÃO
 input group              "FECHAMENTO DE ORDENS"
 //input bool               ativasaidaea        = true;       //ATIVA FECHAMENTO DE ORDENS
-input ENUM_TP_GAIN       tipogain            = tpgainprct; //[TP] SELECIONE TIPO DE GANHO
-input double             percentgain         = 0.1;        //[%] PORCENTAGEM DE STOP GAIN
-input int                pontosc1            = 100;        //[PTS] DISTANCIA P/ FECHAM 1 ORDEM
-input int                pontosc2            = 60;         //[PTS] DISTANCIA P/ FECHAM 2 ORDENS
-input int                pontosc3            = 40;         //[PTS] DISTANCIA P/ FECHAM 3 ORDENS
-input int                pontosc4            = 40;         //[PTS] DISTANCIA P/ FECHAM 4 ORDENS
-input int                pontosc5            = 30;         //[PTS] DISTANCIA P/ FECHAM 5 ORDENS
-input int                pontosc6            = 20;         //[PTS] DISTANCIA P/ FECHAM 6 ORDENS
-input int                pontosc7            = 10;         //[PTS] DISTANCIA P/ FECHAM 7 ORDENS
-input int                pontosc8            = 10;         //[PTS] DISTANCIA P/ FECHAM 8 ORDENS
-input int                pontosc9            = 40;         //[PTS] DISTANCIA P/ FECHAM 9 ORDENS
-input int                pontosc10           = 40;         //[PTS] DISTANCIA P/ FECHAM 10 ORDENS
-input int                pontosc11           = 30;         //[PTS] DISTANCIA P/ FECHAM 11 ORDENS
-input int                pontosc12           = 20;         //[PTS] DISTANCIA P/ FECHAM 12 ORDENS
-input int                pontosc13           = 10;         //[PTS] DISTANCIA P/ FECHAM 13 ORDENS
-input int                pontosc14           = 10;         //[PTS] DISTANCIA P/ FECHAM 14 ORDENS
+input ENUM_TP_GAIN       tipogain            = tpgainprct; //SELECIONE TIPO DE GANHO
+input double             percentgain         = 0.1;        //PORCENTAGEM DE STOP GAIN
+input int                pontosc1            = 100;        //DISTANCIA P/ FECHAM 1 ORDEM
+input int                pontosc2            = 60;         //DISTANCIA P/ FECHAM 2 ORDENS
+input int                pontosc3            = 40;         //DISTANCIA P/ FECHAM 3 ORDENS
+input int                pontosc4            = 40;         //DISTANCIA P/ FECHAM 4 ORDENS
+input int                pontosc5            = 30;         //DISTANCIA P/ FECHAM 5 ORDENS
+input int                pontosc6            = 20;         //DISTANCIA P/ FECHAM 6 ORDENS
+input int                pontosc7            = 10;         //DISTANCIA P/ FECHAM 7 ORDENS
+input int                pontosc8            = 10;         //DISTANCIA P/ FECHAM 8 ORDENS
+input int                pontosc9            = 40;         //DISTANCIA P/ FECHAM 9 ORDENS
+input int                pontosc10           = 40;         //DISTANCIA P/ FECHAM 10 ORDENS
+input int                pontosc11           = 30;         //DISTANCIA P/ FECHAM 11 ORDENS
+input int                pontosc12           = 20;         //DISTANCIA P/ FECHAM 12 ORDENS
+input int                pontosc13           = 10;         //DISTANCIA P/ FECHAM 13 ORDENS
+input int                pontosc14           = 10;         //DISTANCIA P/ FECHAM 14 ORDENS
 /*input group              "BREAKEVEN/TRAILING STOP"
 input bool               ativbreak           = false;      //ATIVA BREAKEVEN/TRAILING STOP
 input double             pontosbreak         = 5;          //PTOS PROX AO TP PARA ATIV BREAKEVEN
@@ -136,8 +136,9 @@ input double             pontosts            = 5;          //PTOS DO SL NOVO PAR
 */
 input group              "GERENCIAMENTO DE RISCO - QTDE MÍNIMA DE ORDENS P/ FECHAR NO 0X0"
 input int                qtdezero            = 4;          //QTDE MINIMA ORDENS FECHADAS P/ 0x0
+input bool               ativafechafull      = true;       //ATIVA FECHAMENTO DE ORDENS QNDO LUCRO >=0
 input group              "GERENCIAMENTO DE RISCO - % MÍNIMA DE CAPITAL LIQUIDO PARA OPERAR"
-input double             prcentabert         = 3500;       //[%] DO CAPIT MÍNIMO P/ ABRIR ORDENS
+input double             prcentabert         = 3500;       //% DO CAPIT MÍNIMO P/ ABRIR ORDENS
 input group              "GERENCIAMENTO DE RISCO - PARADA DO ROBÔ COM STOPS ALCANÇADOS NO DIA"
 input bool               ativastopdiario     = true;       //PARA O ROBÔ NO DIA QNDO STOP > N
 input int                qtdestops           = 3;          //QTDE MÁXIMA DE STOPS (N)
@@ -150,8 +151,8 @@ input string             horafinal           = "22:59";    //HORA FINAL P/ ABERT
 input bool               ativafecfinaldia    = false;      //ATIVA FECHAMENTO DE ORDENS
 input string             horafechamento      = "23:00";    //HORA PARA FECHAMENTO DE ORDENS
 input group              "GERENCIAMENTO DE RISCO - HORÁRIOS DE PAUSA P/ ABERTURA DE ORDENS"
-input string             hr_inicio_pausa1    = "20:00";  //HORA DE INICIO DA PAUSA 1
-input string             hr_termina_pausa1   = "21:00";  //HORA DE TÉRMINO DA PAUSA 1
+input string             hr_inicio_pausa1    = "20:00";    //HORA DE INICIO DA PAUSA 1
+input string             hr_termina_pausa1   = "21:00";    //HORA DE TÉRMINO DA PAUSA 1
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 string                   shortname;
@@ -300,7 +301,6 @@ void OnDeinit(const int reason)
 
 // Motivo da desinicialização do EA
    printf("Deinit reason: %d", reason);
-
   }
 
 //+------------------------------------------------------------------------------------------+
@@ -541,30 +541,33 @@ void OnTick()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //---| FECHA TODAS AS ORDENS COM LUCROS MAIORES OU IGUAIS A ZERO QNDO TARGETS FOREM ATINGIDO |----//
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-   if(UltimaPosFechadaTake("COMPRA") && PossuiPosAberta("COMPRA"))
+   if(ativafechafull==true)
      {
-      for(int i=PositionsTotal()-1; i >= 0; i--)
+      if(UltimaPosFechadaTake("COMPRA") && PossuiPosAberta("COMPRA"))
         {
-         ulong ticket=PositionGetTicket(i);
-         string symbol = PositionGetString(POSITION_SYMBOL);
-         //ulong  magic = PositionGetInteger(POSITION_MAGIC);
-         double LucroPrejuizo = PositionGetDouble(POSITION_PROFIT);
-         ENUM_POSITION_TYPE TipoPosicao=(ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
-         if(TipoPosicao==POSITION_TYPE_BUY && symbol==_Symbol && LucroPrejuizo>0)
-            trade.PositionClose(ticket);
+         for(int i=PositionsTotal()-1; i >= 0; i--)
+           {
+            ulong ticket=PositionGetTicket(i);
+            string symbol = PositionGetString(POSITION_SYMBOL);
+            //ulong  magic = PositionGetInteger(POSITION_MAGIC);
+            double LucroPrejuizo = PositionGetDouble(POSITION_PROFIT);
+            ENUM_POSITION_TYPE TipoPosicao=(ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
+            if(TipoPosicao==POSITION_TYPE_BUY && symbol==_Symbol && LucroPrejuizo>0)
+               trade.PositionClose(ticket);
+           }
         }
-     }
-   if(UltimaPosFechadaTake("VENDA") && PossuiPosAberta("VENDA"))
-     {
-      for(int i=PositionsTotal()-1; i >= 0; i--)
+      if(UltimaPosFechadaTake("VENDA") && PossuiPosAberta("VENDA"))
         {
-         ulong ticket=PositionGetTicket(i);
-         string symbol = PositionGetString(POSITION_SYMBOL);
-         //ulong  magic = PositionGetInteger(POSITION_MAGIC);
-         double LucroPrejuizo = PositionGetDouble(POSITION_PROFIT);
-         ENUM_POSITION_TYPE TipoPosicao=(ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
-         if(TipoPosicao==POSITION_TYPE_SELL && symbol==_Symbol && LucroPrejuizo>0)
-            trade.PositionClose(ticket);
+         for(int i=PositionsTotal()-1; i >= 0; i--)
+           {
+            ulong ticket=PositionGetTicket(i);
+            string symbol = PositionGetString(POSITION_SYMBOL);
+            //ulong  magic = PositionGetInteger(POSITION_MAGIC);
+            double LucroPrejuizo = PositionGetDouble(POSITION_PROFIT);
+            ENUM_POSITION_TYPE TipoPosicao=(ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
+            if(TipoPosicao==POSITION_TYPE_SELL && symbol==_Symbol && LucroPrejuizo>0)
+               trade.PositionClose(ticket);
+           }
         }
      }
 
@@ -614,6 +617,54 @@ void OnTick()
            }
         }
      }
+
+//////////////////////////////////////////////////////////////////////////////
+//---| FECHA ORDENS DE COMPRA(APÓS MAO VIRADA) PRA SAIR NO ZERO A ZERO |----//
+//////////////////////////////////////////////////////////////////////////////
+   if(PossuiPosAberta("COMPRA") && LucroPrejuUltPosFechada("VENDA")>=0 && DataHoraUltPosFechada("VENDA")>DataHoraUltPosAberta("COMPRA"))
+     {
+      HistorySelect(0,TimeCurrent());
+      uint     dealstotal=HistoryDealsTotal();
+      ulong    ticket=0;
+      string   symbol;
+      long     entry;
+      long     type;
+      datetime time;
+      double   lucro;
+      double   somalucrofechados=0;
+      for(uint j=0; j<dealstotal; j++)
+        {
+         //--- tentar obter ticket negócios
+         if((ticket=HistoryDealGetTicket(j))>0)
+           {
+            //--- obter as propriedades negócios
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            lucro =HistoryDealGetDouble(ticket,DEAL_PROFIT);
+            time  =(datetime)HistoryDealGetInteger(ticket,DEAL_TIME);
+            //--- apenas para o símbolo atual
+            if(entry==DEAL_ENTRY_OUT && type==DEAL_TYPE_BUY && symbol==_Symbol /*&& lucro>0*/ && time>DataHoraUltPosAberta("COMPRA"))
+               somalucrofechados = somalucrofechados + lucro;
+           }
+        }
+      if(PositionsTotal()>0)
+        {
+         for(int i=PositionsTotal()-1; i>=0; i--)
+           {
+            ulong ticket1   = PositionGetTicket(i);
+            string symbol1  = PositionGetString(POSITION_SYMBOL);
+            double preju    = PositionGetDouble(POSITION_PROFIT);
+            ENUM_POSITION_TYPE TipoPosicao=(ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
+            if(TipoPosicao==POSITION_TYPE_BUY && symbol1==_Symbol && MathAbs(preju)<somalucrofechados && preju<0)
+              {
+               somalucrofechados = somalucrofechados-MathAbs(preju);
+               trade.PositionClose(ticket1);
+              }
+           }
+        }
+     }
+
 ////////////////////////////////////////////////////////////
 //---| FECHA ORDENS DE VENDA PRA SAIR NO ZERO A ZERO |----//
 ////////////////////////////////////////////////////////////
@@ -660,6 +711,54 @@ void OnTick()
            }
         }
      }
+
+//////////////////////////////////////////////////////////////////////////////
+//---| FECHA ORDENS DE VENDA(APÓS MAO VIRADA) PRA SAIR NO ZERO A ZERO |----//
+//////////////////////////////////////////////////////////////////////////////
+   if(PossuiPosAberta("VENDA") && LucroPrejuUltPosFechada("COMPRA")>=0 && DataHoraUltPosFechada("COMPRA")>DataHoraUltPosAberta("VENDA"))
+     {
+      HistorySelect(0,TimeCurrent());
+      uint     dealstotal=HistoryDealsTotal();
+      ulong    ticket=0;
+      string   symbol;
+      long     entry;
+      long     type;
+      datetime time;
+      double   lucro;
+      double   somalucrofechados=0;
+      for(uint j=0; j<dealstotal; j++)
+        {
+         //--- tentar obter ticket negócios
+         if((ticket=HistoryDealGetTicket(j))>0)
+           {
+            //--- obter as propriedades negócios
+            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+            lucro =HistoryDealGetDouble(ticket,DEAL_PROFIT);
+            time  =(datetime)HistoryDealGetInteger(ticket,DEAL_TIME);
+            //--- apenas para o símbolo atual
+            if(entry==DEAL_ENTRY_OUT && type==DEAL_TYPE_SELL && symbol==_Symbol /*&& lucro>0*/ && time>DataHoraUltPosAberta("VENDA"))
+               somalucrofechados = somalucrofechados + lucro;
+           }
+        }
+      if(PositionsTotal()>0)
+        {
+         for(int i=PositionsTotal()-1; i>=0; i--)
+           {
+            ulong ticket1   = PositionGetTicket(i);
+            string symbol1  = PositionGetString(POSITION_SYMBOL);
+            double preju    = PositionGetDouble(POSITION_PROFIT);
+            ENUM_POSITION_TYPE TipoPosicao=(ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
+            if(TipoPosicao==POSITION_TYPE_SELL && symbol1==_Symbol && MathAbs(preju)<somalucrofechados && preju<0)
+              {
+               somalucrofechados = somalucrofechados-MathAbs(preju);
+               trade.PositionClose(ticket1);
+              }
+           }
+        }
+     }
+
 //+------------------------------------------------------------------+
 //| OPERAÇÕES SEGUINDO A ESTRATÉGIA ESCOLHIDA |
 //+------------------------------------------------------------------+
