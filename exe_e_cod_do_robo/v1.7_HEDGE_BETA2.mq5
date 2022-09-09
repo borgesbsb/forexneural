@@ -1489,7 +1489,7 @@ double DadosPos(string tipo, string acao)
       return qtdeposcompra;
    if(acao=="QUANTIDADE DE POSIÇÕES DE VENDA")
       return qtdeposvenda;
-   if(tipo=="PREJUÍZO DO DIA")
+   if(acao=="PREJUÍZO DO DIA")
       return preju;
       
    return NULL;
