@@ -126,17 +126,17 @@ input int                pontosc11           = 30;         //DISTANCIA P/ FECHAM
 input int                pontosc12           = 20;         //DISTANCIA P/ FECHAM 12 ORDENS
 input int                pontosc13           = 10;         //DISTANCIA P/ FECHAM 13 ORDENS
 input int                pontosc14           = 10;         //DISTANCIA P/ FECHAM 14 ORDENS
-/*input group              "BREAKEVEN/TRAILING STOP"
+input group              "BREAKEVEN/TRAILING STOP"
 input bool               ativbreak           = false;      //ATIVA BREAKEVEN/TRAILING STOP
 input double             pontosbreak         = 5;          //PTOS PROX AO TP PARA ATIV BREAKEVEN
 input double             pontosbreak2        = 5;          //PTOS P/ MOVER TP PARA FRENTE BREAKEVEN
 input double             pontosbesl          = 10;         //PTOS A MENOS PARA SL NOVO
-input double             pontosts            = 5;          //PTOS DO SL NOVO PARA ATIV TS
-*/
+//input double             pontosts            = 5;          //PTOS DO SL NOVO PARA ATIV TS
+
 input group              "GERENCIAMENTO DE RISCO - ATIVAÇÃO DE FUNÇÕES"
 input bool               fechaordensnozero   = true;       //ATIVA FECHAMENTO NO ZERO A ZERO
 input int                qtdezero            = 4;          //QTDE MINIMA ORDENS FECHADAS P/ 0x0
-input bool               ativafechafull      = true;       //ATIVA FECHAMENTO DE ORDENS QNDO LUCRO >=0
+//input bool               ativafechafull      = true;       //ATIVA FECHAMENTO DE ORDENS QNDO LUCRO >=0
 input group              "GERENCIAMENTO DE RISCO - % MÍNIMA DE CAPITAL LIQUIDO PARA OPERAR"
 input double             prcentabert         = 3500;       //% DO CAPIT MÍNIMO P/ ABRIR ORDENS
 input group              "GERENCIAMENTO DE RISCO - PARADA DO ROBÔ COM STOPS ALCANÇADOS NO DIA"
@@ -483,10 +483,10 @@ void OnTick()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //---| FECHA TODAS AS ORDENS COM LUCROS MAIORES OU IGUAIS A ZERO QNDO TARGETS FOREM ATINGIDO |----//
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-   if(ativafechafull==true)
-     {
-      FechaFull();
-     }
+//   if(ativafechafull==true)
+//     {
+//      FechaFull();
+//     }
 
 ///////////////////////////////////////////////////
 //---| FECHA ORDENS PRA SAIR NO ZERO A ZERO |----//
@@ -1148,33 +1148,33 @@ void OnTick()
 ////////////////////////////
 //---|BREAKEVEN E TS |----//
 ////////////////////////////
-   /*   if(ativbreak==true)
+   if(ativbreak==true)
+     {
+
+      if(PosAberta("POSSUI","COMPRA","") && tick.bid>DadosPos("COMPRA","PREÇO DA ÚLTIMA COMPRA")-pontosbreak*_Point)
         {
-
-         if(PosAberta("COMPRA") && tick.bid>DadosPos() && StopUltimaPosAberta()==slcomprapadrao && tick.ask>TPUltimaPosAberta()-pontosbreak*_Point)
-           {
-            trade.PositionModify(_Symbol,tick.bid-pontosbesl*_Point,TPUltimaPosAberta()+pontosbreak2*_Point);
-            Sleep(200);
-           }
-         if(PosAberta("COMPRA") && tick.bid>TPUltimaPosAberta()+pontosts*_Point && StopUltimaPosAberta()!=slcomprapadrao)
-           {
-            trade.PositionModify(_Symbol,TPUltimaPosAberta()+pontosts*_Point,TPUltimaPosAberta()+pontosts*_Point);
-            Sleep(200);
-           }
-
-         if(PosAberta("VENDA") && tick.ask<DadosPos() && StopUltimaPosAberta()==slvendapadrao && tick.bid<TPUltimaPosAberta()+pontosbreak*_Point)
-           {
-            trade.PositionModify(_Symbol,tick.ask+pontosbesl*_Point,TPUltimaPosAberta()-pontosbreak2*_Point);
-            Sleep(200);
-           }
-         if(PosAberta("VENDA") && tick.ask<TPUltimaPosAberta()-pontosts*_Point && StopUltimaPosAberta()!=slvendapadrao)
-           {
-            trade.PositionModify(_Symbol,TPUltimaPosAberta()-pontosts*_Point,TPUltimaPosAberta()-pontosts*_Point);
-            Sleep(200);
-           }
-
+         trade.PositionModify(_Symbol,tick.bid-pontosbesl*_Point,DadosPos("COMPRA","TP DA ÚLTIMA POSIÇÃO DE COMPRA")+pontosbreak2*_Point);
+         Sleep(200);
         }
-   */
+//      if(PosAberta("POSSUI","COMPRA","") && tick.bid>TPUltimaPosAberta()+pontosts*_Point && StopUltimaPosAberta()!=slcomprapadrao)
+//        {
+//         trade.PositionModify(_Symbol,TPUltimaPosAberta()+pontosts*_Point,TPUltimaPosAberta()+pontosts*_Point);
+//         Sleep(200);
+//        }
+
+      if(PosAberta("POSSUI","VENDA","") && tick.ask<DadosPos("VENDA","PREÇO DA ÚLTIMA VENDA")+pontosbreak*_Point)
+        {
+         trade.PositionModify(_Symbol,tick.ask+pontosbesl*_Point,DadosPos("VENDA","TP DA ÚLTIMA POSIÇÃO DE VENDA")+pontosbreak2*_Point);
+         Sleep(200);
+        }
+//      if(PosAberta("VENDA") && tick.ask<TPUltimaPosAberta()-pontosts*_Point && StopUltimaPosAberta()!=slvendapadrao)
+//        {
+//         trade.PositionModify(_Symbol,TPUltimaPosAberta()-pontosts*_Point,TPUltimaPosAberta()-pontosts*_Point);
+//         Sleep(200);
+//        }
+
+     }
+
 
   }
 
@@ -1372,6 +1372,7 @@ bool PosAberta(string acao, string tipo, string comentario)
         }
      }
    return false;
+   Sleep(500);
   }
 //+------------------------------------------------------------------------------------------+
 //+-----------------------------------------------------+
@@ -1391,6 +1392,8 @@ double DadosPos(string tipo, string acao)
       double volume = PositionGetDouble(POSITION_VOLUME);
       double preco  = PositionGetDouble(POSITION_PRICE_OPEN);
       double profit = PositionGetDouble(POSITION_PROFIT);
+      double tp     = PositionGetDouble(POSITION_TP);
+      double sl     = PositionGetDouble(POSITION_SL);
       ENUM_POSITION_TYPE tipo1 =(ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
       if(tipo1 == POSITION_TYPE_BUY && symbol==_Symbol)
         {
@@ -1409,6 +1412,16 @@ double DadosPos(string tipo, string acao)
             if(acao=="PROFIT DA ÚLTIMA POSIÇÃO DE COMPRA")
               {
                return profit;
+               break;
+              }
+            if(acao=="TP DA ÚLTIMA POSIÇÃO DE COMPRA")
+              {
+               return tp;
+               break;
+              }
+            if(acao=="SL DA ÚLTIMA POSIÇÃO DE COMPRA")
+              {
+               return sl;
                break;
               }
             if(acao=="MENOR PREÇO DE COMPRA")
@@ -1439,6 +1452,16 @@ double DadosPos(string tipo, string acao)
             if(acao=="PROFIT DA ÚLTIMA POSIÇÃO DE VENDA")
               {
                return profit;
+               break;
+              }
+            if(acao=="TP DA ÚLTIMA POSIÇÃO DE COMPRA")
+              {
+               return tp;
+               break;
+              }
+            if(acao=="SL DA ÚLTIMA POSIÇÃO DE COMPRA")
+              {
+               return sl;
                break;
               }
             if(acao=="MAIOR PREÇO DE VENDA")
@@ -1574,15 +1597,17 @@ double DadosPosFechada(string acao, string tipo)
    datetime    tempopos=D'2000.01.01 01:00';
    ulong       ticket=0;
    double      profit=0;
+   double      profit1=0;
    string      symbol;
    long        reason;
    long        entry;
    long        type;
    datetime    time;
+   datetime    time1=D'2000.01.01 01:00';
    MqlDateTime timeoper;
    HistorySelect(0,TimeCurrent());
-   uint     dealstotal = HistoryDealsTotal();
-   for(uint i=dealstotal-1; i >= 0; i--)
+   uint        dealstotal = HistoryDealsTotal();
+   for(uint i=0; i < dealstotal; i++)
      {
       if((ticket=HistoryDealGetTicket(i))>0)
         {
@@ -1594,30 +1619,36 @@ double DadosPosFechada(string acao, string tipo)
          time  =(datetime)HistoryDealGetInteger(ticket,DEAL_TIME);
          if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
            {
-            if(tipo=="COMPRA" && acao=="PROFIT DA ÚLTIMA POSIÇÃO FECHADA")
+            if(tipo=="COMPRA")
               {
-               return profit;
-               break;
-              }
-            if(tipo=="COMPRA" && acao=="QTDE DE POSIÇÕES FECHADAS APÓS A ULTIMA POSIÇÃO ABERTA")
-              {
-               if(tempopos==DataHoraUltPosAberta("COMPRA"))
+               if(acao=="PROFIT DA ÚLTIMA POSIÇÃO FECHADA")
                  {
-                  if(time>tempopos)
-                     qtdeordens++;
+                  if(time>time1)
+                    {
+                     time1=time;
+                     profit1=profit;
+                    }
                  }
-               else
-                  tempopos = DataHoraUltPosAberta("COMPRA");
+               if(acao=="QTDE DE POSIÇÕES FECHADAS APÓS A ULTIMA POSIÇÃO ABERTA")
+                 {
+                  if(tempopos==DataHoraUltPosAberta("COMPRA"))
+                    {
+                     if(time>tempopos)
+                        qtdeordens++;
+                    }
+                  else
+                     tempopos = DataHoraUltPosAberta("COMPRA");
+                 }
               }
            }
          if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
            {
             if(tipo=="VENDA")
               {
-               if(acao=="PROFIT DA ÚLTIMA POSIÇÃO FECHADA")
+               if(time>time1)
                  {
-                  return profit;
-                  break;
+                  time1=time;
+                  profit1=profit;
                  }
                if(acao=="QTDE DE POSIÇÕES FECHADAS APÓS A ULTIMA POSIÇÃO ABERTA")
                  {
@@ -1638,7 +1669,11 @@ double DadosPosFechada(string acao, string tipo)
                contador++;
            }
         }
+      else
+         break;
      }
+   if(acao=="PROFIT DA ÚLTIMA POSIÇÃO FECHADA")
+      return profit1;
    if(acao=="QTDE DE POSIÇÕES FECHADAS APÓS A ULTIMA POSIÇÃO ABERTA")
       return qtdeordens;
    if(acao=="QTDE DE SL DO DIA")
@@ -1651,6 +1686,7 @@ double DadosPosFechada(string acao, string tipo)
 //+---------------------------------------------------------------+
 bool PosFechadaTrueFalse(string acao,string tipo)
   {
+   bool     condicao=false;
    HistorySelect(0,TimeCurrent());
    ulong    ticket=0;
    string   symbol;
@@ -1658,7 +1694,7 @@ bool PosFechadaTrueFalse(string acao,string tipo)
    long     entry;
    long     type;
    uint     dealstotal=HistoryDealsTotal();
-   for(uint i=dealstotal-1; i >= 0; i--)
+   for(uint i=0; i < dealstotal; i++)
      {
       if((ticket=HistoryDealGetTicket(i))>0)
         {
@@ -1672,36 +1708,30 @@ bool PosFechadaTrueFalse(string acao,string tipo)
               {
                if(acao=="EXISTE AO MENOS UMA POSIÇÃO FECHADA")
                  {
-                  return true;
-                  break;
+                  condicao=true;
                  }
                if(acao=="ÚLTIMA POSIÇÃO FECHADA FOI DE SL")
                  {
                   if(reason==DEAL_REASON_SL)
                     {
-                     return true;
-                     break;
+                     condicao=true;
                     }
                   else
                     {
-                     return false;
-                     break;
+                     condicao=false;
                     }
                  }
                if(acao=="ÚLTIMA POSIÇÃO FECHADA FOI DE TP")
                  {
                   if(reason==DEAL_REASON_TP)
                     {
-                     return true;
-                     break;
+                     condicao=true;
                     }
                   else
                     {
-                     return false;
-                     break;
+                     condicao=false;
                     }
                  }
-
               }
            }
          if(entry==DEAL_ENTRY_OUT && type==DEAL_TYPE_BUY && symbol==_Symbol)
@@ -1710,33 +1740,28 @@ bool PosFechadaTrueFalse(string acao,string tipo)
               {
                if(acao=="EXISTE AO MENOS UMA POSIÇÃO FECHADA")
                  {
-                  return true;
-                  break;
+                  condicao=true;
                  }
                if(acao=="ÚLTIMA POSIÇÃO FECHADA FOI DE SL")
                  {
                   if(reason==DEAL_REASON_SL)
                     {
-                     return true;
-                     break;
+                     condicao=true;
                     }
                   else
                     {
-                     return false;
-                     break;
+                     condicao=false;
                     }
                  }
                if(acao=="ÚLTIMA POSIÇÃO FECHADA FOI DE TP")
                  {
                   if(reason==DEAL_REASON_TP)
                     {
-                     return true;
-                     break;
+                     condicao=true;
                     }
                   else
                     {
-                     return false;
-                     break;
+                     condicao=false;
                     }
                  }
               }
@@ -1744,7 +1769,7 @@ bool PosFechadaTrueFalse(string acao,string tipo)
         }
      }
 
-   return false;
+   return condicao;
   }
 //+------------------------------------------------------------------------------------------+
 //+--------------------------------------------+
@@ -2330,7 +2355,7 @@ bool HorarioPausa1() //VERIFICA SE ESTÁ NO HORÁRIO DE PAUSA DO ROBÔ
 //+------------------------------------------------------------------+
 void FechaFull()
   {
-   if(PosFechadaTrueFalse("ÚLTIMA POSIÇÃO FECHADA FOI DE TP","COMPRA") && PosAberta("POSSUI","COMPRA",""))
+   if(PosAberta("POSSUI","COMPRA","") && PosFechadaTrueFalse("ÚLTIMA POSIÇÃO FECHADA FOI DE TP","COMPRA"))
      {
       for(int i=PositionsTotal()-1; i >= 0; i--)
         {
@@ -2343,7 +2368,7 @@ void FechaFull()
             trade.PositionClose(ticket);
         }
      }
-   if(PosFechadaTrueFalse("ÚLTIMA POSIÇÃO FECHADA FOI DE TP","VENDA") && PosAberta("POSSUI","VENDA",""))
+   if(PosAberta("POSSUI","VENDA","") && PosFechadaTrueFalse("ÚLTIMA POSIÇÃO FECHADA FOI DE TP","VENDA"))
      {
       for(int i=PositionsTotal()-1; i >= 0; i--)
         {
