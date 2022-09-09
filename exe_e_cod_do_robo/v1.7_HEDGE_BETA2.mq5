@@ -4,7 +4,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Gibran, Borges e James"
 #property link      "gibranvalle@gmail.com"
-#property version   "1.7"
+#property version   "2.0"
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Bibliotecas utilizadas
 #include <Trade/Trade.mqh>
@@ -69,12 +69,12 @@ enum ENUM_TP_GAIN
 input group              "ABERTURA DE ORDENS"
 input bool               ativaentradaea      = true;       //ATIVA ABERTURA AUTOMÁTICA DE ORDENS
 input double             loteinicial         = 0.1;        //TAMANHO DO LOTE INICIAL
-input double             aumentoprop         = 1000.00;    //VALOR P/ AUMENTO PROPORCIONAL DO LOTE
+input double             aumentoprop         = 500.00;     //VALOR P/ AUMENTO PROPORCIONAL DO LOTE
 input ENUM_TP_CONTA      tipoconta           = tipocent;   //SELECIONE O TIPO DE CONTA
 ENUM_TP_OPER       tipooper            = tipohedge;  //SELECIONE O TIPO DE OPERAÇÃO
 input ENUM_TP_STOP       tipostop            = tpstopprct; //SELECIONE O TIPO DE STOP LOSS
 input double             percentloss         = 2.5;        //% DE STOP LOSS P/ ABERTURA DE ORDEM
-input int                stoppontos          = 500;        //PTS DE STOP LOSS P/ ABERTURA DE ORDENS
+input int                stoppontos          = 800;        //PTS DE STOP LOSS P/ ABERTURA DE ORDENS
 input group              "MARTINGALE"
 input ENUM_TP_MART       tipomartingale      = mart3;      //TIPO DE MARTINGALE
 input int                multiplicador       = 1;          //MULTIPLICADOR P/ MARTINGALE (N)
@@ -105,23 +105,23 @@ input group              "VALORES DEFINIDOS P/ BANDAS DE BOLLINGER"
 input int                periodobb           = 14;         //PERIODO P/ BANDAS DE BOLINGER
 input double             desviobb            = 2.0;        //DESVIO P/ BANDAS DE BOLINGER
 input group              "VALORES DEFINIDOS P/ ENVELOPE"
-input int                periodm1            = 14;         //PERIODO DA MÉDIA P/ ENVELOPE
-input double             tamanhoenvelope     = 100000;     //DISTÂNCIA P/ ENVELOPE
+input int                periodm1            = 63;         //PERIODO DA MÉDIA P/ ENVELOPE
+input double             tamanhoenvelope     = 150;        //DISTÂNCIA P/ ENVELOPE
 input group              "REDE NEURAL"
 input group              "FECHAMENTO DE ORDENS"
 //input bool               ativasaidaea        = true;       //ATIVA FECHAMENTO DE ORDENS
 input ENUM_TP_GAIN       tipogain            = tpgainprct; //SELECIONE TIPO DE GANHO
 input double             percentgain         = 0.1;        //PORCENTAGEM DE STOP GAIN
-input int                pontosc1            = 100;        //DISTANCIA P/ FECHAM 1 ORDEM
-input int                pontosc2            = 60;         //DISTANCIA P/ FECHAM 2 ORDENS
+input int                pontosc1            = 30;         //DISTANCIA P/ FECHAM 1 ORDEM
+input int                pontosc2            = 40;         //DISTANCIA P/ FECHAM 2 ORDENS
 input int                pontosc3            = 40;         //DISTANCIA P/ FECHAM 3 ORDENS
 input int                pontosc4            = 40;         //DISTANCIA P/ FECHAM 4 ORDENS
 input int                pontosc5            = 30;         //DISTANCIA P/ FECHAM 5 ORDENS
 input int                pontosc6            = 20;         //DISTANCIA P/ FECHAM 6 ORDENS
 input int                pontosc7            = 10;         //DISTANCIA P/ FECHAM 7 ORDENS
 input int                pontosc8            = 10;         //DISTANCIA P/ FECHAM 8 ORDENS
-input int                pontosc9            = 40;         //DISTANCIA P/ FECHAM 9 ORDENS
-input int                pontosc10           = 40;         //DISTANCIA P/ FECHAM 10 ORDENS
+input int                pontosc9            = 30;         //DISTANCIA P/ FECHAM 9 ORDENS
+input int                pontosc10           = 30;         //DISTANCIA P/ FECHAM 10 ORDENS
 input int                pontosc11           = 30;         //DISTANCIA P/ FECHAM 11 ORDENS
 input int                pontosc12           = 20;         //DISTANCIA P/ FECHAM 12 ORDENS
 input int                pontosc13           = 10;         //DISTANCIA P/ FECHAM 13 ORDENS
@@ -134,11 +134,11 @@ input double             pontosbesl          = 10;         //PTOS A MENOS PARA S
 //input double             pontosts            = 5;          //PTOS DO SL NOVO PARA ATIV TS
 
 input group              "GERENCIAMENTO DE RISCO - ATIVAÇÃO DE FUNÇÕES"
-input bool               fechaordensnozero   = true;       //ATIVA FECHAMENTO NO ZERO A ZERO
+input bool               fechaordensnozero   = false;      //ATIVA FECHAMENTO NO ZERO A ZERO
 input int                qtdezero            = 4;          //QTDE MINIMA ORDENS FECHADAS P/ 0x0
 //input bool               ativafechafull      = true;       //ATIVA FECHAMENTO DE ORDENS QNDO LUCRO >=0
 input group              "GERENCIAMENTO DE RISCO - % MÍNIMA DE CAPITAL LIQUIDO PARA OPERAR"
-input double             prcentabert         = 3500;       //% DO CAPIT MÍNIMO P/ ABRIR ORDENS
+input double             prcentabert         = 2000;       //% DO CAPIT MÍNIMO P/ ABRIR ORDENS
 input group              "GERENCIAMENTO DE RISCO - PARADA DO ROBÔ COM STOPS ALCANÇADOS NO DIA"
 input bool               ativastopdiario     = true;       //PARA O ROBÔ NO DIA QNDO STOP > N
 input int                qtdestops           = 3;          //QTDE MÁXIMA DE STOPS (N)
@@ -407,7 +407,6 @@ void OnTick()
 
 //--- Definição dos preços médios para quando houver 2 ou mais compras/vendas
    if(PositionsTotal()>=1)
-
      {
       if(PosAberta("POSSUI","COMPRA","C1") && !PosAberta("POSSUI","COMPRA","C2"))
          PM1 = (tick.ask*volnv2 + DadosPos("COMPRA","PREÇO DA ÚLTIMA COMPRA")*volumeoper)/(volnv2+volumeoper);
@@ -503,7 +502,7 @@ void OnTick()
 //   Print("ABERTURA DO CANDLE: ",aberturacandleatual);
 
 //--- Check de posição aberta em outro ativo, horário de operação e margem suficiente pra operar
-   if(ativaentradaea && !PossuiPosAbertaOutroAtivo() && HorarioEntrada()==true /*&& HorarioPausa1()==false*/ && (percent_margem>prcentabert||saldo==capital))
+   if(ativaentradaea && !PossuiPosAbertaOutroAtivo() && HorarioEntrada()==true && HorarioPausa1()==false && (percent_margem>prcentabert||saldo==capital))
      {
 
       //--- Verifica se candle acabou de abrir e se o número de STOPS ultrapassou o máximo permitido no dia
@@ -844,7 +843,6 @@ void OnTick()
            }
          if(PositionsTotal()>=1 /*&& condicaoSAR==true*/ && ((PosAberta("POSSUI","COMPRA","") && QtdeCandles("COMPRA")>qtdecandle) || (PosAberta("POSSUI","VENDA","") && QtdeCandles("VENDA")>qtdecandle)))
            {
-            Print("MARTINGALE CHEGOU AKI");
             //////////////////////////////////////////////
             //---| ESTRATEGIA ENVELOPE/RSI/BOLINGER |---//
             //////////////////////////////////////////////
@@ -1097,8 +1095,7 @@ void OnTick()
 //---|STOP FULL |----//
 ///////////////////////
    if(ativastopfull==true)
-      if(MathAbs(((DadosPos("COMPRA","PROFIT DA ÚLTIMA POSIÇÃO DE COMPRA")+DadosPos("VENDA","PROFIT DA ÚLTIMA POSIÇÃO DE VENDA"))/capital)*100)>=percentfull && //
-         (DadosPos("COMPRA","PROFIT DA ÚLTIMA POSIÇÃO DE COMPRA")+DadosPos("VENDA","PROFIT DA ÚLTIMA POSIÇÃO DE VENDA"))<0 && saldo!=capital)
+      if((MathAbs(DadosPos("","PREJUÍZO DO DIA")))/capital*100>=percentfull && DadosPos("","PREJUÍZO DO DIA")<0 && saldo!=capital)
         {
          FechaTodasPosicoesAbertas();
          Sleep(100);
@@ -1156,22 +1153,22 @@ void OnTick()
          trade.PositionModify(_Symbol,tick.bid-pontosbesl*_Point,DadosPos("COMPRA","TP DA ÚLTIMA POSIÇÃO DE COMPRA")+pontosbreak2*_Point);
          Sleep(200);
         }
-//      if(PosAberta("POSSUI","COMPRA","") && tick.bid>TPUltimaPosAberta()+pontosts*_Point && StopUltimaPosAberta()!=slcomprapadrao)
-//        {
-//         trade.PositionModify(_Symbol,TPUltimaPosAberta()+pontosts*_Point,TPUltimaPosAberta()+pontosts*_Point);
-//         Sleep(200);
-//        }
+      //      if(PosAberta("POSSUI","COMPRA","") && tick.bid>TPUltimaPosAberta()+pontosts*_Point && StopUltimaPosAberta()!=slcomprapadrao)
+      //        {
+      //         trade.PositionModify(_Symbol,TPUltimaPosAberta()+pontosts*_Point,TPUltimaPosAberta()+pontosts*_Point);
+      //         Sleep(200);
+      //        }
 
       if(PosAberta("POSSUI","VENDA","") && tick.ask<DadosPos("VENDA","PREÇO DA ÚLTIMA VENDA")+pontosbreak*_Point)
         {
          trade.PositionModify(_Symbol,tick.ask+pontosbesl*_Point,DadosPos("VENDA","TP DA ÚLTIMA POSIÇÃO DE VENDA")+pontosbreak2*_Point);
          Sleep(200);
         }
-//      if(PosAberta("VENDA") && tick.ask<TPUltimaPosAberta()-pontosts*_Point && StopUltimaPosAberta()!=slvendapadrao)
-//        {
-//         trade.PositionModify(_Symbol,TPUltimaPosAberta()-pontosts*_Point,TPUltimaPosAberta()-pontosts*_Point);
-//         Sleep(200);
-//        }
+      //      if(PosAberta("VENDA") && tick.ask<TPUltimaPosAberta()-pontosts*_Point && StopUltimaPosAberta()!=slvendapadrao)
+      //        {
+      //         trade.PositionModify(_Symbol,TPUltimaPosAberta()-pontosts*_Point,TPUltimaPosAberta()-pontosts*_Point);
+      //         Sleep(200);
+      //        }
 
      }
 
@@ -1380,10 +1377,11 @@ bool PosAberta(string acao, string tipo, string comentario)
 //+-----------------------------------------------------+
 double DadosPos(string tipo, string acao)
   {
-   double qtdeposcompra=0;
-   double qtdeposvenda=0;
+   double qtdeposcompra=0.0;
+   double qtdeposvenda=0.0;
    double precomenor=200000.0;
    double precomaior=0.0;
+   double preju=0.0;
    int posabertas = PositionsTotal();
    for(int i = posabertas-1; i >= 0; i--)
      {
@@ -1475,6 +1473,13 @@ double DadosPos(string tipo, string acao)
               }
            }
         }
+      if(acao=="PREJUÍZO DO DIA")
+        {
+         if(tipo1==POSITION_TYPE_BUY || tipo1==POSITION_TYPE_SELL)
+           {
+            preju=preju+profit;
+           }
+        }
      }
    if(acao=="MENOR PREÇO DE COMPRA")
       return precomenor;
@@ -1484,7 +1489,9 @@ double DadosPos(string tipo, string acao)
       return qtdeposcompra;
    if(acao=="QUANTIDADE DE POSIÇÕES DE VENDA")
       return qtdeposvenda;
-
+   if(tipo=="PREJUÍZO DO DIA")
+      return preju;
+      
    return NULL;
   }
 //+------------------------------------------------------------------------------------------+
@@ -1617,9 +1624,9 @@ double DadosPosFechada(string acao, string tipo)
          type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
          profit=HistoryDealGetDouble(ticket,DEAL_PROFIT);
          time  =(datetime)HistoryDealGetInteger(ticket,DEAL_TIME);
-         if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+         if(tipo=="COMPRA")
            {
-            if(tipo=="COMPRA")
+            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
               {
                if(acao=="PROFIT DA ÚLTIMA POSIÇÃO FECHADA")
                  {
@@ -1631,7 +1638,7 @@ double DadosPosFechada(string acao, string tipo)
                  }
                if(acao=="QTDE DE POSIÇÕES FECHADAS APÓS A ULTIMA POSIÇÃO ABERTA")
                  {
-                  if(tempopos==DataHoraUltPosAberta("COMPRA"))
+                  if(tempopos!=D'2000.01.01 01:00')
                     {
                      if(time>tempopos)
                         qtdeordens++;
@@ -1641,9 +1648,9 @@ double DadosPosFechada(string acao, string tipo)
                  }
               }
            }
-         if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+         if(tipo=="VENDA")
            {
-            if(tipo=="VENDA")
+            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
               {
                if(time>time1)
                  {
@@ -1652,7 +1659,7 @@ double DadosPosFechada(string acao, string tipo)
                  }
                if(acao=="QTDE DE POSIÇÕES FECHADAS APÓS A ULTIMA POSIÇÃO ABERTA")
                  {
-                  if(tempopos==DataHoraUltPosAberta("VENDA"))
+                  if(tempopos!=D'2000.01.01 01:00')
                     {
                      if(time>tempopos)
                         qtdeordens++;
