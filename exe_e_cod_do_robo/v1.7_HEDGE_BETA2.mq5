@@ -93,17 +93,17 @@ input int                qtdecandle          = 2;          //QTOS CANDLES P/ PX 
 input group              "ESCOLHA DA ESTRATÉGIA"
 input ENUM_TP_ESTRAT     estrategia          = estrat1;    //ESCOLHA A ESTRATÉGIA
 input group              "VALORES DEFINIDOS P/ SAR"
-input double             stepSAR             = 0.02;       //STEP do SAR
-input double             maximumSAR          = 0.2;        //MAXIMUM do SAR
+ double             stepSAR             = 0.02;       //STEP do SAR
+ double             maximumSAR          = 0.2;        //MAXIMUM do SAR
 //input int                qtdesarmax          = 15;         //QTDE MÁXIMA DE SAR'S P/ ABERT DE ORDENS
 //input int                pontos1SAR          = 1300;       //QTDE MÁXIMA DE PONTOS DO 1o SAR P/ ABERT
 input group              "VALORES DEFINIDOS P/ RSI"
-input int                periodorsi          = 14;         //PERIODO P/ RSI
-input int                sobrevrsi           = 70;         //PORCENTAGEM DE SOBREVENDA
-input int                sobrecrsi           = 30;         //PORCENTAGEM DE SOBRECOMPRA
+ int                periodorsi          = 14;         //PERIODO P/ RSI
+ int                sobrevrsi           = 70;         //PORCENTAGEM DE SOBREVENDA
+ int                sobrecrsi           = 30;         //PORCENTAGEM DE SOBRECOMPRA
 input group              "VALORES DEFINIDOS P/ BANDAS DE BOLLINGER"
-input int                periodobb           = 14;         //PERIODO P/ BANDAS DE BOLINGER
-input double             desviobb            = 2.0;        //DESVIO P/ BANDAS DE BOLINGER
+ int                periodobb           = 14;         //PERIODO P/ BANDAS DE BOLINGER
+ double             desviobb            = 2.0;        //DESVIO P/ BANDAS DE BOLINGER
 input group              "VALORES DEFINIDOS P/ ENVELOPE"
 input int                periodm1            = 63;         //PERIODO DA MÉDIA P/ ENVELOPE
 input double             tamanhoenvelope     = 150;        //DISTÂNCIA P/ ENVELOPE
@@ -137,9 +137,9 @@ input int                qtdezero            = 4;          //QTDE MINIMA ORDENS 
 //input bool               ativafechafull      = true;       //ATIVA FECHAMENTO DE ORDENS QNDO LUCRO >=0
 input group              "GERENCIAMENTO DE RISCO - % MÍNIMA DE CAPITAL LIQUIDO PARA OPERAR"
 input double             prcentabert         = 2000;       //% DO CAPIT MÍNIMO P/ ABRIR ORDENS
-input group              "GERENCIAMENTO DE RISCO - PARADA DO ROBÔ COM STOPS ALCANÇADOS NO DIA"
-input bool               ativastopdiario     = true;       //PARA O ROBÔ NO DIA QNDO STOP > N
-input int                qtdestops           = 3;          //QTDE MÁXIMA DE STOPS (N)
+//input group              "GERENCIAMENTO DE RISCO - PARADA DO ROBÔ COM STOPS ALCANÇADOS NO DIA"
+//input bool               ativastopdiario     = true;       //PARA O ROBÔ NO DIA QNDO STOP > N
+//input int                qtdestops           = 3;          //QTDE MÁXIMA DE STOPS (N)
 input group              "GERENCIAMENTO DE RISCO - STOP FULL"
 input bool               ativastopfull       = true;       //ATIVA STOP P/ LIMITE DE CAPITAL INVESTIDO
 input double             percentfull         = 5;          //% DO CAPITAL PARA FECHAR TODAS AS ORDENS
@@ -504,7 +504,7 @@ void OnTick()
      {
 
       //--- Verifica se candle acabou de abrir e se o número de STOPS ultrapassou o máximo permitido no dia
-      if(NB2.IsNewBar(_Symbol,_Period) && DadosPosFechada("QTDE DE SL DO DIA","")<qtdestops)
+      if(NB2.IsNewBar(_Symbol,_Period) /*&& DadosPosFechada("QTDE DE SL DO DIA","")<qtdestops*/)
         {
          if(!PosAberta("POSSUI","COMPRA","C1"))
            {
@@ -1158,12 +1158,12 @@ void OnTick()
 
       if(PosFechadaTrueFalse("ÚLTIMA POSIÇÃO FECHADA FOI DE TP","VENDA") && PosAberta("POSSUI","VENDA","BE VENDA")==false)
         {
-         trade.Buy(DadosPosFechada("VOLUME DA ÚLTIMA POSIÇÃO FECHADA","VENDA"),_Symbol,tick.bid,tick.ask+pontosbesl*_Point,NULL,"BE VENDA");
+         trade.Sell(DadosPosFechada("VOLUME DA ÚLTIMA POSIÇÃO FECHADA","VENDA"),_Symbol,tick.bid,tick.ask+pontosbesl*_Point,NULL,"BE VENDA");
          Sleep(200);
         }
-      if(PosAberta("POSSUI","COMPRA","BE VENDA") && tick.ask<DadosPos("VENDA","SL DA ÚLTIMA POSIÇÃO")-pontosts*_Point)
+      if(PosAberta("POSSUI","VENDA","BE VENDA") && tick.ask<DadosPos("VENDA","SL DA ÚLTIMA POSIÇÃO")-pontosts*_Point)
         {
-         trade.PositionModify(TicketPosAberta(),DadosPos("COMPRA","SL DA ÚLTIMA POSIÇÃO")+pontosts2*_Point,NULL);
+         trade.PositionModify(TicketPosAberta(),DadosPos("VENDA","SL DA ÚLTIMA POSIÇÃO")-pontosts2*_Point,NULL);
         }
      }
   }
