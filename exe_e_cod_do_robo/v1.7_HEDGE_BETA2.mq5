@@ -131,7 +131,7 @@ input bool               ativbreak           = false;      //ATIVA BREAKEVEN/TRA
 input double             pontosbreak         = 5;          //PTOS PROX AO TP PARA ATIV BREAKEVEN
 input double             pontosbreak2        = 5;          //PTOS P/ MOVER TP PARA FRENTE BREAKEVEN
 input double             pontosbesl          = 10;         //PTOS A MENOS PARA SL NOVO
-//input double             pontosts            = 5;          //PTOS DO SL NOVO PARA ATIV TS
+input double             pontosts            = 5;          //PTOS DO SL NOVO PARA ATIV TS
 
 input group              "GERENCIAMENTO DE RISCO - ATIVAÇÃO DE FUNÇÕES"
 input bool               fechaordensnozero   = false;      //ATIVA FECHAMENTO NO ZERO A ZERO
@@ -409,58 +409,58 @@ void OnTick()
    if(PositionsTotal()>=1)
      {
       if(PosAberta("POSSUI","COMPRA","C1") && !PosAberta("POSSUI","COMPRA","C2"))
-         PM1 = (tick.ask*volnv2 + DadosPos("COMPRA","PREÇO DA ÚLTIMA COMPRA")*volumeoper)/(volnv2+volumeoper);
+         PM1 = (tick.ask*volnv2 + DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")*volumeoper)/(volnv2+volumeoper);
       if(PosAberta("POSSUI","COMPRA","C2") && !PosAberta("POSSUI","COMPRA","C3"))
-         PM2 = (tick.ask*volnv3 + DadosPos("COMPRA","PREÇO DA ÚLTIMA COMPRA")*DadosPos("COMPRA","VOLUME DA ÚLTIMA COMPRA"))/(volnv3+DadosPos("COMPRA","VOLUME DA ÚLTIMA COMPRA"));
+         PM2 = (tick.ask*volnv3 + DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv3+DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"));
       if(PosAberta("POSSUI","COMPRA","C3") && !PosAberta("POSSUI","COMPRA","C4"))
-         PM3 = (tick.ask*volnv4 + DadosPos("COMPRA","PREÇO DA ÚLTIMA COMPRA")*DadosPos("COMPRA","VOLUME DA ÚLTIMA COMPRA"))/(volnv4+DadosPos("COMPRA","VOLUME DA ÚLTIMA COMPRA"));
+         PM3 = (tick.ask*volnv4 + DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv4+DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"));
       if(PosAberta("POSSUI","COMPRA","C4") && !PosAberta("POSSUI","COMPRA","C5"))
-         PM4 = (tick.ask*volnv5 + DadosPos("COMPRA","PREÇO DA ÚLTIMA COMPRA")*DadosPos("COMPRA","VOLUME DA ÚLTIMA COMPRA"))/(volnv5+DadosPos("COMPRA","VOLUME DA ÚLTIMA COMPRA"));
+         PM4 = (tick.ask*volnv5 + DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv5+DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"));
       if(PosAberta("POSSUI","COMPRA","C5") && !PosAberta("POSSUI","COMPRA","C6"))
-         PM5 = (tick.ask*volnv6 + DadosPos("COMPRA","PREÇO DA ÚLTIMA COMPRA")*DadosPos("COMPRA","VOLUME DA ÚLTIMA COMPRA"))/(volnv6+DadosPos("COMPRA","VOLUME DA ÚLTIMA COMPRA"));
+         PM5 = (tick.ask*volnv6 + DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv6+DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"));
       if(PosAberta("POSSUI","COMPRA","C6") && !PosAberta("POSSUI","COMPRA","C7"))
-         PM6 = (tick.ask*volnv7 + DadosPos("COMPRA","PREÇO DA ÚLTIMA COMPRA")*DadosPos("COMPRA","VOLUME DA ÚLTIMA COMPRA"))/(volnv7+DadosPos("COMPRA","VOLUME DA ÚLTIMA COMPRA"));
+         PM6 = (tick.ask*volnv7 + DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv7+DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"));
       if(PosAberta("POSSUI","COMPRA","C7") && !PosAberta("POSSUI","COMPRA","C8"))
-         PM7 = (tick.ask*volnv8 + DadosPos("COMPRA","PREÇO DA ÚLTIMA COMPRA")*DadosPos("COMPRA","VOLUME DA ÚLTIMA COMPRA"))/(volnv8+DadosPos("COMPRA","VOLUME DA ÚLTIMA COMPRA"));
+         PM7 = (tick.ask*volnv8 + DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv8+DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"));
       if(PosAberta("POSSUI","COMPRA","C8") && !PosAberta("POSSUI","COMPRA","C9"))
-         PM8 = (tick.ask*volnv9 + DadosPos("COMPRA","PREÇO DA ÚLTIMA COMPRA")*DadosPos("COMPRA","VOLUME DA ÚLTIMA COMPRA"))/(volnv9+DadosPos("COMPRA","VOLUME DA ÚLTIMA COMPRA"));
+         PM8 = (tick.ask*volnv9 + DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv9+DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"));
       if(PosAberta("POSSUI","COMPRA","C9") && !PosAberta("POSSUI","COMPRA","C10"))
-         PM9 = (tick.ask*volnv10 + DadosPos("COMPRA","PREÇO DA ÚLTIMA COMPRA")*DadosPos("COMPRA","VOLUME DA ÚLTIMA COMPRA"))/(volnv10+DadosPos("COMPRA","VOLUME DA ÚLTIMA COMPRA"));
+         PM9 = (tick.ask*volnv10 + DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv10+DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"));
       if(PosAberta("POSSUI","COMPRA","C10") && !PosAberta("POSSUI","COMPRA","C11"))
-         PM10 = (tick.ask*volnv11 + DadosPos("COMPRA","PREÇO DA ÚLTIMA COMPRA")*DadosPos("COMPRA","VOLUME DA ÚLTIMA COMPRA"))/(volnv11+DadosPos("COMPRA","VOLUME DA ÚLTIMA COMPRA"));
+         PM10 = (tick.ask*volnv11 + DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv11+DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"));
       if(PosAberta("POSSUI","COMPRA","C11") && !PosAberta("POSSUI","COMPRA","C12"))
-         PM11 = (tick.ask*volnv12 + DadosPos("COMPRA","PREÇO DA ÚLTIMA COMPRA")*DadosPos("COMPRA","VOLUME DA ÚLTIMA COMPRA"))/(volnv12+DadosPos("COMPRA","VOLUME DA ÚLTIMA COMPRA"));
+         PM11 = (tick.ask*volnv12 + DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv12+DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"));
       if(PosAberta("POSSUI","COMPRA","C12") && !PosAberta("POSSUI","COMPRA","C13"))
-         PM12 = (tick.ask*volnv13 + DadosPos("COMPRA","PREÇO DA ÚLTIMA COMPRA")*DadosPos("COMPRA","VOLUME DA ÚLTIMA COMPRA"))/(volnv13+DadosPos("COMPRA","VOLUME DA ÚLTIMA COMPRA"));
+         PM12 = (tick.ask*volnv13 + DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv13+DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"));
       if(PosAberta("POSSUI","COMPRA","C13") && !PosAberta("POSSUI","COMPRA","C14"))
-         PM13 = (tick.ask*volnv14 + DadosPos("COMPRA","PREÇO DA ÚLTIMA COMPRA")*DadosPos("COMPRA","VOLUME DA ÚLTIMA COMPRA"))/(volnv14+DadosPos("COMPRA","VOLUME DA ÚLTIMA COMPRA"));
+         PM13 = (tick.ask*volnv14 + DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv14+DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"));
 
       if(PosAberta("POSSUI","VENDA","V1") && !PosAberta("POSSUI","VENDA","V2"))
-         PM1 = (tick.bid*volnv2 + DadosPos("VENDA","PREÇO DA ÚLTIMA VENDA")*volumeoper)/(volnv2+volumeoper);
+         PM1 = (tick.bid*volnv2 + DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")*volumeoper)/(volnv2+volumeoper);
       if(PosAberta("POSSUI","VENDA","V2") && !PosAberta("POSSUI","VENDA","V3"))
-         PM2 = (tick.bid*volnv3 + DadosPos("VENDA","PREÇO DA ÚLTIMA VENDA")*DadosPos("VENDA","VOLUME DA ÚLTIMA VENDA"))/(volnv3+DadosPos("VENDA","VOLUME DA ÚLTIMA VENDA"));
+         PM2 = (tick.bid*volnv3 + DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv3+DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"));
       if(PosAberta("POSSUI","VENDA","V3") && !PosAberta("POSSUI","VENDA","V4"))
-         PM3 = (tick.bid*volnv4 + DadosPos("VENDA","PREÇO DA ÚLTIMA VENDA")*DadosPos("VENDA","VOLUME DA ÚLTIMA VENDA"))/(volnv4+DadosPos("VENDA","VOLUME DA ÚLTIMA VENDA"));
+         PM3 = (tick.bid*volnv4 + DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv4+DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"));
       if(PosAberta("POSSUI","VENDA","V4") && !PosAberta("POSSUI","VENDA","V5"))
-         PM4 = (tick.bid*volnv5 + DadosPos("VENDA","PREÇO DA ÚLTIMA VENDA")*DadosPos("VENDA","VOLUME DA ÚLTIMA VENDA"))/(volnv5+DadosPos("VENDA","VOLUME DA ÚLTIMA VENDA"));
+         PM4 = (tick.bid*volnv5 + DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv5+DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"));
       if(PosAberta("POSSUI","VENDA","V5") && !PosAberta("POSSUI","VENDA","V6"))
-         PM5 = (tick.bid*volnv6 + DadosPos("VENDA","PREÇO DA ÚLTIMA VENDA")*DadosPos("VENDA","VOLUME DA ÚLTIMA VENDA"))/(volnv6+DadosPos("VENDA","VOLUME DA ÚLTIMA VENDA"));
+         PM5 = (tick.bid*volnv6 + DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv6+DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"));
       if(PosAberta("POSSUI","VENDA","V6") && !PosAberta("POSSUI","VENDA","V7"))
-         PM6 = (tick.bid*volnv7 + DadosPos("VENDA","PREÇO DA ÚLTIMA VENDA")*DadosPos("VENDA","VOLUME DA ÚLTIMA VENDA"))/(volnv7+DadosPos("VENDA","VOLUME DA ÚLTIMA VENDA"));
+         PM6 = (tick.bid*volnv7 + DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv7+DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"));
       if(PosAberta("POSSUI","VENDA","V7") && !PosAberta("POSSUI","VENDA","V8"))
-         PM7 = (tick.bid*volnv8 + DadosPos("VENDA","PREÇO DA ÚLTIMA VENDA")*DadosPos("VENDA","VOLUME DA ÚLTIMA VENDA"))/(volnv8+DadosPos("VENDA","VOLUME DA ÚLTIMA VENDA"));
+         PM7 = (tick.bid*volnv8 + DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv8+DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"));
       if(PosAberta("POSSUI","VENDA","V8") && !PosAberta("POSSUI","VENDA","V9"))
-         PM8 = (tick.bid*volnv9 + DadosPos("VENDA","PREÇO DA ÚLTIMA VENDA")*DadosPos("VENDA","VOLUME DA ÚLTIMA VENDA"))/(volnv9+DadosPos("VENDA","VOLUME DA ÚLTIMA VENDA"));
+         PM8 = (tick.bid*volnv9 + DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv9+DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"));
       if(PosAberta("POSSUI","VENDA","V9") && !PosAberta("POSSUI","VENDA","V10"))
-         PM9 = (tick.bid*volnv10 + DadosPos("VENDA","PREÇO DA ÚLTIMA VENDA")*DadosPos("VENDA","VOLUME DA ÚLTIMA VENDA"))/(volnv10+DadosPos("VENDA","VOLUME DA ÚLTIMA VENDA"));
+         PM9 = (tick.bid*volnv10 + DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv10+DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"));
       if(PosAberta("POSSUI","VENDA","V10") && !PosAberta("POSSUI","VENDA","V11"))
-         PM10 = (tick.bid*volnv11 + DadosPos("VENDA","PREÇO DA ÚLTIMA VENDA")*DadosPos("VENDA","VOLUME DA ÚLTIMA VENDA"))/(volnv11+DadosPos("VENDA","VOLUME DA ÚLTIMA VENDA"));
+         PM10 = (tick.bid*volnv11 + DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv11+DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"));
       if(PosAberta("POSSUI","VENDA","V11") && !PosAberta("POSSUI","VENDA","V12"))
-         PM11 = (tick.bid*volnv12 + DadosPos("VENDA","PREÇO DA ÚLTIMA VENDA")*DadosPos("VENDA","VOLUME DA ÚLTIMA VENDA"))/(volnv12+DadosPos("VENDA","VOLUME DA ÚLTIMA VENDA"));
+         PM11 = (tick.bid*volnv12 + DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv12+DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"));
       if(PosAberta("POSSUI","VENDA","V12") && !PosAberta("POSSUI","VENDA","V13"))
-         PM12 = (tick.bid*volnv13 + DadosPos("VENDA","PREÇO DA ÚLTIMA VENDA")*DadosPos("VENDA","VOLUME DA ÚLTIMA VENDA"))/(volnv13+DadosPos("VENDA","VOLUME DA ÚLTIMA VENDA"));
+         PM12 = (tick.bid*volnv13 + DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv13+DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"));
       if(PosAberta("POSSUI","VENDA","V13") && !PosAberta("POSSUI","VENDA","V14"))
-         PM13 = (tick.bid*volnv14 + DadosPos("VENDA","PREÇO DA ÚLTIMA VENDA")*DadosPos("VENDA","VOLUME DA ÚLTIMA VENDA"))/(volnv14+DadosPos("VENDA","VOLUME DA ÚLTIMA VENDA"));
+         PM13 = (tick.bid*volnv14 + DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv14+DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"));
      }
 
    TimeToStruct(TimeCurrent(),hratualstruct);
@@ -1098,7 +1098,7 @@ void OnTick()
       if((MathAbs(DadosPos("","PREJUÍZO DO DIA")))/capital*100>=percentfull && DadosPos("","PREJUÍZO DO DIA")<0 && saldo!=capital)
         {
          FechaTodasPosicoesAbertas();
-         Sleep(100);
+         Sleep(500);
          return;
         }
 
@@ -1107,38 +1107,38 @@ void OnTick()
 /////////////////////////////////
    /*   if(ativasaidaea==true)
         {
-         if(PosAberta("POSSUI","COMPRA","C1") && tick.bid>DadosPos("COMPRA","PREÇO DA ÚLTIMA COMPRA")+pontosc1*_Point)
+         if(PosAberta("POSSUI","COMPRA","C1") && tick.bid>DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")+pontosc1*_Point)
             FechaTodasPosicoesAbertas();
-         if(PosAberta("POSSUI","COMPRA","C2") && tick.bid>DadosPos("COMPRA","PREÇO DA ÚLTIMA COMPRA")+pontosc2*_Point)
+         if(PosAberta("POSSUI","COMPRA","C2") && tick.bid>DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")+pontosc2*_Point)
             FechaTodasPosicoesAbertas();
-         if(PosAberta("POSSUI","COMPRA","C3") && tick.bid>DadosPos("COMPRA","PREÇO DA ÚLTIMA COMPRA")+pontosc3*_Point)
+         if(PosAberta("POSSUI","COMPRA","C3") && tick.bid>DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")+pontosc3*_Point)
             FechaTodasPosicoesAbertas();
-         if(PosAberta("POSSUI","COMPRA","C4") && tick.bid>DadosPos("COMPRA","PREÇO DA ÚLTIMA COMPRA")+pontosc4*_Point)
+         if(PosAberta("POSSUI","COMPRA","C4") && tick.bid>DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")+pontosc4*_Point)
             FechaTodasPosicoesAbertas();
-         if(PosAberta("POSSUI","COMPRA","C5") && tick.bid>DadosPos("COMPRA","PREÇO DA ÚLTIMA COMPRA")+pontosc5*_Point)
+         if(PosAberta("POSSUI","COMPRA","C5") && tick.bid>DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")+pontosc5*_Point)
             FechaTodasPosicoesAbertas();
-         if(PosAberta("POSSUI","COMPRA","C6") && tick.bid>DadosPos("COMPRA","PREÇO DA ÚLTIMA COMPRA")+pontosc6*_Point)
+         if(PosAberta("POSSUI","COMPRA","C6") && tick.bid>DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")+pontosc6*_Point)
             FechaTodasPosicoesAbertas();
-         if(PosAberta("POSSUI","COMPRA","C7") && tick.bid>DadosPos("COMPRA","PREÇO DA ÚLTIMA COMPRA")+pontosc7*_Point)
+         if(PosAberta("POSSUI","COMPRA","C7") && tick.bid>DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")+pontosc7*_Point)
             FechaTodasPosicoesAbertas();
-         if(PosAberta("POSSUI","COMPRA","C8") && tick.bid>DadosPos("COMPRA","PREÇO DA ÚLTIMA COMPRA")+pontosc8*_Point)
+         if(PosAberta("POSSUI","COMPRA","C8") && tick.bid>DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")+pontosc8*_Point)
             FechaTodasPosicoesAbertas();
 
-         if(PosAberta("POSSUI","VENDA","V1") && tick.ask<DadosPos("VENDA","PREÇO DA ÚLTIMA VENDA")-pontosc1*_Point)
+         if(PosAberta("POSSUI","VENDA","V1") && tick.ask<DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")-pontosc1*_Point)
             FechaTodasPosicoesAbertas();
-         if(PosAberta("POSSUI","VENDA","V2") && tick.ask<DadosPos("VENDA","PREÇO DA ÚLTIMA VENDA")-pontosc2*_Point)
+         if(PosAberta("POSSUI","VENDA","V2") && tick.ask<DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")-pontosc2*_Point)
             FechaTodasPosicoesAbertas();
-         if(PosAberta("POSSUI","VENDA","V3") && tick.ask<DadosPos("VENDA","PREÇO DA ÚLTIMA VENDA")-pontosc3*_Point)
+         if(PosAberta("POSSUI","VENDA","V3") && tick.ask<DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")-pontosc3*_Point)
             FechaTodasPosicoesAbertas();
-         if(PosAberta("POSSUI","VENDA","V4") && tick.ask<DadosPos("VENDA","PREÇO DA ÚLTIMA VENDA")-pontosc4*_Point)
+         if(PosAberta("POSSUI","VENDA","V4") && tick.ask<DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")-pontosc4*_Point)
             FechaTodasPosicoesAbertas();
-         if(PosAberta("POSSUI","VENDA","V5") && tick.ask<DadosPos("VENDA","PREÇO DA ÚLTIMA VENDA")-pontosc5*_Point)
+         if(PosAberta("POSSUI","VENDA","V5") && tick.ask<DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")-pontosc5*_Point)
             FechaTodasPosicoesAbertas();
-         if(PosAberta("POSSUI","VENDA","V6") && tick.ask<DadosPos("VENDA","PREÇO DA ÚLTIMA VENDA")-pontosc6*_Point)
+         if(PosAberta("POSSUI","VENDA","V6") && tick.ask<DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")-pontosc6*_Point)
             FechaTodasPosicoesAbertas();
-         if(PosAberta("POSSUI","VENDA","V7") && tick.ask<DadosPos("VENDA","PREÇO DA ÚLTIMA VENDA")-pontosc7*_Point)
+         if(PosAberta("POSSUI","VENDA","V7") && tick.ask<DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")-pontosc7*_Point)
             FechaTodasPosicoesAbertas();
-         if(PosAberta("POSSUI","VENDA","V8") && tick.ask<DadosPos("VENDA","PREÇO DA ÚLTIMA VENDA")-pontosc8*_Point)
+         if(PosAberta("POSSUI","VENDA","V8") && tick.ask<DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")-pontosc8*_Point)
             FechaTodasPosicoesAbertas();
         }
         */
@@ -1148,31 +1148,32 @@ void OnTick()
    if(ativbreak==true)
      {
 
-      if(PosAberta("POSSUI","COMPRA","") && tick.bid>DadosPos("COMPRA","PREÇO DA ÚLTIMA COMPRA")-pontosbreak*_Point)
+      if(PosAberta("POSSUI","COMPRA","") && tick.bid>DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")-pontosbreak*_Point && //
+         DadosPos("COMPRA","SL DA ÚLTIMA POSIÇÃO")<DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO"))
         {
-         trade.PositionModify(_Symbol,tick.bid-pontosbesl*_Point,DadosPos("COMPRA","TP DA ÚLTIMA POSIÇÃO DE COMPRA")+pontosbreak2*_Point);
+         trade.PositionModify(_Symbol,DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO"),DadosPos("COMPRA","TP DA ÚLTIMA POSIÇÃO")+pontosbreak2*_Point);
          Sleep(200);
         }
-      //      if(PosAberta("POSSUI","COMPRA","") && tick.bid>TPUltimaPosAberta()+pontosts*_Point && StopUltimaPosAberta()!=slcomprapadrao)
-      //        {
-      //         trade.PositionModify(_Symbol,TPUltimaPosAberta()+pontosts*_Point,TPUltimaPosAberta()+pontosts*_Point);
-      //         Sleep(200);
-      //        }
-
-      if(PosAberta("POSSUI","VENDA","") && tick.ask<DadosPos("VENDA","PREÇO DA ÚLTIMA VENDA")+pontosbreak*_Point)
+      if(PosAberta("POSSUI","COMPRA","") && tick.bid>DadosPos("COMPRA","SL DA ÚLTIMA POSIÇÃO")+pontosts*_Point && //
+         DadosPos("COMPRA","SL DA ÚLTIMA POSIÇÃO")>=DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO"))
         {
-         trade.PositionModify(_Symbol,tick.ask+pontosbesl*_Point,DadosPos("VENDA","TP DA ÚLTIMA POSIÇÃO DE VENDA")+pontosbreak2*_Point);
+         trade.PositionModify(_Symbol,DadosPos("COMPRA","SL DA ÚLTIMA POSIÇÃO")+pontosts*_Point,DadosPos("COMPRA","TP DA ÚLTIMA POSIÇÃO")+pontosts*_Point);
          Sleep(200);
         }
-      //      if(PosAberta("VENDA") && tick.ask<TPUltimaPosAberta()-pontosts*_Point && StopUltimaPosAberta()!=slvendapadrao)
-      //        {
-      //         trade.PositionModify(_Symbol,TPUltimaPosAberta()-pontosts*_Point,TPUltimaPosAberta()-pontosts*_Point);
-      //         Sleep(200);
-      //        }
 
+      if(PosAberta("POSSUI","VENDA","") && tick.ask<DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")+pontosbreak*_Point && //
+         DadosPos("VENDA","SL DA ÚLTIMA POSIÇÃO")>DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO"))
+        {
+         trade.PositionModify(_Symbol,DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO"),DadosPos("VENDA","TP DA ÚLTIMA POSIÇÃO")-pontosbreak2*_Point);
+         Sleep(200);
+        }
+      if(PosAberta("POSSUI","VENDA","") && tick.bid<DadosPos("VENDA","SL DA ÚLTIMA POSIÇÃO DE VENDA")-pontosts*_Point && //
+         DadosPos("VENDA","SL DA ÚLTIMA POSIÇÃO")<=DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO"))
+        {
+         trade.PositionModify(_Symbol,DadosPos("VENDA","SL DA ÚLTIMA POSIÇÃO")-pontosts*_Point,DadosPos("VENDA","TP DA ÚLTIMA POSIÇÃO")-pontosts*_Point);
+         Sleep(200);
+        }
      }
-
-
   }
 
 //+------------------------------------------------------------------------------------------+
@@ -1397,37 +1398,37 @@ double DadosPos(string tipo, string acao)
         {
          if(tipo=="COMPRA")
            {
-            if(acao=="VOLUME DA ÚLTIMA COMPRA")
+            if(acao=="VOLUME DA ÚLTIMA POSIÇÃO")
               {
                return volume;
                break;
               }
-            if(acao=="PREÇO DA ÚLTIMA COMPRA")
+            if(acao=="PREÇO DA ÚLTIMA POSIÇÃO")
               {
                return preco;
                break;
               }
-            if(acao=="PROFIT DA ÚLTIMA POSIÇÃO DE COMPRA")
+            if(acao=="PROFIT DA ÚLTIMA POSIÇÃO")
               {
                return profit;
                break;
               }
-            if(acao=="TP DA ÚLTIMA POSIÇÃO DE COMPRA")
+            if(acao=="TP DA ÚLTIMA POSIÇÃO")
               {
                return tp;
                break;
               }
-            if(acao=="SL DA ÚLTIMA POSIÇÃO DE COMPRA")
+            if(acao=="SL DA ÚLTIMA POSIÇÃO")
               {
                return sl;
                break;
               }
-            if(acao=="MENOR PREÇO DE COMPRA")
+            if(acao=="MENOR PREÇO DA POSIÇÃO")
               {
                if(preco < precomenor)
                   precomenor=preco;
               }
-            if(acao=="QUANTIDADE DE POSIÇÕES DE COMPRA")
+            if(acao=="QUANTIDADE DE POSIÇÕES")
               {
                qtdeposcompra++;
               }
@@ -1437,37 +1438,37 @@ double DadosPos(string tipo, string acao)
         {
          if(tipo=="VENDA")
            {
-            if(acao=="VOLUME DA ÚLTIMA VENDA")
+            if(acao=="VOLUME DA ÚLTIMA POSIÇÃO")
               {
                return volume;
                break;
               }
-            if(acao=="PREÇO DA ÚLTIMA VENDA")
+            if(acao=="PREÇO DA ÚLTIMA POSIÇÃO")
               {
                return preco;
                break;
               }
-            if(acao=="PROFIT DA ÚLTIMA POSIÇÃO DE VENDA")
+            if(acao=="PROFIT DA ÚLTIMA POSIÇÃO")
               {
                return profit;
                break;
               }
-            if(acao=="TP DA ÚLTIMA POSIÇÃO DE COMPRA")
+            if(acao=="TP DA ÚLTIMA POSIÇÃO")
               {
                return tp;
                break;
               }
-            if(acao=="SL DA ÚLTIMA POSIÇÃO DE COMPRA")
+            if(acao=="SL DA ÚLTIMA POSIÇÃO")
               {
                return sl;
                break;
               }
-            if(acao=="MAIOR PREÇO DE VENDA")
+            if(acao=="MAIOR PREÇO DA POSIÇÃO")
               {
                if(preco > precomaior)
                   precomaior=preco;
               }
-            if(acao=="QUANTIDADE DE POSIÇÕES DE VENDA")
+            if(acao=="QUANTIDADE DE POSIÇÕES")
               {
                qtdeposvenda++;
               }
@@ -1481,17 +1482,17 @@ double DadosPos(string tipo, string acao)
            }
         }
      }
-   if(acao=="MENOR PREÇO DE COMPRA")
+   if(acao=="MENOR PREÇO DA POSIÇÃO")
       return precomenor;
-   if(acao=="MAIOR PREÇO DE VENDA")
+   if(acao=="MAIOR PREÇO DA POSIÇÃO")
       return precomaior;
-   if(acao=="QUANTIDADE DE POSIÇÕES DE COMPRA")
+   if(acao=="QUANTIDADE DE POSIÇÕES")
       return qtdeposcompra;
-   if(acao=="QUANTIDADE DE POSIÇÕES DE VENDA")
+   if(acao=="QUANTIDADE DE POSIÇÕES")
       return qtdeposvenda;
    if(acao=="PREJUÍZO DO DIA")
       return preju;
-      
+
    return NULL;
   }
 //+------------------------------------------------------------------------------------------+
@@ -1812,79 +1813,79 @@ void AjustaTPSL()
 //////////////////////////////////////////
 void  ComprasMartingale()
   {
-   if(PosAberta("POSSUI","COMPRA","C1") && !PosAberta("POSSUI","COMPRA","C2") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DE COMPRA") && DadosPos("COMPRA","VOLUME DA ÚLTIMA COMPRA")<=500 && volnv2!=0)
+   if(PosAberta("POSSUI","COMPRA","C1") && !PosAberta("POSSUI","COMPRA","C2") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DA POSIÇÃO") && DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv2!=0)
      {
       trade.Buy(volnv2,_Symbol,tick.ask,puxatpsl("SLC1"),puxatpsl("TPC1"),"C2");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","COMPRA","C2") && !PosAberta("POSSUI","COMPRA","C3") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DE COMPRA") && DadosPos("COMPRA","VOLUME DA ÚLTIMA COMPRA")<=500 && volnv3!=0)
+   if(PosAberta("POSSUI","COMPRA","C2") && !PosAberta("POSSUI","COMPRA","C3") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DA POSIÇÃO") && DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv3!=0)
      {
       trade.Buy(volnv3,_Symbol,tick.ask,puxatpsl("SLC2"),puxatpsl("TPC2"),"C3");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","COMPRA","C3") && !PosAberta("POSSUI","COMPRA","C4") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DE COMPRA") && DadosPos("COMPRA","VOLUME DA ÚLTIMA COMPRA")<=500 && volnv4!=0)
+   if(PosAberta("POSSUI","COMPRA","C3") && !PosAberta("POSSUI","COMPRA","C4") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DA POSIÇÃO") && DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv4!=0)
      {
       trade.Buy(volnv4,_Symbol,tick.ask,puxatpsl("SLC3"),puxatpsl("TPC3"),"C4");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","COMPRA","C4") && !PosAberta("POSSUI","COMPRA","C5") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DE COMPRA") && DadosPos("COMPRA","VOLUME DA ÚLTIMA COMPRA")<=500 && volnv5!=0)
+   if(PosAberta("POSSUI","COMPRA","C4") && !PosAberta("POSSUI","COMPRA","C5") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DA POSIÇÃO") && DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv5!=0)
      {
       trade.Buy(volnv5,_Symbol,tick.ask,puxatpsl("SLC4"),puxatpsl("TPC4"),"C5");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","COMPRA","C5") && !PosAberta("POSSUI","COMPRA","C6") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DE COMPRA") && DadosPos("COMPRA","VOLUME DA ÚLTIMA COMPRA")<=500 && volnv6!=0)
+   if(PosAberta("POSSUI","COMPRA","C5") && !PosAberta("POSSUI","COMPRA","C6") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DA POSIÇÃO") && DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv6!=0)
      {
       trade.Buy(volnv6,_Symbol,tick.ask,puxatpsl("SLC5"),puxatpsl("TPC5"),"C6");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","COMPRA","C6") && !PosAberta("POSSUI","COMPRA","C7") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DE COMPRA") && DadosPos("COMPRA","VOLUME DA ÚLTIMA COMPRA")<=500 && volnv7!=0)
+   if(PosAberta("POSSUI","COMPRA","C6") && !PosAberta("POSSUI","COMPRA","C7") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DA POSIÇÃO") && DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv7!=0)
      {
       trade.Buy(volnv7,_Symbol,tick.ask,puxatpsl("SLC6"),puxatpsl("TPC6"),"C7");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","COMPRA","C7") && !PosAberta("POSSUI","COMPRA","C8") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DE COMPRA") && DadosPos("COMPRA","VOLUME DA ÚLTIMA COMPRA")<=500 && volnv8!=0)
+   if(PosAberta("POSSUI","COMPRA","C7") && !PosAberta("POSSUI","COMPRA","C8") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DA POSIÇÃO") && DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv8!=0)
      {
       trade.Buy(volnv8,_Symbol,tick.ask,puxatpsl("SLC7"),puxatpsl("TPC7"),"C8");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","COMPRA","C8") && !PosAberta("POSSUI","COMPRA","C9") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DE COMPRA") && DadosPos("COMPRA","VOLUME DA ÚLTIMA COMPRA")<=500 && volnv9!=0)
+   if(PosAberta("POSSUI","COMPRA","C8") && !PosAberta("POSSUI","COMPRA","C9") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DA POSIÇÃO") && DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv9!=0)
      {
       trade.Buy(volnv9,_Symbol,tick.ask,puxatpsl("SLC8"),puxatpsl("TPC8"),"C9");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","COMPRA","C9") && !PosAberta("POSSUI","COMPRA","C10") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DE COMPRA") && DadosPos("COMPRA","VOLUME DA ÚLTIMA COMPRA")<=500 && volnv10!=0)
+   if(PosAberta("POSSUI","COMPRA","C9") && !PosAberta("POSSUI","COMPRA","C10") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DA POSIÇÃO") && DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv10!=0)
      {
       trade.Buy(volnv10,_Symbol,tick.ask,puxatpsl("SLC9"),puxatpsl("TPC9"),"C10");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","COMPRA","C10") && !PosAberta("POSSUI","COMPRA","C11") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DE COMPRA") && DadosPos("COMPRA","VOLUME DA ÚLTIMA COMPRA")<=500 && volnv11!=0)
+   if(PosAberta("POSSUI","COMPRA","C10") && !PosAberta("POSSUI","COMPRA","C11") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DA POSIÇÃO") && DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv11!=0)
      {
       trade.Buy(volnv11,_Symbol,tick.ask,puxatpsl("SLC10"),puxatpsl("TPC10"),"C11");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","COMPRA","C11") && !PosAberta("POSSUI","COMPRA","C12") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DE COMPRA") && DadosPos("COMPRA","VOLUME DA ÚLTIMA COMPRA")<=500 && volnv12!=0)
+   if(PosAberta("POSSUI","COMPRA","C11") && !PosAberta("POSSUI","COMPRA","C12") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DA POSIÇÃO") && DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv12!=0)
      {
       trade.Buy(volnv12,_Symbol,tick.ask,puxatpsl("SLC11"),puxatpsl("TPC11"),"C12");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","COMPRA","C12") && !PosAberta("POSSUI","COMPRA","C13") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DE COMPRA") && DadosPos("COMPRA","VOLUME DA ÚLTIMA COMPRA")<=500 && volnv13!=0)
+   if(PosAberta("POSSUI","COMPRA","C12") && !PosAberta("POSSUI","COMPRA","C13") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DA POSIÇÃO") && DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv13!=0)
      {
       trade.Buy(volnv13,_Symbol,tick.ask,puxatpsl("SLC12"),puxatpsl("TPC12"),"C13");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","COMPRA","C13") && !PosAberta("POSSUI","COMPRA","C14") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DE COMPRA") && DadosPos("COMPRA","VOLUME DA ÚLTIMA COMPRA")<=500 && volnv14!=0)
+   if(PosAberta("POSSUI","COMPRA","C13") && !PosAberta("POSSUI","COMPRA","C14") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DA POSIÇÃO") && DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv14!=0)
      {
       trade.Buy(volnv14,_Symbol,tick.ask,puxatpsl("SLC13"),puxatpsl("TPC13"),"C14");
       Sleep(500);
@@ -1897,79 +1898,79 @@ void  ComprasMartingale()
 /////////////////////////////////////////
 void  VendasMartingale()
   {
-   if(PosAberta("POSSUI","VENDA","V1") && !PosAberta("POSSUI","VENDA","V2") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DE VENDA") && DadosPos("VENDA","VOLUME DA ÚLTIMA VENDA")<=500 && volnv2!=0)
+   if(PosAberta("POSSUI","VENDA","V1") && !PosAberta("POSSUI","VENDA","V2") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DA POSIÇÃO") && DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv2!=0)
      {
       trade.Sell(volnv2,_Symbol,tick.bid,puxatpsl("SLV1"),puxatpsl("TPV1"),"V2");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","VENDA","V2") && !PosAberta("POSSUI","VENDA","V3") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DE VENDA") && DadosPos("VENDA","VOLUME DA ÚLTIMA VENDA")<=500 && volnv3!=0)
+   if(PosAberta("POSSUI","VENDA","V2") && !PosAberta("POSSUI","VENDA","V3") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DA POSIÇÃO") && DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv3!=0)
      {
       trade.Sell(volnv3,_Symbol,tick.bid,puxatpsl("SLV2"),puxatpsl("TPV2"),"V3");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","VENDA","V3") && !PosAberta("POSSUI","VENDA","V4") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DE VENDA") && DadosPos("VENDA","VOLUME DA ÚLTIMA VENDA")<=500 && volnv4!=0)
+   if(PosAberta("POSSUI","VENDA","V3") && !PosAberta("POSSUI","VENDA","V4") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DA POSIÇÃO") && DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv4!=0)
      {
       trade.Sell(volnv4,_Symbol,tick.bid,puxatpsl("SLV3"),puxatpsl("TPV3"),"V4");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","VENDA","V4") && !PosAberta("POSSUI","VENDA","V5") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DE VENDA") && DadosPos("VENDA","VOLUME DA ÚLTIMA VENDA")<=500 && volnv5!=0)
+   if(PosAberta("POSSUI","VENDA","V4") && !PosAberta("POSSUI","VENDA","V5") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DA POSIÇÃO") && DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv5!=0)
      {
       trade.Sell(volnv5,_Symbol,tick.bid,puxatpsl("SLV4"),puxatpsl("TPV4"),"V5");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","VENDA","V5") && !PosAberta("POSSUI","VENDA","V6") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DE VENDA") && DadosPos("VENDA","VOLUME DA ÚLTIMA VENDA")<=500 && volnv6!=0)
+   if(PosAberta("POSSUI","VENDA","V5") && !PosAberta("POSSUI","VENDA","V6") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DA POSIÇÃO") && DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv6!=0)
      {
       trade.Sell(volnv6,_Symbol,tick.bid,puxatpsl("SLV5"),puxatpsl("TPV5"),"V6");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","VENDA","V6") && !PosAberta("POSSUI","VENDA","V7") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DE VENDA") && DadosPos("VENDA","VOLUME DA ÚLTIMA VENDA")<=500 && volnv7!=0)
+   if(PosAberta("POSSUI","VENDA","V6") && !PosAberta("POSSUI","VENDA","V7") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DA POSIÇÃO") && DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv7!=0)
      {
       trade.Sell(volnv7,_Symbol,tick.bid,puxatpsl("SLV6"),puxatpsl("TPV6"),"V7");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","VENDA","V7") && !PosAberta("POSSUI","VENDA","V8") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DE VENDA") && DadosPos("VENDA","VOLUME DA ÚLTIMA VENDA")<=500 && volnv8!=0)
+   if(PosAberta("POSSUI","VENDA","V7") && !PosAberta("POSSUI","VENDA","V8") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DA POSIÇÃO") && DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv8!=0)
      {
       trade.Sell(volnv8,_Symbol,tick.bid,puxatpsl("SLV7"),puxatpsl("TPV7"),"V8");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","VENDA","V8") && !PosAberta("POSSUI","VENDA","V9") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DE VENDA") && DadosPos("VENDA","VOLUME DA ÚLTIMA VENDA")<=500 && volnv9!=0)
+   if(PosAberta("POSSUI","VENDA","V8") && !PosAberta("POSSUI","VENDA","V9") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DA POSIÇÃO") && DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv9!=0)
      {
       trade.Sell(volnv9,_Symbol,tick.bid,puxatpsl("SLV8"),puxatpsl("TPV8"),"V9");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","VENDA","V9") && !PosAberta("POSSUI","VENDA","V10") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DE VENDA") && DadosPos("VENDA","VOLUME DA ÚLTIMA VENDA")<=500 && volnv10!=0)
+   if(PosAberta("POSSUI","VENDA","V9") && !PosAberta("POSSUI","VENDA","V10") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DA POSIÇÃO") && DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv10!=0)
      {
       trade.Sell(volnv10,_Symbol,tick.bid,puxatpsl("SLV9"),puxatpsl("TPV9"),"V10");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","VENDA","V10") && !PosAberta("POSSUI","VENDA","V11") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DE VENDA") && DadosPos("VENDA","VOLUME DA ÚLTIMA VENDA")<=500 && volnv11!=0)
+   if(PosAberta("POSSUI","VENDA","V10") && !PosAberta("POSSUI","VENDA","V11") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DA POSIÇÃO") && DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv11!=0)
      {
       trade.Sell(volnv11,_Symbol,tick.bid,puxatpsl("SLV10"),puxatpsl("TPV10"),"V11");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","VENDA","V11") && !PosAberta("POSSUI","VENDA","V12") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DE VENDA") && DadosPos("VENDA","VOLUME DA ÚLTIMA VENDA")<=500 && volnv12!=0)
+   if(PosAberta("POSSUI","VENDA","V11") && !PosAberta("POSSUI","VENDA","V12") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DA POSIÇÃO") && DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv12!=0)
      {
       trade.Sell(volnv12,_Symbol,tick.bid,puxatpsl("SLV11"),puxatpsl("TPV11"),"V12");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","VENDA","V12") && !PosAberta("POSSUI","VENDA","V13") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DE VENDA") && DadosPos("VENDA","VOLUME DA ÚLTIMA VENDA")<=500 && volnv13!=0)
+   if(PosAberta("POSSUI","VENDA","V12") && !PosAberta("POSSUI","VENDA","V13") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DA POSIÇÃO") && DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv13!=0)
      {
       trade.Sell(volnv13,_Symbol,tick.bid,puxatpsl("SLV12"),puxatpsl("TPV12"),"V13");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","VENDA","V13") && !PosAberta("POSSUI","VENDA","V14") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DE VENDA") && DadosPos("VENDA","VOLUME DA ÚLTIMA VENDA")<=500 && volnv14!=0)
+   if(PosAberta("POSSUI","VENDA","V13") && !PosAberta("POSSUI","VENDA","V14") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DA POSIÇÃO") && DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv14!=0)
      {
       trade.Sell(volnv14,_Symbol,tick.bid,puxatpsl("SLV13"),puxatpsl("TPV13"),"V14");
       Sleep(500);
@@ -2572,4 +2573,8 @@ void FechaOrdensNozero()
         }
      }
   }
+//+------------------------------------------------------------------+
+
+//+------------------------------------------------------------------+
+
 //+------------------------------------------------------------------+
