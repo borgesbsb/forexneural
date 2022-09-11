@@ -1151,7 +1151,7 @@ void OnTick()
          trade.Buy(DadosPosFechada("VOLUME DA ÚLTIMA POSIÇÃO FECHADA","COMPRA"),_Symbol,tick.ask,tick.bid-pontosbesl*_Point,NULL,"BE COMPRA");
          Sleep(200);
         }
-      if(PosAberta("POSSUI","COMPRA","BE COMPRA") && tick.bid>DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")+pontosts*_Point)
+      if(PosAberta("POSSUI","COMPRA","BE COMPRA") && tick.bid>DadosPos("COMPRA","SL DA ÚLTIMA POSIÇÃO")+pontosts*_Point)
         {
          trade.PositionModify(TicketPosAberta(),DadosPos("COMPRA","SL DA ÚLTIMA POSIÇÃO")+pontosts2*_Point,NULL);
         }
@@ -1161,7 +1161,7 @@ void OnTick()
          trade.Buy(DadosPosFechada("VOLUME DA ÚLTIMA POSIÇÃO FECHADA","VENDA"),_Symbol,tick.bid,tick.ask+pontosbesl*_Point,NULL,"BE VENDA");
          Sleep(200);
         }
-      if(PosAberta("POSSUI","COMPRA","BE VENDA") && tick.ask<DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")-pontosts*_Point)
+      if(PosAberta("POSSUI","COMPRA","BE VENDA") && tick.ask<DadosPos("VENDA","SL DA ÚLTIMA POSIÇÃO")-pontosts*_Point)
         {
          trade.PositionModify(TicketPosAberta(),DadosPos("COMPRA","SL DA ÚLTIMA POSIÇÃO")+pontosts2*_Point,NULL);
         }
