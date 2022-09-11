@@ -69,86 +69,70 @@ enum ENUM_TP_GAIN
 input group              "ABERTURA DE ORDENS"
 input bool               ativaentradaea      = true;       //ATIVA ABERTURA AUTOMÁTICA DE ORDENS
 input double             loteinicial         = 0.1;        //TAMANHO DO LOTE INICIAL
-input double             aumentoprop         = 500.00;     //VALOR P/ AUMENTO PROPORCIONAL DO LOTE
+input double             aumentoprop         = 500.00;     //VALOR P AUMENTO PROPORCIONAL DO LOTE
 input ENUM_TP_CONTA      tipoconta           = tipocent;   //SELECIONE O TIPO DE CONTA
 ENUM_TP_OPER       tipooper            = tipohedge;  //SELECIONE O TIPO DE OPERAÇÃO
 input ENUM_TP_STOP       tipostop            = tpstopprct; //SELECIONE O TIPO DE STOP LOSS
-input double             percentloss         = 2.5;        //% DE STOP LOSS P/ ABERTURA DE ORDEM
-input int                stoppontos          = 800;        //PTS DE STOP LOSS P/ ABERTURA DE ORDENS
+input double             percentloss         = 2.5;        //% DE STOP LOSS P ABERTURA DE ORDEM
+input int                stoppontos          = 800;        //PTS DE STOP LOSS P ABERTURA DE ORDENS
 input group              "MARTINGALE"
 input ENUM_TP_MART       tipomartingale      = mart3;      //TIPO DE MARTINGALE
-input int                multiplicador       = 1;          //MULTIPLICADOR P/ MARTINGALE (N)
-input int                qtdecandle          = 2;          //QTOS CANDLES P/ PX ENTRADA
-//input int                qtdeordensmart      = 4;          //MIN DE ORDENS P/ FECHAR NO 0x0
-//input bool               martpontos          = false;      //MARTINGALE APENAS EM PONTOS
-//input int                pontos2             = 50;         //DISTÂNCIA P/ ABERT DA 2 ORDEM
-//input int                pontos3             = 50;         //DISTÂNCIA P/ ABERT DA 3 ORDEM
-//input int                pontos4             = 50;         //DISTÂNCIA P/ ABERT DA 4 ORDEM
-//input int                pontos5             = 50;         //DISTÂNCIA P/ ABERT DA 5 ORDEM
-//input int                pontos6             = 50;         //DISTÂNCIA P/ ABERT DA 6 ORDEM
-//input int                pontos7             = 50;         //DISTÂNCIA P/ ABERT DA 7 ORDEM
-//input int                pontos8             = 50;         //DISTÂNCIA P/ ABERT DA 8 ORDEM
-//input int                ptsmartprimcompra   = 10000;      //DISTANCIA PARA 2 OPERAÇÃO
-//input double             prctmart            = 50;         //% MÍNIMA DAS 2 ORD ANT P/ PX ORD
+input int                multiplicador       = 1;          //MULTIPLICADOR P MARTINGALE (N)
+input int                qtdecandle          = 2;          //QTOS CANDLES P PX ENTRADA
 input group              "ESCOLHA DA ESTRATÉGIA"
 input ENUM_TP_ESTRAT     estrategia          = estrat1;    //ESCOLHA A ESTRATÉGIA
 input group              "VALORES DEFINIDOS P/ SAR"
- double             stepSAR             = 0.02;       //STEP do SAR
- double             maximumSAR          = 0.2;        //MAXIMUM do SAR
-//input int                qtdesarmax          = 15;         //QTDE MÁXIMA DE SAR'S P/ ABERT DE ORDENS
-//input int                pontos1SAR          = 1300;       //QTDE MÁXIMA DE PONTOS DO 1o SAR P/ ABERT
+double             stepSAR             = 0.02;       //STEP do SAR
+double             maximumSAR          = 0.2;        //MAXIMUM do SAR
 input group              "VALORES DEFINIDOS P/ RSI"
- int                periodorsi          = 14;         //PERIODO P/ RSI
- int                sobrevrsi           = 70;         //PORCENTAGEM DE SOBREVENDA
- int                sobrecrsi           = 30;         //PORCENTAGEM DE SOBRECOMPRA
+int                periodorsi          = 14;         //PERIODO P RSI
+int                sobrevrsi           = 70;         //PORCENTAGEM DE SOBREVENDA
+int                sobrecrsi           = 30;         //PORCENTAGEM DE SOBRECOMPRA
 input group              "VALORES DEFINIDOS P/ BANDAS DE BOLLINGER"
- int                periodobb           = 14;         //PERIODO P/ BANDAS DE BOLINGER
- double             desviobb            = 2.0;        //DESVIO P/ BANDAS DE BOLINGER
+int                periodobb           = 14;         //PERIODO P BANDAS DE BOLINGER
+double             desviobb            = 2.0;        //DESVIO P BANDAS DE BOLINGER
 input group              "VALORES DEFINIDOS P/ ENVELOPE"
 input int                periodm1            = 63;         //PERIODO DA MÉDIA P/ ENVELOPE
-input double             tamanhoenvelope     = 150;        //DISTÂNCIA P/ ENVELOPE
+input double             tamanhoenvelope     = 150;        //DISTÂNCIA P ENVELOPE
 input group              "REDE NEURAL"
 input group              "FECHAMENTO DE ORDENS"
 //input bool               ativasaidaea        = true;       //ATIVA FECHAMENTO DE ORDENS
 input ENUM_TP_GAIN       tipogain            = tpgainprct; //SELECIONE TIPO DE GANHO
 input double             percentgain         = 0.1;        //PORCENTAGEM DE STOP GAIN
-input int                pontosc1            = 30;         //DISTANCIA P/ FECHAM 1 ORDEM
-input int                pontosc2            = 40;         //DISTANCIA P/ FECHAM 2 ORDENS
-input int                pontosc3            = 40;         //DISTANCIA P/ FECHAM 3 ORDENS
-input int                pontosc4            = 40;         //DISTANCIA P/ FECHAM 4 ORDENS
-input int                pontosc5            = 30;         //DISTANCIA P/ FECHAM 5 ORDENS
-input int                pontosc6            = 20;         //DISTANCIA P/ FECHAM 6 ORDENS
-input int                pontosc7            = 10;         //DISTANCIA P/ FECHAM 7 ORDENS
-input int                pontosc8            = 10;         //DISTANCIA P/ FECHAM 8 ORDENS
-input int                pontosc9            = 30;         //DISTANCIA P/ FECHAM 9 ORDENS
-input int                pontosc10           = 30;         //DISTANCIA P/ FECHAM 10 ORDENS
-input int                pontosc11           = 30;         //DISTANCIA P/ FECHAM 11 ORDENS
-input int                pontosc12           = 20;         //DISTANCIA P/ FECHAM 12 ORDENS
-input int                pontosc13           = 10;         //DISTANCIA P/ FECHAM 13 ORDENS
-input int                pontosc14           = 10;         //DISTANCIA P/ FECHAM 14 ORDENS
+input int                pontosc1            = 30;         //DISTANCIA P FECHAM 1 ORDEM
+input int                pontosc2            = 40;         //DISTANCIA P FECHAM 2 ORDENS
+input int                pontosc3            = 40;         //DISTANCIA P FECHAM 3 ORDENS
+input int                pontosc4            = 40;         //DISTANCIA P FECHAM 4 ORDENS
+input int                pontosc5            = 30;         //DISTANCIA P FECHAM 5 ORDENS
+input int                pontosc6            = 20;         //DISTANCIA P FECHAM 6 ORDENS
+input int                pontosc7            = 10;         //DISTANCIA P FECHAM 7 ORDENS
+input int                pontosc8            = 10;         //DISTANCIA P FECHAM 8 ORDENS
+input int                pontosc9            = 30;         //DISTANCIA P FECHAM 9 ORDENS
+input int                pontosc10           = 30;         //DISTANCIA P FECHAM 10 ORDENS
+input int                pontosc11           = 30;         //DISTANCIA P FECHAM 11 ORDENS
+input int                pontosc12           = 20;         //DISTANCIA P FECHAM 12 ORDENS
+input int                pontosc13           = 10;         //DISTANCIA P FECHAM 13 ORDENS
+input int                pontosc14           = 10;         //DISTANCIA P FECHAM 14 ORDENS
 input group              "BREAKEVEN/TRAILING STOP"
 input bool               ativbreak           = false;      //ATIVA BREAKEVEN/TRAILING STOP
 input double             pontosbesl          = 10;         //PTOS A MENOS PARA SL NOVO DO BE
-input double             pontosts            = 5;          //PTOS P/ ATIV TS
+input double             pontosts            = 5;          //PTOS P ATIV TS
 input double             pontosts2           = 5;          //PTOS SL NOVO DO TS
 input group              "GERENCIAMENTO DE RISCO - ATIVAÇÃO DE FUNÇÕES"
 input bool               fechaordensnozero   = false;      //ATIVA FECHAMENTO NO ZERO A ZERO
 input int                qtdezero            = 4;          //QTDE MINIMA ORDENS FECHADAS P/ 0x0
 //input bool               ativafechafull      = true;       //ATIVA FECHAMENTO DE ORDENS QNDO LUCRO >=0
-input group              "GERENCIAMENTO DE RISCO - % MÍNIMA DE CAPITAL LIQUIDO PARA OPERAR"
-input double             prcentabert         = 2000;       //% DO CAPIT MÍNIMO P/ ABRIR ORDENS
-//input group              "GERENCIAMENTO DE RISCO - PARADA DO ROBÔ COM STOPS ALCANÇADOS NO DIA"
-//input bool               ativastopdiario     = true;       //PARA O ROBÔ NO DIA QNDO STOP > N
-//input int                qtdestops           = 3;          //QTDE MÁXIMA DE STOPS (N)
+input group              "GERENCIAMENTO DE RISCO - % MÍNIMA DE CAPITAL LÍQUIDO PARA OPERAR"
+input double             prcentabert         = 2000;       //% MÍNIMA DO CAPIT P ABRIR ORDENS
 input group              "GERENCIAMENTO DE RISCO - STOP FULL"
-input bool               ativastopfull       = true;       //ATIVA STOP P/ LIMITE DE CAPITAL INVESTIDO
+input bool               ativastopfull       = true;       //ATIVA STOP P LIMITE DE CAPITAL INVESTIDO
 input double             percentfull         = 5;          //% DO CAPITAL PARA FECHAR TODAS AS ORDENS
-input group              "GERENCIAMENTO DE RISCO - HORÁRIOS DE P/ ABERTURA/FECHAMENTO DE ORDENS"
-input string             horainicial         = "01:00";    //HORA INICIAL P/ ABERTURA DE ORDENS
-input string             horafinal           = "22:59";    //HORA FINAL P/ ABERTURA DE ORDENS
-input bool               ativafecfinaldia    = false;      //ATIVA FECHAMENTO DE ORDENS
+input group              "GERENCIAMENTO DE RISCO - HORÁRIO P ABERTURA/FECHAMENTO DE ORDENS"
+input string             horainicial         = "01:00";    //HORA INICIAL P ABERTURA DE ORDENS
+input string             horafinal           = "22:59";    //HORA FINAL P ABERTURA DE ORDENS
+input bool               ativafecfinaldia    = false;      //ATIVA FECHAMENTO FINAL DO PREGÃO
 input string             horafechamento      = "23:00";    //HORA PARA FECHAMENTO DE ORDENS
-input group              "GERENCIAMENTO DE RISCO - HORÁRIOS DE PAUSA P/ ABERTURA DE ORDENS"
+input group              "GERENCIAMENTO DE RISCO - HORÁRIO DE PAUSA P ABERTURA DE ORDENS"
 input string             hriniciopausa1      = "20:00";    //HORA DE INICIO DA PAUSA 1
 input string             hrterminopausa1     = "20:01";    //HORA DE TÉRMINO DA PAUSA 1
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -161,20 +145,18 @@ double                   stopvenda           = 0.0;
 double                   takecompra          = 0.0;
 double                   takevenda           = 0.0;
 
-int                      handlebb,handlersi,handleMM,handleSAR,handleSARh4;
+int                      handlebb,handlersi,handleMM,handleSAR;
 
 ulong                    magicrobo           = 941;
 
-double                   percent_margem,saldo,capital,lucro_prejuizo,volumemaximo,volumeoper,valoraumento, //
-                         slcomprapadrao,slvendapadrao,tpcomprapadrao,tpvendapadrao,rsi[],bbu[],bbm[],bbd[],mm[],sar[],sarh4[];
+double                   percent_margem,saldo,capital,lucro_prejuizo,volumemaximo,volumeoper,valoraumento,sarnormalizado0,sarnormalizado1, //
+                         slcomprapadrao,slvendapadrao,tpcomprapadrao,tpvendapadrao,previsao,rsi[],bbu[],bbm[],bbd[],mm[],sar[];
 
 //--- Definição das variáveis dos volumes para compra e venda quando utilizar martingale
 double                   volnv2,volnv3,volnv4,volnv5,volnv6,volnv7,volnv8,volnv9,volnv10,volnv11,volnv12,volnv13,volnv14;
 
 //--- Definição das variáveis dos preços médios para compra e venda quando utilizar martingale
 double                   PM1,PM2,PM3,PM4,PM5,PM6,PM7,PM8,PM9,PM10,PM11,PM12,PM13,PM14;
-
-bool                     condicaoSAR         = false;
 
 //--- Variáveis p/ ticks, candles e tempo
 MqlTick                  tick;
@@ -191,6 +173,7 @@ CDictionary *dict = new CDictionary();
 //+--------------------------------+
 int OnInit()
   {
+
 //--- Ajusta horarios segundo inputs inseridos
    TimeToStruct(StringToTime(horainicial),hrinicialstruct);
    TimeToStruct(StringToTime(horafinal),hrfinalstruct);
@@ -201,23 +184,35 @@ int OnInit()
 //--- Seta o magic number do robô
    trade.SetExpertMagicNumber(magicrobo);
 
-   handlersi = iRSI(_Symbol,_Period,periodorsi,PRICE_CLOSE);
-   handlebb = iBands(_Symbol,_Period,periodobb,0,desviobb,PRICE_CLOSE);
-   handleMM = iMA(_Symbol,_Period,periodm1,0,MODE_SMA,PRICE_CLOSE);
-   handleSAR = iSAR(_Symbol,_Period,stepSAR,maximumSAR);
-//handleSARh4 = iSAR(_Symbol,PERIOD_H4,stepSAR,maximumSAR);
+//--- Prepara os Handles necessários segundo a estratégia escolhida
+   if(estrategia==estrat1 || estrategia==estrat2 || estrategia==estrat5 || estrategia==estrat7 || estrategia==estrat11)
+     {
+      handlersi = iRSI(_Symbol,_Period,periodorsi,PRICE_CLOSE);
+      ArraySetAsSeries(rsi,true);
+     }
+   if(estrategia==estrat1 || estrategia==estrat3 || estrategia==estrat5 || estrategia==estrat8 || estrategia==estrat12)
+     {
+      handlebb = iBands(_Symbol,_Period,periodobb,0,desviobb,PRICE_CLOSE);
+      ArraySetAsSeries(bbu,true);
+      ArraySetAsSeries(bbm,true);
+      ArraySetAsSeries(bbd,true);
+     }
+   if(estrategia==estrat1 || estrategia==estrat2 || estrategia==estrat3 || estrategia==estrat4 || estrategia==estrat6 || estrategia==estrat13)
+     {
+      handleMM = iMA(_Symbol,_Period,periodm1,0,MODE_SMA,PRICE_CLOSE);
+      ArraySetAsSeries(mm,true);
+     }
+   if(estrategia==estrat4 || estrategia==estrat9 || estrategia==estrat14)
+     {
+      handleSAR = iSAR(_Symbol,_Period,stepSAR,maximumSAR);
+      ArraySetAsSeries(sar,true);
+     }
    ArraySetAsSeries(candle,true);
-   ArraySetAsSeries(rsi,true);
-   ArraySetAsSeries(bbu,true);
-   ArraySetAsSeries(bbm,true);
-   ArraySetAsSeries(bbd,true);
-   ArraySetAsSeries(mm,true);
-   ArraySetAsSeries(sar,true);
-//ArraySetAsSeries(sarh4,true);
 
+//--- Função para selecionar o arquivo de previsões quando utilizar backtest
    ReadFileToDictCSV("previsoes.csv");
 
-//--- Definição dos preços dos inputs em função do tipo de conta selecionada
+//--- Definição dos preços dos inputs em função do tipo de conta selecionada para ajuste lote
    if(tipoconta==tipocent)
       valoraumento=aumentoprop*100;
    if(tipoconta==tipoprime)
@@ -249,59 +244,67 @@ void OnDeinit(const int reason)
 ///////////////////////////////
 void OnTick()
   {
+
+//--- Cópia dos dados dos handles para as variáveis, necessários de acordo com a estratégia escolhida
    if(!SymbolInfoTick(_Symbol,tick))
      {
       Alert("Erro ao obter informações de Mqlticks: ", GetLastError());
       return;
      }
-   CopyRates(_Symbol,_Period,0,5/*2*qtdesarmax*/,candle);
-   if(CopyRates(_Symbol,_Period,0,5/*2*qtdesarmax*/,candle)<0)
+   CopyRates(_Symbol,_Period,0,5,candle);
+   if(CopyRates(_Symbol,_Period,0,5,candle)<0)
      {
       Alert("Erro ao obter informações de Mqlrates: ", GetLastError());
       return;
      }
-   CopyBuffer(handlersi,0,0,5,rsi);
-   if(CopyBuffer(handlersi,0,0,5,rsi)<0)
+   if(estrategia==estrat1 || estrategia==estrat2 || estrategia==estrat5 || estrategia==estrat7 || estrategia==estrat11)
      {
-      Alert("Erro ao copiar dados de RSI: ", GetLastError());
-      return;
+      CopyBuffer(handlersi,0,0,5,rsi);
+      if(CopyBuffer(handlersi,0,0,5,rsi)<0)
+        {
+         Alert("Erro ao copiar dados de RSI: ", GetLastError());
+         return;
+        }
      }
-   CopyBuffer(handlebb,1,0,5,bbu);
-   if(CopyBuffer(handlebb,1,0,5,bbu)<0)
+   if(estrategia==estrat1 || estrategia==estrat3 || estrategia==estrat5 || estrategia==estrat8 || estrategia==estrat12)
      {
-      Alert("Erro ao copiar dados de Banda Superior Bolinger: ", GetLastError());
-      return;
+      CopyBuffer(handlebb,1,0,5,bbu);
+      if(CopyBuffer(handlebb,1,0,5,bbu)<0)
+        {
+         Alert("Erro ao copiar dados de Banda Superior Bolinger: ", GetLastError());
+         return;
+        }
+      CopyBuffer(handlebb,0,0,5,bbm);
+      if(CopyBuffer(handlebb,0,0,5,bbm)<0)
+        {
+         Alert("Erro ao copiar dados de Banda Média Bolinger: ", GetLastError());
+         return;
+        }
+      CopyBuffer(handlebb,2,0,5,bbd);
+      if(CopyBuffer(handlebb,2,0,5,bbd)<0)
+        {
+         Alert("Erro ao copiar dados de Banda Inferior Bolinger: ", GetLastError());
+         return;
+        }
      }
-   CopyBuffer(handlebb,0,0,5,bbm);
-   if(CopyBuffer(handlebb,0,0,5,bbm)<0)
+   if(estrategia==estrat1 || estrategia==estrat2 || estrategia==estrat3 || estrategia==estrat4 || estrategia==estrat6 || estrategia==estrat13)
      {
-      Alert("Erro ao copiar dados de Banda Média Bolinger: ", GetLastError());
-      return;
+      CopyBuffer(handleMM,0,0,5,mm);
+      if(CopyBuffer(handleMM,0,0,5,mm)<0)
+        {
+         Alert("Erro ao copiar dados de Média Móvel: ", GetLastError());
+         return;
+        }
      }
-   CopyBuffer(handlebb,2,0,5,bbd);
-   if(CopyBuffer(handlebb,2,0,5,bbd)<0)
+   if(estrategia==estrat4 || estrategia==estrat9 || estrategia==estrat14)
      {
-      Alert("Erro ao copiar dados de Banda Inferior Bolinger: ", GetLastError());
-      return;
+      CopyBuffer(handleSAR,0,0,5,sar);
+      if(CopyBuffer(handleSAR,0,0,5,sar)<0)
+        {
+         Alert("Erro ao copiar dados de SAR: ", GetLastError());
+         return;
+        }
      }
-   CopyBuffer(handleMM,0,0,5,mm);
-   if(CopyBuffer(handleMM,0,0,5,mm)<0)
-     {
-      Alert("Erro ao copiar dados de Média Móvel: ", GetLastError());
-      return;
-     }
-   CopyBuffer(handleSAR,0,0,5,sar);
-   if(CopyBuffer(handleSAR,0,0,5,sar)<0)
-     {
-      Alert("Erro ao copiar dados de SAR: ", GetLastError());
-      return;
-     }
-//CopyBuffer(handleSARh4,0,0,2*qtdesarmax,sarh4);
-//if(CopyBuffer(handleSARh4,0,0,2*qtdesarmax,sarh4)<0)
-//  {
-//   Alert("Erro ao copiar dados de SARh4: ", GetLastError());
-//   return;
-//  }
 
    static CIsNewBar NB1,NB2,NB3/*,NB4,NB5,NB6,NB7,NB8,NB9,NB10,NB11,NB12,NB13,NB14,NB15,NB16,NB17,NB18,NB19,NB20,NB21,NB22*/;
 
@@ -404,77 +407,80 @@ void OnTick()
      }
 
 //--- Definição dos preços médios para quando houver 2 ou mais compras/vendas
-   if(PositionsTotal()>=1)
+   if(PositionsTotal()>=1 && tipooper==tiponet)
      {
       if(PosAberta("POSSUI","COMPRA","C1") && !PosAberta("POSSUI","COMPRA","C2"))
-         PM1 = (tick.ask*volnv2 + DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")*volumeoper)/(volnv2+volumeoper);
+         PM1 = (tick.ask*volnv2 + DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")*volumeoper)/(volnv2+volumeoper);
       if(PosAberta("POSSUI","COMPRA","C2") && !PosAberta("POSSUI","COMPRA","C3"))
-         PM2 = (tick.ask*volnv3 + DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv3+DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"));
+         PM2 = (tick.ask*volnv3 + DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")*DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA"))/(volnv3+DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA"));
       if(PosAberta("POSSUI","COMPRA","C3") && !PosAberta("POSSUI","COMPRA","C4"))
-         PM3 = (tick.ask*volnv4 + DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv4+DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"));
+         PM3 = (tick.ask*volnv4 + DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")*DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA"))/(volnv4+DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA"));
       if(PosAberta("POSSUI","COMPRA","C4") && !PosAberta("POSSUI","COMPRA","C5"))
-         PM4 = (tick.ask*volnv5 + DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv5+DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"));
+         PM4 = (tick.ask*volnv5 + DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")*DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA"))/(volnv5+DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA"));
       if(PosAberta("POSSUI","COMPRA","C5") && !PosAberta("POSSUI","COMPRA","C6"))
-         PM5 = (tick.ask*volnv6 + DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv6+DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"));
+         PM5 = (tick.ask*volnv6 + DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")*DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA"))/(volnv6+DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA"));
       if(PosAberta("POSSUI","COMPRA","C6") && !PosAberta("POSSUI","COMPRA","C7"))
-         PM6 = (tick.ask*volnv7 + DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv7+DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"));
+         PM6 = (tick.ask*volnv7 + DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")*DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA"))/(volnv7+DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA"));
       if(PosAberta("POSSUI","COMPRA","C7") && !PosAberta("POSSUI","COMPRA","C8"))
-         PM7 = (tick.ask*volnv8 + DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv8+DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"));
+         PM7 = (tick.ask*volnv8 + DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")*DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA"))/(volnv8+DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA"));
       if(PosAberta("POSSUI","COMPRA","C8") && !PosAberta("POSSUI","COMPRA","C9"))
-         PM8 = (tick.ask*volnv9 + DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv9+DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"));
+         PM8 = (tick.ask*volnv9 + DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")*DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA"))/(volnv9+DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA"));
       if(PosAberta("POSSUI","COMPRA","C9") && !PosAberta("POSSUI","COMPRA","C10"))
-         PM9 = (tick.ask*volnv10 + DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv10+DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"));
+         PM9 = (tick.ask*volnv10 + DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")*DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA"))/(volnv10+DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA"));
       if(PosAberta("POSSUI","COMPRA","C10") && !PosAberta("POSSUI","COMPRA","C11"))
-         PM10 = (tick.ask*volnv11 + DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv11+DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"));
+         PM10 = (tick.ask*volnv11 + DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")*DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA"))/(volnv11+DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA"));
       if(PosAberta("POSSUI","COMPRA","C11") && !PosAberta("POSSUI","COMPRA","C12"))
-         PM11 = (tick.ask*volnv12 + DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv12+DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"));
+         PM11 = (tick.ask*volnv12 + DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")*DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA"))/(volnv12+DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA"));
       if(PosAberta("POSSUI","COMPRA","C12") && !PosAberta("POSSUI","COMPRA","C13"))
-         PM12 = (tick.ask*volnv13 + DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv13+DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"));
+         PM12 = (tick.ask*volnv13 + DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")*DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA"))/(volnv13+DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA"));
       if(PosAberta("POSSUI","COMPRA","C13") && !PosAberta("POSSUI","COMPRA","C14"))
-         PM13 = (tick.ask*volnv14 + DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv14+DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO"));
+         PM13 = (tick.ask*volnv14 + DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")*DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA"))/(volnv14+DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA"));
 
       if(PosAberta("POSSUI","VENDA","V1") && !PosAberta("POSSUI","VENDA","V2"))
-         PM1 = (tick.bid*volnv2 + DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")*volumeoper)/(volnv2+volumeoper);
+         PM1 = (tick.bid*volnv2 + DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","VENDA")*volumeoper)/(volnv2+volumeoper);
       if(PosAberta("POSSUI","VENDA","V2") && !PosAberta("POSSUI","VENDA","V3"))
-         PM2 = (tick.bid*volnv3 + DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv3+DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"));
+         PM2 = (tick.bid*volnv3 + DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","VENDA")*DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA"))/(volnv3+DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA"));
       if(PosAberta("POSSUI","VENDA","V3") && !PosAberta("POSSUI","VENDA","V4"))
-         PM3 = (tick.bid*volnv4 + DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv4+DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"));
+         PM3 = (tick.bid*volnv4 + DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","VENDA")*DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA"))/(volnv4+DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA"));
       if(PosAberta("POSSUI","VENDA","V4") && !PosAberta("POSSUI","VENDA","V5"))
-         PM4 = (tick.bid*volnv5 + DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv5+DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"));
+         PM4 = (tick.bid*volnv5 + DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","VENDA")*DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA"))/(volnv5+DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA"));
       if(PosAberta("POSSUI","VENDA","V5") && !PosAberta("POSSUI","VENDA","V6"))
-         PM5 = (tick.bid*volnv6 + DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv6+DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"));
+         PM5 = (tick.bid*volnv6 + DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","VENDA")*DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA"))/(volnv6+DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA"));
       if(PosAberta("POSSUI","VENDA","V6") && !PosAberta("POSSUI","VENDA","V7"))
-         PM6 = (tick.bid*volnv7 + DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv7+DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"));
+         PM6 = (tick.bid*volnv7 + DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","VENDA")*DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA"))/(volnv7+DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA"));
       if(PosAberta("POSSUI","VENDA","V7") && !PosAberta("POSSUI","VENDA","V8"))
-         PM7 = (tick.bid*volnv8 + DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv8+DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"));
+         PM7 = (tick.bid*volnv8 + DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","VENDA")*DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA"))/(volnv8+DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA"));
       if(PosAberta("POSSUI","VENDA","V8") && !PosAberta("POSSUI","VENDA","V9"))
-         PM8 = (tick.bid*volnv9 + DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv9+DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"));
+         PM8 = (tick.bid*volnv9 + DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","VENDA")*DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA"))/(volnv9+DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA"));
       if(PosAberta("POSSUI","VENDA","V9") && !PosAberta("POSSUI","VENDA","V10"))
-         PM9 = (tick.bid*volnv10 + DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv10+DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"));
+         PM9 = (tick.bid*volnv10 + DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","VENDA")*DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA"))/(volnv10+DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA"));
       if(PosAberta("POSSUI","VENDA","V10") && !PosAberta("POSSUI","VENDA","V11"))
-         PM10 = (tick.bid*volnv11 + DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv11+DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"));
+         PM10 = (tick.bid*volnv11 + DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","VENDA")*DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA"))/(volnv11+DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA"));
       if(PosAberta("POSSUI","VENDA","V11") && !PosAberta("POSSUI","VENDA","V12"))
-         PM11 = (tick.bid*volnv12 + DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv12+DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"));
+         PM11 = (tick.bid*volnv12 + DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","VENDA")*DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA"))/(volnv12+DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA"));
       if(PosAberta("POSSUI","VENDA","V12") && !PosAberta("POSSUI","VENDA","V13"))
-         PM12 = (tick.bid*volnv13 + DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv13+DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"));
+         PM12 = (tick.bid*volnv13 + DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","VENDA")*DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA"))/(volnv13+DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA"));
       if(PosAberta("POSSUI","VENDA","V13") && !PosAberta("POSSUI","VENDA","V14"))
-         PM13 = (tick.bid*volnv14 + DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")*DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"))/(volnv14+DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO"));
+         PM13 = (tick.bid*volnv14 + DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","VENDA")*DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA"))/(volnv14+DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA"));
      }
 
    TimeToStruct(TimeCurrent(),hratualstruct);
 //datetime aberturacandleatual=datetime(SeriesInfoInteger(_Symbol,_Period,SERIES_LASTBAR_DATE));
-   double   sarnormalizado0 = NormalizeDouble(sar[0],5);
-   double   sarnormalizado1 = NormalizeDouble(sar[1],5);
-
-//if((PosAberta("COMPRA") && SarOk("COMPRA")==true) || (PosAberta("VENDA") && SarOk("VENDA")==true))
-//   condicaoSAR = true;
+   if(estrategia==estrat4 || estrategia==estrat9 || estrategia==estrat14)
+     {
+      sarnormalizado0 = NormalizeDouble(sar[0],5);
+      sarnormalizado1 = NormalizeDouble(sar[1],5);
+     }
+   if(estrategia==estrat10 || estrategia==estrat11 || estrategia==estrat12 || estrategia==estrat13 || estrategia==estrat14)
+      previsao = NormalizeDouble(StringToDouble(dict.Get<string>(TimeCurrent())),5);
 
 ////////////////////////////////////////////
 //---| FECHA ORDENS NO FIM DO PREGÃO |----//
 ////////////////////////////////////////////
-   if(ativafecfinaldia==true && (PosAberta("POSSUI","COMPRA","")||PosAberta("POSSUI","VENDA","")) && hratualstruct.hour==hrfechstruct.hour && hratualstruct.min==hrfechstruct.min)
+   if(ativafecfinaldia && PositionsTotal()>=1)
      {
-      FechaTodasPosicoesAbertas();
+      if((PosAberta("POSSUI","COMPRA","")||PosAberta("POSSUI","VENDA","")) && hratualstruct.hour==hrfechstruct.hour && hratualstruct.min==hrfechstruct.min)
+         FechaTodasPosicoesAbertas();
      }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -482,13 +488,13 @@ void OnTick()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //   if(ativafechafull==true)
 //     {
-//      FechaFull();
+//      FechaPosAbertasNoLucro();
 //     }
 
 ///////////////////////////////////////////////////
 //---| FECHA ORDENS PRA SAIR NO ZERO A ZERO |----//
 ///////////////////////////////////////////////////
-   if(fechaordensnozero==true)
+   if(fechaordensnozero && PositionsTotal()>=1)
      {
       FechaOrdensNozero();
      }
@@ -497,585 +503,309 @@ void OnTick()
 //| OPERAÇÕES SEGUINDO A ESTRATÉGIA ESCOLHIDA |
 //+------------------------------------------------------------------+
 
-//   Print("ABERTURA DO CANDLE: ",aberturacandleatual);
-
 //--- Check de posição aberta em outro ativo, horário de operação e margem suficiente pra operar
-   if(ativaentradaea && !PossuiPosAbertaOutroAtivo() && HorarioEntrada()==true && HorarioPausa1()==false && (percent_margem>prcentabert||saldo==capital))
+   if(ativaentradaea && !PossuiPosAbertaOutroAtivo() && HorarioEntrada() && !HorarioPausa1() && (percent_margem>prcentabert||saldo==capital))
      {
 
       //--- Verifica se candle acabou de abrir e se o número de STOPS ultrapassou o máximo permitido no dia
-      if(NB2.IsNewBar(_Symbol,_Period) /*&& DadosPosFechada("QTDE DE SL DO DIA","")<qtdestops*/)
+      if(NB2.IsNewBar(_Symbol,_Period))
         {
+         ////////////////////////////////////////////////
+         //---| PRIMEIRA COMPRA DE CADA ESTRATÉGIA |---//
+         ////////////////////////////////////////////////
          if(!PosAberta("POSSUI","COMPRA","C1"))
            {
-            //////////////////////////////////////////////
             //---| ESTRATEGIA ENVELOPE/RSI/BOLINGER |---//
-            //////////////////////////////////////////////
             if(estrategia==estrat1)
               {
-               ///////////////////
-               //---|COMPRAS|---//
-               ///////////////////
                if(candle[1].close<mm[1]-tamanhoenvelope*_Point && rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/ && candle[1].close<bbd[1])
                   trade.Buy(volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),puxatpsl("TPC0"),"C1");
               }
-            /////////////////////////////////////
             //---| ESTRATEGIA ENVELOPE/RSI |---//
-            /////////////////////////////////////
             if(estrategia==estrat2)
               {
-               ///////////////////
-               //---|COMPRAS|---//
-               ///////////////////
                if(candle[1].close<mm[1]-tamanhoenvelope*_Point && rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/)
                   trade.Buy(volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),puxatpsl("TPC0"),"C1");
               }
-            //////////////////////////////////////////
             //---| ESTRATEGIA ENVELOPE/BOLINGER |---//
-            //////////////////////////////////////////
             if(estrategia==estrat3)
               {
-               ///////////////////
-               //---|COMPRAS|---//
-               ///////////////////
                if(candle[1].close<mm[1]-tamanhoenvelope*_Point && candle[1].close<bbd[1])
                   trade.Buy(volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),puxatpsl("TPC0"),"C1");
               }
-            /////////////////////////////////////
             //---| ESTRATEGIA ENVELOPE/SAR |---//
-            /////////////////////////////////////
             if(estrategia==estrat4)
               {
-               ///////////////////
-               //---|COMPRAS|---//
-               ///////////////////
                if(candle[1].close<mm[1]-tamanhoenvelope*_Point && sarnormalizado0 < tick.ask && sarnormalizado1 < tick.ask)
                   trade.Buy(volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),puxatpsl("TPC0"),"C1");
               }
-            /////////////////////////////////////
             //---| ESTRATEGIA RSI/BOLINGER |---//
-            /////////////////////////////////////
             if(estrategia==estrat5)
               {
-               ///////////////////
-               //---|COMPRAS|---//
-               ///////////////////
                if(rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/ && candle[1].close<bbd[1])
                   trade.Buy(volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),puxatpsl("TPC0"),"C1");
               }
-            /////////////////////////////////
             //---| ESTRATEGIA ENVELOPE |---//
-            /////////////////////////////////
             if(estrategia==estrat6)
               {
-               ///////////////////
-               //---|COMPRAS|---//
-               ///////////////////
                if(candle[1].close<mm[1]-tamanhoenvelope*_Point)
                   trade.Buy(volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),puxatpsl("TPC0"),"C1");
-
               }
-            ////////////////////////////
             //---| ESTRATEGIA RSI |---//
-            ////////////////////////////
             if(estrategia==estrat7)
               {
-               ///////////////////
-               //---|COMPRAS|---//
-               ///////////////////
                if(rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/)
                   trade.Buy(volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),puxatpsl("TPC0"),"C1");
               }
-            /////////////////////////////////
             //---| ESTRATEGIA BOLINGER |---//
-            /////////////////////////////////
             if(estrategia==estrat8)
               {
-               ///////////////////
-               //---|COMPRAS|---//
-               ///////////////////
                if(candle[1].close<bbd[1])
                   trade.Buy(volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),puxatpsl("TPC0"),"C1");
-
               }
-            ////////////////////////////
             //---| ESTRATEGIA SAR |---//
-            ////////////////////////////
             if(estrategia==estrat9)
               {
-               ///////////////////
-               //---|COMPRAS|---//
-               ///////////////////
                if(sarnormalizado0 < tick.ask && sarnormalizado1 < tick.ask)
                   trade.Buy(volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),puxatpsl("TPC0"),"C1");
-
               }
-            ///////////////////////////////
             //---| ESTRATEGIA NEURAL |---//
-            ///////////////////////////////
             if(estrategia==estrat10)
               {
-               double   previsao = NormalizeDouble(StringToDouble(dict.Get<string>(TimeCurrent())),5);
-               ///////////////////
-               //---|COMPRAS|---//
-               ///////////////////
                if(previsao > tick.ask && previsao != 0)
                   trade.Buy(volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),puxatpsl("TPC0"),"C1");
-
               }
-            ///////////////////////////////////
             //---| ESTRATEGIA NEURAL/RSI |---//
-            ///////////////////////////////////
             if(estrategia==estrat11)
               {
-               double   previsao = NormalizeDouble(StringToDouble(dict.Get<string>(TimeCurrent())),5);
-               ///////////////////
-               //---|COMPRAS|---//
-               ///////////////////
                if(previsao > tick.ask && previsao != 0 && rsi[1]<sobrecrsi)
                   trade.Buy(volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),puxatpsl("TPC0"),"C1");
-
               }
-            ////////////////////////////////////////
             //---| ESTRATEGIA NEURAL/BOLINGER |---//
-            ////////////////////////////////////////
             if(estrategia==estrat12)
               {
-               double   previsao = NormalizeDouble(StringToDouble(dict.Get<string>(TimeCurrent())),5);
-               ///////////////////
-               //---|COMPRAS|---//
-               ///////////////////
                if(previsao > tick.ask && previsao != 0 && candle[1].close<bbd[1])
                   trade.Buy(volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),puxatpsl("TPC0"),"C1");
-
               }
-            ///////////////////////////////////////
             //---| ESTRATEGIA NEURAL/ENVELOPE |---//
-            ///////////////////////////////////////
             if(estrategia==estrat13)
               {
-               double   previsao = NormalizeDouble(StringToDouble(dict.Get<string>(TimeCurrent())),5);
-               ///////////////////
-               //---|COMPRAS|---//
-               ///////////////////
                if(previsao > tick.ask && previsao != 0 && candle[1].close<mm[1]-tamanhoenvelope*_Point)
                   trade.Buy(volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),puxatpsl("TPC0"),"C1");
-
               }
-            ///////////////////////////////////
             //---| ESTRATEGIA NEURAL/SAR |---//
-            ///////////////////////////////////
             if(estrategia==estrat14)
               {
-               double   previsao = NormalizeDouble(StringToDouble(dict.Get<string>(TimeCurrent())),5);
-               //Print(previsao);
-               ///////////////////
-               //---|COMPRAS|---//
-               ///////////////////
                if(previsao > tick.ask && previsao != 0 && sarnormalizado0 < tick.ask && sarnormalizado1 < tick.ask)
                   trade.Buy(volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),puxatpsl("TPC0"),"C1");
-
               }
            }
+
+         ///////////////////////////////////////////////
+         //---| PRIMEIRA VENDA DE CADA ESTRATÉGIA |---//
+         ///////////////////////////////////////////////
          if(!PosAberta("POSSUI","VENDA","V1"))
            {
-            //////////////////////////////////////////////
             //---| ESTRATEGIA ENVELOPE/RSI/BOLINGER |---//
-            //////////////////////////////////////////////
             if(estrategia==estrat1)
               {
-               //////////////////
-               //---|VENDAS|---//
-               //////////////////
                if(candle[1].close>mm[1]+tamanhoenvelope*_Point && rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/ && candle[1].close>bbu[1])
                   trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),puxatpsl("TPV0"),"V1");
               }
-            /////////////////////////////////////
             //---| ESTRATEGIA ENVELOPE/RSI |---//
-            /////////////////////////////////////
             if(estrategia==estrat2)
               {
-               //////////////////
-               //---|VENDAS|---//
-               //////////////////
                if(candle[1].close>mm[1]+tamanhoenvelope*_Point && rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/)
                   trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),puxatpsl("TPV0"),"V1");
               }
-            //////////////////////////////////////////
             //---| ESTRATEGIA ENVELOPE/BOLINGER |---//
-            //////////////////////////////////////////
             if(estrategia==estrat3)
               {
-               //////////////////
-               //---|VENDAS|---//
-               //////////////////
                if(candle[1].close>mm[1]+tamanhoenvelope*_Point && candle[1].close>bbu[1])
                   trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),puxatpsl("TPV0"),"V1");
               }
-            /////////////////////////////////////
             //---| ESTRATEGIA ENVELOPE/SAR |---//
-            /////////////////////////////////////
             if(estrategia==estrat4)
               {
-               //////////////////
-               //---|VENDAS|---//
-               //////////////////
                if(candle[1].close>mm[1]+tamanhoenvelope*_Point && sarnormalizado0 > tick.bid && sarnormalizado1 > tick.bid)
                   trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),puxatpsl("TPV0"),"V1");
               }
-            /////////////////////////////////////
             //---| ESTRATEGIA RSI/BOLINGER |---//
-            /////////////////////////////////////
             if(estrategia==estrat5)
               {
-               //////////////////
-               //---|VENDAS|---//
-               //////////////////
                if(rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/ && candle[1].close>bbu[1])
                   trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),puxatpsl("TPV0"),"V1");
               }
-            /////////////////////////////////
             //---| ESTRATEGIA ENVELOPE |---//
-            /////////////////////////////////
             if(estrategia==estrat6)
               {
-               //////////////////
-               //---|VENDAS|---//
-               //////////////////
                if(candle[1].close>mm[1]+tamanhoenvelope*_Point)
                   trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),puxatpsl("TPV0"),"V1");
               }
-            ////////////////////////////
             //---| ESTRATEGIA RSI |---//
-            ////////////////////////////
             if(estrategia==estrat7)
               {
-               //////////////////
-               //---|VENDAS|---//
-               //////////////////
                if(rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/)
                   trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),puxatpsl("TPV0"),"V1");
               }
-            /////////////////////////////////
             //---| ESTRATEGIA BOLINGER |---//
-            /////////////////////////////////
             if(estrategia==estrat8)
               {
-               //////////////////
-               //---|VENDAS|---//
-               //////////////////
                if(candle[1].close>bbu[1])
                   trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),puxatpsl("TPV0"),"V1");
               }
-            ////////////////////////////
             //---| ESTRATEGIA SAR |---//
-            ////////////////////////////
             if(estrategia==estrat9)
               {
-               //////////////////
-               //---|VENDAS|---//
-               //////////////////
                if(sarnormalizado0 > tick.bid && sarnormalizado1 > tick.bid)
                   trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),puxatpsl("TPV0"),"V1");
               }
-            ///////////////////////////////
             //---| ESTRATEGIA NEURAL |---//
-            ///////////////////////////////
             if(estrategia==estrat10)
               {
-               double   previsao = NormalizeDouble(StringToDouble(dict.Get<string>(TimeCurrent())),5);
-               //////////////////
-               //---|VENDAS|---//
-               //////////////////
                if(previsao < tick.bid && previsao !=0)
                   trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),puxatpsl("TPV0"),"V1");
               }
-            ///////////////////////////////////
             //---| ESTRATEGIA NEURAL/RSI |---//
-            ///////////////////////////////////
             if(estrategia==estrat11)
               {
-               double   previsao = NormalizeDouble(StringToDouble(dict.Get<string>(TimeCurrent())),5);
-               //////////////////
-               //---|VENDAS|---//
-               //////////////////
                if(previsao < tick.bid && previsao !=0 && rsi[1]>sobrevrsi)
                   trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),puxatpsl("TPV0"),"V1");
               }
-            ////////////////////////////////////////
             //---| ESTRATEGIA NEURAL/BOLINGER |---//
-            ////////////////////////////////////////
             if(estrategia==estrat12)
               {
-               double   previsao = NormalizeDouble(StringToDouble(dict.Get<string>(TimeCurrent())),5);
-               //////////////////
-               //---|VENDAS|---//
-               //////////////////
                if(previsao < tick.bid && previsao !=0 && candle[1].close>bbu[1])
                   trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),puxatpsl("TPV0"),"V1");
               }
-            ///////////////////////////////////////
             //---| ESTRATEGIA NEURAL/ENVELOPE |---//
-            ///////////////////////////////////////
             if(estrategia==estrat13)
               {
-               double   previsao = NormalizeDouble(StringToDouble(dict.Get<string>(TimeCurrent())),5);
-               //////////////////
-               //---|VENDAS|---//
-               //////////////////
                if(previsao < tick.bid && previsao !=0 && candle[1].close>mm[1]+tamanhoenvelope*_Point)
                   trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),puxatpsl("TPV0"),"V1");
               }
-            ///////////////////////////////////
             //---| ESTRATEGIA NEURAL/SAR |---//
-            ///////////////////////////////////
             if(estrategia==estrat14)
               {
-               double   previsao = NormalizeDouble(StringToDouble(dict.Get<string>(TimeCurrent())),5);
-               //////////////////
-               //---|VENDAS|---//
-               //////////////////
                if(previsao < tick.bid && previsao != 0 && sarnormalizado0 > tick.bid && sarnormalizado1 > tick.bid)
                   trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),puxatpsl("TPV0"),"V1");
               }
            }
+
+         ////////////////////////////////////////////////////////////////////
+         //---| DEMAIS COMPRAS E VENDAS DE CADA ESTATÉGIA - MARTINGALE |---//
+         ////////////////////////////////////////////////////////////////////
          if(PositionsTotal()>=1 /*&& condicaoSAR==true*/ && ((PosAberta("POSSUI","COMPRA","") && QtdeCandles("COMPRA")>qtdecandle) || (PosAberta("POSSUI","VENDA","") && QtdeCandles("VENDA")>qtdecandle)))
            {
-            //////////////////////////////////////////////
             //---| ESTRATEGIA ENVELOPE/RSI/BOLINGER |---//
-            //////////////////////////////////////////////
             if(estrategia==estrat1)
               {
-               ///////////////////
-               //---|COMPRAS|---//
-               ///////////////////
                if(candle[1].close<mm[1]-tamanhoenvelope*_Point && rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/ && candle[1].close<bbd[1])
                   ComprasMartingale();
-               //////////////////
-               //---|VENDAS|---//
-               //////////////////
                if(candle[1].close>mm[1]+tamanhoenvelope*_Point && rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/ && candle[1].close>bbu[1])
                   VendasMartingale();
               }
-            /////////////////////////////////////
             //---| ESTRATEGIA ENVELOPE/RSI |---//
-            /////////////////////////////////////
             if(estrategia==estrat2)
               {
-               ///////////////////
-               //---|COMPRAS|---//
-               ///////////////////
                if(candle[1].close<mm[1]-tamanhoenvelope*_Point && rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/)
                   ComprasMartingale();
-               //////////////////
-               //---|VENDAS|---//
-               //////////////////
                if(candle[1].close>mm[1]+tamanhoenvelope*_Point && rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/)
                   VendasMartingale();
               }
-            //////////////////////////////////////////
             //---| ESTRATEGIA ENVELOPE/BOLINGER |---//
-            //////////////////////////////////////////
             if(estrategia==estrat3)
               {
-               ///////////////////
-               //---|COMPRAS|---//
-               ///////////////////
                if(candle[1].close<mm[1]-tamanhoenvelope*_Point && candle[1].close<bbd[1])
                   ComprasMartingale();
-               //////////////////
-               //---|VENDAS|---//
-               //////////////////
                if(candle[1].close>mm[1]+tamanhoenvelope*_Point && candle[1].close>bbu[1])
                   VendasMartingale();
               }
-            /////////////////////////////////////
             //---| ESTRATEGIA ENVELOPE/SAR |---//
-            /////////////////////////////////////
             if(estrategia==estrat4)
               {
-               ///////////////////
-               //---|COMPRAS|---//
-               ///////////////////
                if(candle[1].close<mm[1]-tamanhoenvelope*_Point && sarnormalizado0 < tick.ask && sarnormalizado1 < tick.ask)
                   ComprasMartingale();
-               //////////////////
-               //---|VENDAS|---//
-               //////////////////
                if(candle[1].close>mm[1]+tamanhoenvelope*_Point && sarnormalizado0 > tick.bid && sarnormalizado1 > tick.bid)
                   VendasMartingale();
               }
-            /////////////////////////////////////
             //---| ESTRATEGIA RSI/BOLINGER |---//
-            /////////////////////////////////////
             if(estrategia==estrat5)
               {
-               ///////////////////
-               //---|COMPRAS|---//
-               ///////////////////
                if(rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/ && candle[1].close<bbd[1])
                   ComprasMartingale();
-               //////////////////
-               //---|VENDAS|---//
-               //////////////////
                if(rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/ && candle[1].close>bbu[1])
                   VendasMartingale();
               }
-            /////////////////////////////////
             //---| ESTRATEGIA ENVELOPE |---//
-            /////////////////////////////////
             if(estrategia==estrat6)
               {
-               ///////////////////
-               //---|COMPRAS|---//
-               ///////////////////
                if(candle[1].close<mm[1]-tamanhoenvelope*_Point)
                   ComprasMartingale();
-
-               //////////////////
-               //---|VENDAS|---//
-               //////////////////
                if(candle[1].close>mm[1]+tamanhoenvelope*_Point)
                   VendasMartingale();
               }
-            ////////////////////////////
             //---| ESTRATEGIA RSI |---//
-            ////////////////////////////
             if(estrategia==estrat7)
               {
-               ///////////////////
-               //---|COMPRAS|---//
-               ///////////////////
                if(rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/)
                   ComprasMartingale();
-               //////////////////
-               //---|VENDAS|---//
-               //////////////////
                if(rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/)
                   VendasMartingale();
               }
-            /////////////////////////////////
             //---| ESTRATEGIA BOLINGER |---//
-            /////////////////////////////////
             if(estrategia==estrat8)
               {
-               ///////////////////
-               //---|COMPRAS|---//
-               ///////////////////
                if(candle[1].close<bbd[1])
                   ComprasMartingale();
-
-               //////////////////
-               //---|VENDAS|---//
-               //////////////////
                if(candle[1].close>bbu[1])
                   VendasMartingale();
               }
-            ////////////////////////////
             //---| ESTRATEGIA SAR |---//
-            ////////////////////////////
             if(estrategia==estrat9)
               {
-               ///////////////////
-               //---|COMPRAS|---//
-               ///////////////////
                if(sarnormalizado0 < tick.ask && sarnormalizado1 < tick.ask)
                   ComprasMartingale();
-
-               //////////////////
-               //---|VENDAS|---//
-               //////////////////
                if(sarnormalizado0 > tick.bid && sarnormalizado1 > tick.bid)
                   VendasMartingale();
               }
-            ///////////////////////////////
             //---| ESTRATEGIA NEURAL |---//
-            ///////////////////////////////
             if(estrategia==estrat10)
               {
-               double   previsao = NormalizeDouble(StringToDouble(dict.Get<string>(TimeCurrent())),5);
-               ///////////////////
-               //---|COMPRAS|---//
-               ///////////////////
                if(previsao > tick.ask && previsao != 0)
                   ComprasMartingale();
-
-               //////////////////
-               //---|VENDAS|---//
-               //////////////////
                if(previsao < tick.bid && previsao !=0)
                   VendasMartingale();
               }
-            ///////////////////////////////////
             //---| ESTRATEGIA NEURAL/RSI |---//
-            ///////////////////////////////////
             if(estrategia==estrat11)
               {
-               double   previsao = NormalizeDouble(StringToDouble(dict.Get<string>(TimeCurrent())),5);
-               ///////////////////
-               //---|COMPRAS|---//
-               ///////////////////
                if(previsao > tick.ask && previsao != 0 && rsi[1]<sobrecrsi)
                   ComprasMartingale();
-
-               //////////////////
-               //---|VENDAS|---//
-               //////////////////
                if(previsao < tick.bid && previsao !=0 && rsi[1]>sobrevrsi)
                   VendasMartingale();
               }
-            ////////////////////////////////////////
             //---| ESTRATEGIA NEURAL/BOLINGER |---//
-            ////////////////////////////////////////
             if(estrategia==estrat12)
               {
-               double   previsao = NormalizeDouble(StringToDouble(dict.Get<string>(TimeCurrent())),5);
-               ///////////////////
-               //---|COMPRAS|---//
-               ///////////////////
                if(previsao > tick.ask && previsao != 0 && candle[1].close<bbd[1])
                   ComprasMartingale();
-
-               //////////////////
-               //---|VENDAS|---//
-               //////////////////
                if(previsao < tick.bid && previsao !=0 && candle[1].close>bbu[1])
                   VendasMartingale();
               }
-            ///////////////////////////////////////
             //---| ESTRATEGIA NEURAL/ENVELOPE |---//
-            ///////////////////////////////////////
             if(estrategia==estrat13)
               {
-               double   previsao = NormalizeDouble(StringToDouble(dict.Get<string>(TimeCurrent())),5);
-               ///////////////////
-               //---|COMPRAS|---//
-               ///////////////////
                if(previsao > tick.ask && previsao != 0 && candle[1].close<mm[1]-tamanhoenvelope*_Point)
                   ComprasMartingale();
-
-               //////////////////
-               //---|VENDAS|---//
-               //////////////////
                if(previsao < tick.bid && previsao !=0 && candle[1].close>mm[1]+tamanhoenvelope*_Point)
                   VendasMartingale();
               }
-            ///////////////////////////////////
             //---| ESTRATEGIA NEURAL/SAR |---//
-            ///////////////////////////////////
             if(estrategia==estrat14)
               {
-               double   previsao = NormalizeDouble(StringToDouble(dict.Get<string>(TimeCurrent())),5);
-               //Print(previsao);
-               ///////////////////
-               //---|COMPRAS|---//
-               ///////////////////
                if(previsao > tick.ask && previsao != 0 && sarnormalizado0 < tick.ask && sarnormalizado1 < tick.ask)
                   ComprasMartingale();
-
-               //////////////////
-               //---|VENDAS|---//
-               //////////////////
                if(previsao < tick.bid && previsao != 0 && sarnormalizado0 > tick.bid && sarnormalizado1 > tick.bid)
                   VendasMartingale();
               }
@@ -1083,17 +813,11 @@ void OnTick()
         }
      }
 
-/////////////////////////////////
-//---|AJUSTE DE TAKE E STOP|---//
-/////////////////////////////////
-//         if(PositionsTotal()==1 && )
-//            AjustaTPSL();
-
 ///////////////////////
 //---|STOP FULL |----//
 ///////////////////////
-   if(ativastopfull==true)
-      if((MathAbs(DadosPos("","PREJUÍZO DO DIA")))/capital*100>=percentfull && DadosPos("","PREJUÍZO DO DIA")<0 && saldo!=capital)
+   if(ativastopfull)
+      if((MathAbs(DadosPos("PREJUÍZO DO DIA","")))/capital*100>=percentfull && DadosPos("PREJUÍZO DO DIA","")<0 && saldo!=capital)
         {
          FechaTodasPosicoesAbertas();
          Sleep(500);
@@ -1105,45 +829,18 @@ void OnTick()
 /////////////////////////////////
    /*   if(ativasaidaea==true)
         {
-         if(PosAberta("POSSUI","COMPRA","C1") && tick.bid>DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")+pontosc1*_Point)
-            FechaTodasPosicoesAbertas();
-         if(PosAberta("POSSUI","COMPRA","C2") && tick.bid>DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")+pontosc2*_Point)
-            FechaTodasPosicoesAbertas();
-         if(PosAberta("POSSUI","COMPRA","C3") && tick.bid>DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")+pontosc3*_Point)
-            FechaTodasPosicoesAbertas();
-         if(PosAberta("POSSUI","COMPRA","C4") && tick.bid>DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")+pontosc4*_Point)
-            FechaTodasPosicoesAbertas();
-         if(PosAberta("POSSUI","COMPRA","C5") && tick.bid>DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")+pontosc5*_Point)
-            FechaTodasPosicoesAbertas();
-         if(PosAberta("POSSUI","COMPRA","C6") && tick.bid>DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")+pontosc6*_Point)
-            FechaTodasPosicoesAbertas();
-         if(PosAberta("POSSUI","COMPRA","C7") && tick.bid>DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")+pontosc7*_Point)
-            FechaTodasPosicoesAbertas();
-         if(PosAberta("POSSUI","COMPRA","C8") && tick.bid>DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")+pontosc8*_Point)
+         if(PosAberta("POSSUI","COMPRA","C1") && tick.bid>DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")+pontosc1*_Point)
             FechaTodasPosicoesAbertas();
 
-         if(PosAberta("POSSUI","VENDA","V1") && tick.ask<DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")-pontosc1*_Point)
-            FechaTodasPosicoesAbertas();
-         if(PosAberta("POSSUI","VENDA","V2") && tick.ask<DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")-pontosc2*_Point)
-            FechaTodasPosicoesAbertas();
-         if(PosAberta("POSSUI","VENDA","V3") && tick.ask<DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")-pontosc3*_Point)
-            FechaTodasPosicoesAbertas();
-         if(PosAberta("POSSUI","VENDA","V4") && tick.ask<DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")-pontosc4*_Point)
-            FechaTodasPosicoesAbertas();
-         if(PosAberta("POSSUI","VENDA","V5") && tick.ask<DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")-pontosc5*_Point)
-            FechaTodasPosicoesAbertas();
-         if(PosAberta("POSSUI","VENDA","V6") && tick.ask<DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")-pontosc6*_Point)
-            FechaTodasPosicoesAbertas();
-         if(PosAberta("POSSUI","VENDA","V7") && tick.ask<DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")-pontosc7*_Point)
-            FechaTodasPosicoesAbertas();
-         if(PosAberta("POSSUI","VENDA","V8") && tick.ask<DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")-pontosc8*_Point)
+         if(PosAberta("POSSUI","VENDA","V1") && tick.ask<DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","VENDA")-pontosc1*_Point)
             FechaTodasPosicoesAbertas();
         }
         */
+        
 ////////////////////////////
 //---|BREAKEVEN E TS |----//
 ////////////////////////////
-   if(ativbreak==true)
+   if(ativbreak)
      {
 
       if(PosFechadaTrueFalse("ÚLTIMA POSIÇÃO FECHADA FOI DE TP","COMPRA") && PosAberta("POSSUI","COMPRA","BE COMPRA")==false)
@@ -1151,9 +848,9 @@ void OnTick()
          trade.Buy(DadosPosFechada("VOLUME DA ÚLTIMA POSIÇÃO FECHADA","COMPRA"),_Symbol,tick.ask,tick.bid-pontosbesl*_Point,NULL,"BE COMPRA");
          Sleep(200);
         }
-      if(PosAberta("POSSUI","COMPRA","BE COMPRA") && tick.bid>DadosPos("COMPRA","SL DA ÚLTIMA POSIÇÃO")+pontosts*_Point)
+      if(PosAberta("POSSUI","COMPRA","BE COMPRA") && tick.bid>DadosPos("SL DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")+pontosts*_Point)
         {
-         trade.PositionModify(TicketPosAberta(),DadosPos("COMPRA","SL DA ÚLTIMA POSIÇÃO")+pontosts2*_Point,NULL);
+         trade.PositionModify(TicketPosAberta(),DadosPos("SL DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")+pontosts2*_Point,NULL);
         }
 
       if(PosFechadaTrueFalse("ÚLTIMA POSIÇÃO FECHADA FOI DE TP","VENDA") && PosAberta("POSSUI","VENDA","BE VENDA")==false)
@@ -1161,23 +858,22 @@ void OnTick()
          trade.Sell(DadosPosFechada("VOLUME DA ÚLTIMA POSIÇÃO FECHADA","VENDA"),_Symbol,tick.bid,tick.ask+pontosbesl*_Point,NULL,"BE VENDA");
          Sleep(200);
         }
-      if(PosAberta("POSSUI","VENDA","BE VENDA") && tick.ask<DadosPos("VENDA","SL DA ÚLTIMA POSIÇÃO")-pontosts*_Point)
+      if(PosAberta("POSSUI","VENDA","BE VENDA") && tick.ask<DadosPos("SL DA ÚLTIMA POSIÇÃO ABERTA","VENDA")-pontosts*_Point)
         {
-         trade.PositionModify(TicketPosAberta(),DadosPos("VENDA","SL DA ÚLTIMA POSIÇÃO")-pontosts2*_Point,NULL);
+         trade.PositionModify(TicketPosAberta(),DadosPos("SL DA ÚLTIMA POSIÇÃO ABERTA","VENDA")-pontosts2*_Point,NULL);
         }
      }
   }
 
-//+------------------------------------------------------------------------------------------+
 ////////////////////////////
 //| FIM DA FUNÇÃO ONTICK |//
 ////////////////////////////
+
+//+------------------------------------------------------------------------------------------------------------------------------------------------+
+
 /////////////////////////////////////
 //| INÍCIO DAS FUNÇÕES AUXILIARES |//
 /////////////////////////////////////
-//+------------------------------------------------------------------+
-//| VERIFICA CONDIÇÃO DO SAR FAVORÁVEL A ENTRADA DE ORDENS DE COMPRA |
-//+------------------------------------------------------------------+
 //+--------------------------+
 //| LER ARQUIVOS E PREVISÕES |
 //+--------------------------+
@@ -1248,32 +944,6 @@ void WebPrevision()
          PrintFormat("Erro de download '%s', código %d",url,res);
      }
   }
-//+------------------------------------------------------------------------------------------+
-/*bool  SarOk(string tipo)
-  {
-   bool C1 = true;
-   if(tipo=="COMPRA" && sarh4[qtdesarmax+1]>0 && candle[qtdesarmax+1].high>0)
-     {
-      for(int i=0; i<qtdesarmax+1; i++)
-        {
-         if(candle[i].high<sarh4[i])
-            C1 = false;
-        }
-      if(sarh4[qtdesarmax]>tick.ask+pontos1SAR*_Point)
-         C1 = false;
-     }
-   if(tipo=="VENDA" && sarh4[qtdesarmax+1]>0 && candle[qtdesarmax+1].low>0)
-     {
-      for(int i=0; i<qtdesarmax+1; i++)
-        {
-         if(candle[i].low>sarh4[i])
-            C1 = false;
-        }
-      if(tick.bid>sarh4[qtdesarmax]+pontos1SAR*_Point)
-         C1 = false;
-     }
-   return C1;
-  }*/
 //+------------------------------------------------------------------------------------------+
 //+---------------------------------------------+
 //| CONTADOR DE CANDLES DESDE ÚLTIMA POS ABERTA |
@@ -1390,10 +1060,8 @@ bool PosAberta(string acao, string tipo, string comentario)
 //+-----------------------------------------------------+
 //| FUNÇÃO DE VERIFICAÇÃO DE DADOS DAS POSIÇÕES ABERTAS |
 //+-----------------------------------------------------+
-double DadosPos(string tipo, string acao)
+double DadosPos(string acao, string tipo)
   {
-   double qtdeposcompra=0.0;
-   double qtdeposvenda=0.0;
    double precomenor=200000.0;
    double precomaior=0.0;
    double preju=0.0;
@@ -1412,39 +1080,35 @@ double DadosPos(string tipo, string acao)
         {
          if(tipo=="COMPRA")
            {
-            if(acao=="VOLUME DA ÚLTIMA POSIÇÃO")
+            if(acao=="VOLUME DA ÚLTIMA POSIÇÃO ABERTA")
               {
                return volume;
                break;
               }
-            if(acao=="PREÇO DA ÚLTIMA POSIÇÃO")
+            if(acao=="PREÇO DA ÚLTIMA POSIÇÃO ABERTA")
               {
                return preco;
                break;
               }
-            if(acao=="PROFIT DA ÚLTIMA POSIÇÃO")
+            if(acao=="PROFIT DA ÚLTIMA POSIÇÃO ABERTA")
               {
                return profit;
                break;
               }
-            if(acao=="TP DA ÚLTIMA POSIÇÃO")
+            if(acao=="TP DA ÚLTIMA POSIÇÃO ABERTA")
               {
                return tp;
                break;
               }
-            if(acao=="SL DA ÚLTIMA POSIÇÃO")
+            if(acao=="SL DA ÚLTIMA POSIÇÃO ABERTA")
               {
                return sl;
                break;
               }
-            if(acao=="MENOR PREÇO DA POSIÇÃO")
+            if(acao=="PREÇO DA MENOR POSIÇÃO ABERTA")
               {
                if(preco < precomenor)
                   precomenor=preco;
-              }
-            if(acao=="QUANTIDADE DE POSIÇÕES")
-              {
-               qtdeposcompra++;
               }
            }
         }
@@ -1452,39 +1116,35 @@ double DadosPos(string tipo, string acao)
         {
          if(tipo=="VENDA")
            {
-            if(acao=="VOLUME DA ÚLTIMA POSIÇÃO")
+            if(acao=="VOLUME DA ÚLTIMA POSIÇÃO ABERTA")
               {
                return volume;
                break;
               }
-            if(acao=="PREÇO DA ÚLTIMA POSIÇÃO")
+            if(acao=="PREÇO DA ÚLTIMA POSIÇÃO ABERTA")
               {
                return preco;
                break;
               }
-            if(acao=="PROFIT DA ÚLTIMA POSIÇÃO")
+            if(acao=="PROFIT DA ÚLTIMA POSIÇÃO ABERTA")
               {
                return profit;
                break;
               }
-            if(acao=="TP DA ÚLTIMA POSIÇÃO")
+            if(acao=="TP DA ÚLTIMA POSIÇÃO ABERTA")
               {
                return tp;
                break;
               }
-            if(acao=="SL DA ÚLTIMA POSIÇÃO")
+            if(acao=="SL DA ÚLTIMA POSIÇÃO ABERTA")
               {
                return sl;
                break;
               }
-            if(acao=="MAIOR PREÇO DA POSIÇÃO")
+            if(acao=="PREÇO DA MAIOR POSIÇÃO ABERTA")
               {
                if(preco > precomaior)
                   precomaior=preco;
-              }
-            if(acao=="QUANTIDADE DE POSIÇÕES")
-              {
-               qtdeposvenda++;
               }
            }
         }
@@ -1496,14 +1156,10 @@ double DadosPos(string tipo, string acao)
            }
         }
      }
-   if(acao=="MENOR PREÇO DA POSIÇÃO")
+   if(acao=="PREÇO DA MENOR POSIÇÃO ABERTA")
       return precomenor;
-   if(acao=="MAIOR PREÇO DA POSIÇÃO")
+   if(acao=="PREÇO DA MAIOR POSIÇÃO ABERTA")
       return precomaior;
-   if(acao=="QUANTIDADE DE POSIÇÕES")
-      return qtdeposcompra;
-   if(acao=="QUANTIDADE DE POSIÇÕES")
-      return qtdeposvenda;
    if(acao=="PREJUÍZO DO DIA")
       return preju;
 
@@ -1615,7 +1271,6 @@ datetime DataHoraUltPosFechada(string tipo)
 double DadosPosFechada(string acao, string tipo)
   {
    double      qtdeordens=0;
-   double      contador=0;
    ulong       ticket=0;
    double      profit=0;
    double      profit1=0;
@@ -1628,7 +1283,6 @@ double DadosPosFechada(string acao, string tipo)
    datetime    time;
    datetime    time1=D'2000.01.01 01:00';
    datetime    tempopos=D'2000.01.01 01:00';
-   MqlDateTime timeoper;
    HistorySelect(0,TimeCurrent());
    uint        dealstotal = HistoryDealsTotal();
    for(uint i=0; i < dealstotal; i++)
@@ -1706,12 +1360,6 @@ double DadosPosFechada(string acao, string tipo)
                  }
               }
            }
-         if(acao=="QTDE DE SL DO DIA" && reason==DEAL_REASON_SL && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
-           {
-            TimeToStruct(time,timeoper);
-            if(hratualstruct.day==timeoper.day && hratualstruct.year==timeoper.year)
-               contador++;
-           }
         }
       else
          break;
@@ -1722,8 +1370,6 @@ double DadosPosFechada(string acao, string tipo)
       return volume1;
    if(acao=="QTDE DE POSIÇÕES FECHADAS APÓS A ULTIMA POSIÇÃO ABERTA")
       return qtdeordens;
-   if(acao=="QTDE DE SL DO DIA")
-      return contador;
    return NULL;
   }
 //+------------------------------------------------------------------------------------------+
@@ -1818,112 +1464,84 @@ bool PosFechadaTrueFalse(string acao,string tipo)
    return condicao;
   }
 //+------------------------------------------------------------------------------------------+
-//+--------------------------------------------+
-//| AJUSTA O SL E O TP DAS DUAS ÚLTIMAS ORDENS |
-//+--------------------------------------------+
-void AjustaTPSL()
-  {
-   int posabertas = PositionsTotal();
-   for(int i = posabertas-1; i >= 0; i--)
-     {
-      ulong ticket1 = PositionGetTicket(i);
-      string position_symbol1 = PositionGetString(POSITION_SYMBOL);
-      //ulong  magic = PositionGetInteger(POSITION_MAGIC);
-      //ENUM_POSITION_TYPE tipo =(ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
-      double sl1 = PositionGetDouble(POSITION_SL);
-      double tp1 = PositionGetDouble(POSITION_TP);
-      for(int j = posabertas-2; j >= 0; j--)
-        {
-         ulong ticket2 = PositionGetTicket(j);
-         string position_symbol2 = PositionGetString(POSITION_SYMBOL);
-         //ulong  magic = PositionGetInteger(POSITION_MAGIC);
-         //ENUM_POSITION_TYPE tipo =(ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
-         double sl2 = PositionGetDouble(POSITION_SL);
-         double tp2 = PositionGetDouble(POSITION_TP);
-         if(position_symbol1==_Symbol && position_symbol2==_Symbol && (sl1!=sl2||tp1!=tp2))
-            trade.PositionModify(ticket2,sl1,tp1);
-        }
-     }
-  }
-//+------------------------------------------------------------------------------------------+
 //////////////////////////////////////////
 //---|COMPRAS NORMAIS COM MARTINGALE|---//
 //////////////////////////////////////////
 void  ComprasMartingale()
   {
-   if(PosAberta("POSSUI","COMPRA","C1") && !PosAberta("POSSUI","COMPRA","C2") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DA POSIÇÃO") && DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv2!=0)
+   if(PosAberta("POSSUI","COMPRA","C1") && !PosAberta("POSSUI","COMPRA","C2") && tick.ask<DadosPos("PREÇO DA MENOR POSIÇÃO ABERTA","COMPRA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv2!=0)
      {
       trade.Buy(volnv2,_Symbol,tick.ask,puxatpsl("SLC1"),puxatpsl("TPC1"),"C2");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","COMPRA","C2") && !PosAberta("POSSUI","COMPRA","C3") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DA POSIÇÃO") && DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv3!=0)
+   if(PosAberta("POSSUI","COMPRA","C2") && !PosAberta("POSSUI","COMPRA","C3") && tick.ask<DadosPos("PREÇO DA MENOR POSIÇÃO ABERTA","COMPRA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv3!=0)
      {
       trade.Buy(volnv3,_Symbol,tick.ask,puxatpsl("SLC2"),puxatpsl("TPC2"),"C3");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","COMPRA","C3") && !PosAberta("POSSUI","COMPRA","C4") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DA POSIÇÃO") && DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv4!=0)
+   if(PosAberta("POSSUI","COMPRA","C3") && !PosAberta("POSSUI","COMPRA","C4") && tick.ask<DadosPos("PREÇO DA MENOR POSIÇÃO ABERTA","COMPRA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv4!=0)
      {
       trade.Buy(volnv4,_Symbol,tick.ask,puxatpsl("SLC3"),puxatpsl("TPC3"),"C4");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","COMPRA","C4") && !PosAberta("POSSUI","COMPRA","C5") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DA POSIÇÃO") && DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv5!=0)
+   if(PosAberta("POSSUI","COMPRA","C4") && !PosAberta("POSSUI","COMPRA","C5") && tick.ask<DadosPos("PREÇO DA MENOR POSIÇÃO ABERTA","COMPRA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv5!=0)
      {
       trade.Buy(volnv5,_Symbol,tick.ask,puxatpsl("SLC4"),puxatpsl("TPC4"),"C5");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","COMPRA","C5") && !PosAberta("POSSUI","COMPRA","C6") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DA POSIÇÃO") && DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv6!=0)
+   if(PosAberta("POSSUI","COMPRA","C5") && !PosAberta("POSSUI","COMPRA","C6") && tick.ask<DadosPos("PREÇO DA MENOR POSIÇÃO ABERTA","COMPRA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv6!=0)
      {
       trade.Buy(volnv6,_Symbol,tick.ask,puxatpsl("SLC5"),puxatpsl("TPC5"),"C6");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","COMPRA","C6") && !PosAberta("POSSUI","COMPRA","C7") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DA POSIÇÃO") && DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv7!=0)
+   if(PosAberta("POSSUI","COMPRA","C6") && !PosAberta("POSSUI","COMPRA","C7") && tick.ask<DadosPos("PREÇO DA MENOR POSIÇÃO ABERTA","COMPRA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv7!=0)
      {
       trade.Buy(volnv7,_Symbol,tick.ask,puxatpsl("SLC6"),puxatpsl("TPC6"),"C7");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","COMPRA","C7") && !PosAberta("POSSUI","COMPRA","C8") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DA POSIÇÃO") && DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv8!=0)
+   if(PosAberta("POSSUI","COMPRA","C7") && !PosAberta("POSSUI","COMPRA","C8") && tick.ask<DadosPos("PREÇO DA MENOR POSIÇÃO ABERTA","COMPRA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv8!=0)
      {
       trade.Buy(volnv8,_Symbol,tick.ask,puxatpsl("SLC7"),puxatpsl("TPC7"),"C8");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","COMPRA","C8") && !PosAberta("POSSUI","COMPRA","C9") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DA POSIÇÃO") && DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv9!=0)
+   if(PosAberta("POSSUI","COMPRA","C8") && !PosAberta("POSSUI","COMPRA","C9") && tick.ask<DadosPos("PREÇO DA MENOR POSIÇÃO ABERTA","COMPRA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv9!=0)
      {
       trade.Buy(volnv9,_Symbol,tick.ask,puxatpsl("SLC8"),puxatpsl("TPC8"),"C9");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","COMPRA","C9") && !PosAberta("POSSUI","COMPRA","C10") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DA POSIÇÃO") && DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv10!=0)
+   if(PosAberta("POSSUI","COMPRA","C9") && !PosAberta("POSSUI","COMPRA","C10") && tick.ask<DadosPos("PREÇO DA MENOR POSIÇÃO ABERTA","COMPRA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv10!=0)
      {
       trade.Buy(volnv10,_Symbol,tick.ask,puxatpsl("SLC9"),puxatpsl("TPC9"),"C10");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","COMPRA","C10") && !PosAberta("POSSUI","COMPRA","C11") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DA POSIÇÃO") && DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv11!=0)
+   if(PosAberta("POSSUI","COMPRA","C10") && !PosAberta("POSSUI","COMPRA","C11") && tick.ask<DadosPos("PREÇO DA MENOR POSIÇÃO ABERTA","COMPRA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv11!=0)
      {
       trade.Buy(volnv11,_Symbol,tick.ask,puxatpsl("SLC10"),puxatpsl("TPC10"),"C11");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","COMPRA","C11") && !PosAberta("POSSUI","COMPRA","C12") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DA POSIÇÃO") && DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv12!=0)
+   if(PosAberta("POSSUI","COMPRA","C11") && !PosAberta("POSSUI","COMPRA","C12") && tick.ask<DadosPos("PREÇO DA MENOR POSIÇÃO ABERTA","COMPRA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv12!=0)
      {
       trade.Buy(volnv12,_Symbol,tick.ask,puxatpsl("SLC11"),puxatpsl("TPC11"),"C12");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","COMPRA","C12") && !PosAberta("POSSUI","COMPRA","C13") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DA POSIÇÃO") && DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv13!=0)
+   if(PosAberta("POSSUI","COMPRA","C12") && !PosAberta("POSSUI","COMPRA","C13") && tick.ask<DadosPos("PREÇO DA MENOR POSIÇÃO ABERTA","COMPRA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv13!=0)
      {
       trade.Buy(volnv13,_Symbol,tick.ask,puxatpsl("SLC12"),puxatpsl("TPC12"),"C13");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","COMPRA","C13") && !PosAberta("POSSUI","COMPRA","C14") && tick.ask<DadosPos("COMPRA","MENOR PREÇO DA POSIÇÃO") && DadosPos("COMPRA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv14!=0)
+   if(PosAberta("POSSUI","COMPRA","C13") && !PosAberta("POSSUI","COMPRA","C14") && tick.ask<DadosPos("PREÇO DA MENOR POSIÇÃO ABERTA","COMPRA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv14!=0)
      {
       trade.Buy(volnv14,_Symbol,tick.ask,puxatpsl("SLC13"),puxatpsl("TPC13"),"C14");
       Sleep(500);
@@ -1936,79 +1554,79 @@ void  ComprasMartingale()
 /////////////////////////////////////////
 void  VendasMartingale()
   {
-   if(PosAberta("POSSUI","VENDA","V1") && !PosAberta("POSSUI","VENDA","V2") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DA POSIÇÃO") && DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv2!=0)
+   if(PosAberta("POSSUI","VENDA","V1") && !PosAberta("POSSUI","VENDA","V2") && tick.bid>DadosPos("PREÇO DA MAIOR POSIÇÃO ABERTA","VENDA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv2!=0)
      {
       trade.Sell(volnv2,_Symbol,tick.bid,puxatpsl("SLV1"),puxatpsl("TPV1"),"V2");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","VENDA","V2") && !PosAberta("POSSUI","VENDA","V3") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DA POSIÇÃO") && DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv3!=0)
+   if(PosAberta("POSSUI","VENDA","V2") && !PosAberta("POSSUI","VENDA","V3") && tick.bid>DadosPos("PREÇO DA MAIOR POSIÇÃO ABERTA","VENDA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv3!=0)
      {
       trade.Sell(volnv3,_Symbol,tick.bid,puxatpsl("SLV2"),puxatpsl("TPV2"),"V3");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","VENDA","V3") && !PosAberta("POSSUI","VENDA","V4") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DA POSIÇÃO") && DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv4!=0)
+   if(PosAberta("POSSUI","VENDA","V3") && !PosAberta("POSSUI","VENDA","V4") && tick.bid>DadosPos("PREÇO DA MAIOR POSIÇÃO ABERTA","VENDA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv4!=0)
      {
       trade.Sell(volnv4,_Symbol,tick.bid,puxatpsl("SLV3"),puxatpsl("TPV3"),"V4");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","VENDA","V4") && !PosAberta("POSSUI","VENDA","V5") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DA POSIÇÃO") && DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv5!=0)
+   if(PosAberta("POSSUI","VENDA","V4") && !PosAberta("POSSUI","VENDA","V5") && tick.bid>DadosPos("PREÇO DA MAIOR POSIÇÃO ABERTA","VENDA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv5!=0)
      {
       trade.Sell(volnv5,_Symbol,tick.bid,puxatpsl("SLV4"),puxatpsl("TPV4"),"V5");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","VENDA","V5") && !PosAberta("POSSUI","VENDA","V6") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DA POSIÇÃO") && DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv6!=0)
+   if(PosAberta("POSSUI","VENDA","V5") && !PosAberta("POSSUI","VENDA","V6") && tick.bid>DadosPos("PREÇO DA MAIOR POSIÇÃO ABERTA","VENDA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv6!=0)
      {
       trade.Sell(volnv6,_Symbol,tick.bid,puxatpsl("SLV5"),puxatpsl("TPV5"),"V6");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","VENDA","V6") && !PosAberta("POSSUI","VENDA","V7") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DA POSIÇÃO") && DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv7!=0)
+   if(PosAberta("POSSUI","VENDA","V6") && !PosAberta("POSSUI","VENDA","V7") && tick.bid>DadosPos("PREÇO DA MAIOR POSIÇÃO ABERTA","VENDA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv7!=0)
      {
       trade.Sell(volnv7,_Symbol,tick.bid,puxatpsl("SLV6"),puxatpsl("TPV6"),"V7");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","VENDA","V7") && !PosAberta("POSSUI","VENDA","V8") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DA POSIÇÃO") && DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv8!=0)
+   if(PosAberta("POSSUI","VENDA","V7") && !PosAberta("POSSUI","VENDA","V8") && tick.bid>DadosPos("PREÇO DA MAIOR POSIÇÃO ABERTA","VENDA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv8!=0)
      {
       trade.Sell(volnv8,_Symbol,tick.bid,puxatpsl("SLV7"),puxatpsl("TPV7"),"V8");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","VENDA","V8") && !PosAberta("POSSUI","VENDA","V9") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DA POSIÇÃO") && DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv9!=0)
+   if(PosAberta("POSSUI","VENDA","V8") && !PosAberta("POSSUI","VENDA","V9") && tick.bid>DadosPos("PREÇO DA MAIOR POSIÇÃO ABERTA","VENDA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv9!=0)
      {
       trade.Sell(volnv9,_Symbol,tick.bid,puxatpsl("SLV8"),puxatpsl("TPV8"),"V9");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","VENDA","V9") && !PosAberta("POSSUI","VENDA","V10") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DA POSIÇÃO") && DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv10!=0)
+   if(PosAberta("POSSUI","VENDA","V9") && !PosAberta("POSSUI","VENDA","V10") && tick.bid>DadosPos("PREÇO DA MAIOR POSIÇÃO ABERTA","VENDA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv10!=0)
      {
       trade.Sell(volnv10,_Symbol,tick.bid,puxatpsl("SLV9"),puxatpsl("TPV9"),"V10");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","VENDA","V10") && !PosAberta("POSSUI","VENDA","V11") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DA POSIÇÃO") && DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv11!=0)
+   if(PosAberta("POSSUI","VENDA","V10") && !PosAberta("POSSUI","VENDA","V11") && tick.bid>DadosPos("PREÇO DA MAIOR POSIÇÃO ABERTA","VENDA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv11!=0)
      {
       trade.Sell(volnv11,_Symbol,tick.bid,puxatpsl("SLV10"),puxatpsl("TPV10"),"V11");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","VENDA","V11") && !PosAberta("POSSUI","VENDA","V12") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DA POSIÇÃO") && DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv12!=0)
+   if(PosAberta("POSSUI","VENDA","V11") && !PosAberta("POSSUI","VENDA","V12") && tick.bid>DadosPos("PREÇO DA MAIOR POSIÇÃO ABERTA","VENDA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv12!=0)
      {
       trade.Sell(volnv12,_Symbol,tick.bid,puxatpsl("SLV11"),puxatpsl("TPV11"),"V12");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","VENDA","V12") && !PosAberta("POSSUI","VENDA","V13") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DA POSIÇÃO") && DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv13!=0)
+   if(PosAberta("POSSUI","VENDA","V12") && !PosAberta("POSSUI","VENDA","V13") && tick.bid>DadosPos("PREÇO DA MAIOR POSIÇÃO ABERTA","VENDA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv13!=0)
      {
       trade.Sell(volnv13,_Symbol,tick.bid,puxatpsl("SLV12"),puxatpsl("TPV12"),"V13");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","VENDA","V13") && !PosAberta("POSSUI","VENDA","V14") && tick.bid>DadosPos("VENDA","MAIOR PREÇO DA POSIÇÃO") && DadosPos("VENDA","VOLUME DA ÚLTIMA POSIÇÃO")<=500 && volnv14!=0)
+   if(PosAberta("POSSUI","VENDA","V13") && !PosAberta("POSSUI","VENDA","V14") && tick.bid>DadosPos("PREÇO DA MAIOR POSIÇÃO ABERTA","VENDA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv14!=0)
      {
       trade.Sell(volnv14,_Symbol,tick.bid,puxatpsl("SLV13"),puxatpsl("TPV13"),"V14");
       Sleep(500);
@@ -2446,11 +2064,10 @@ bool HorarioPausa1() //VERIFICA SE ESTÁ NO HORÁRIO DE PAUSA DO ROBÔ
   }
 
 //+------------------------------------------------------------------------------------------+
-
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-void FechaFull()
+//+----------------------------------------------------------------------------------------------------------+
+//| FECHA AS POSIÇÕES ABERTAS QUANDO AO MENOS UMA FECHAR NO LUCRO E AS DEMAIS ESTIVEREM COM LUCRO NO MOMENTO |
+//+----------------------------------------------------------------------------------------------------------+
+void FechaPosAbertasNoLucro()
   {
    if(PosAberta("POSSUI","COMPRA","") && PosFechadaTrueFalse("ÚLTIMA POSIÇÃO FECHADA FOI DE TP","COMPRA"))
      {
@@ -2479,13 +2096,12 @@ void FechaFull()
         }
      }
   }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
+//+-------------------------------------------------------------------------------------------------------------+
+//| FECHA TODAS AS ORDENS APÓS AS POSIÇÕES ABERTAS DE FORMA QUE NO TOTAL SAIA NO MINIMO NO ZERO A ZERO DE LUCRO |
+//+-------------------------------------------------------------------------------------------------------------+
 void FechaOrdensNozero()
   {
-   if(PosAberta("POSSUI","COMPRA","") && DadosPosFechada("PROFIT DA ÚLTIMA POSIÇÃO FECHADA","COMPRA")>=0 && DataHoraUltPosFechada("COMPRA")>DataHoraUltPosAberta("COMPRA") && //
-      DadosPosFechada("QTDE DE POSIÇÕES FECHADAS APÓS A ULTIMA POSIÇÃO ABERTA","COMPRA")>=qtdezero)
+   if(PosAberta("POSSUI","COMPRA","") && DataHoraUltPosFechada("COMPRA")>DataHoraUltPosAberta("COMPRA") && DadosPosFechada("QTDE DE POSIÇÕES FECHADAS APÓS A ULTIMA POSIÇÃO ABERTA","COMPRA")>=qtdezero)
      {
       HistorySelect(0,TimeCurrent());
       uint     dealstotal=HistoryDealsTotal();
@@ -2529,7 +2145,7 @@ void FechaOrdensNozero()
         }
      }
 
-   if(PosAberta("POSSUI","COMPRA","") && DadosPosFechada("PROFIT DA ÚLTIMA POSIÇÃO FECHADA","VENDA")>=0 && DataHoraUltPosFechada("VENDA")>DataHoraUltPosAberta("COMPRA"))
+   if(PosAberta("POSSUI","COMPRA","") && DataHoraUltPosFechada("VENDA")>DataHoraUltPosAberta("COMPRA"))
      {
       HistorySelect(0,TimeCurrent());
       uint     dealstotal=HistoryDealsTotal();
@@ -2573,8 +2189,7 @@ void FechaOrdensNozero()
         }
      }
 
-   if(PosAberta("POSSUI","VENDA","") && DadosPosFechada("PROFIT DA ÚLTIMA POSIÇÃO FECHADA","VENDA")>=0 && DataHoraUltPosFechada("VENDA")>DataHoraUltPosAberta("VENDA") && //
-      DadosPosFechada("QTDE DE POSIÇÕES FECHADAS APÓS A ULTIMA POSIÇÃO ABERTA","VENDA")>=qtdezero)
+   if(PosAberta("POSSUI","VENDA","")  && DataHoraUltPosFechada("VENDA")>DataHoraUltPosAberta("VENDA") && DadosPosFechada("QTDE DE POSIÇÕES FECHADAS APÓS A ULTIMA POSIÇÃO ABERTA","VENDA")>=qtdezero)
      {
       HistorySelect(0,TimeCurrent());
       uint     dealstotal=HistoryDealsTotal();
@@ -2618,7 +2233,7 @@ void FechaOrdensNozero()
         }
      }
 
-   if(PosAberta("POSSUI","VENDA","") && DadosPosFechada("PROFIT DA ÚLTIMA POSIÇÃO FECHADA","COMPRA")>=0 && DataHoraUltPosFechada("COMPRA")>DataHoraUltPosAberta("VENDA"))
+   if(PosAberta("POSSUI","VENDA","") && DataHoraUltPosFechada("COMPRA")>DataHoraUltPosAberta("VENDA"))
      {
       HistorySelect(0,TimeCurrent());
       uint     dealstotal=HistoryDealsTotal();
@@ -2662,10 +2277,6 @@ void FechaOrdensNozero()
         }
      }
   }
-//+------------------------------------------------------------------+
-
-//+------------------------------------------------------------------+
-
 //+------------------------------------------------------------------+
 
 //+------------------------------------------------------------------+
