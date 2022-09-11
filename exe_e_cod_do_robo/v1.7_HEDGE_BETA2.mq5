@@ -128,11 +128,9 @@ input int                pontosc13           = 10;         //DISTANCIA P/ FECHAM
 input int                pontosc14           = 10;         //DISTANCIA P/ FECHAM 14 ORDENS
 input group              "BREAKEVEN/TRAILING STOP"
 input bool               ativbreak           = false;      //ATIVA BREAKEVEN/TRAILING STOP
-input double             pontosbreak         = 5;          //PTOS PROX AO TP PARA ATIV BREAKEVEN
-input double             pontosbreak2        = 5;          //PTOS P/ MOVER TP PARA FRENTE BREAKEVEN
-input double             pontosbesl          = 10;         //PTOS A MENOS PARA SL NOVO
-input double             pontosts            = 5;          //PTOS DO SL NOVO PARA ATIV TS
-
+input double             pontosbesl          = 10;         //PTOS A MENOS PARA SL NOVO DO BE
+input double             pontosts            = 5;          //PTOS P/ ATIV TS
+input double             pontosts2           = 5;          //PTOS SL NOVO DO TS
 input group              "GERENCIAMENTO DE RISCO - ATIVAÇÃO DE FUNÇÕES"
 input bool               fechaordensnozero   = false;      //ATIVA FECHAMENTO NO ZERO A ZERO
 input int                qtdezero            = 4;          //QTDE MINIMA ORDENS FECHADAS P/ 0x0
@@ -388,20 +386,20 @@ void OnTick()
          volnv13            = (volumeoper+volnv2+volnv3+volnv4+volnv5+volnv6+volnv7+volnv8+volnv9+volnv10+volnv11+volnv12)*multiplicador;//
          volnv14            = (volumeoper+volnv2+volnv3+volnv4+volnv5+volnv6+volnv7+volnv8+volnv9+volnv10+volnv11+volnv12+volnv13)*multiplicador;//
         }
-      if(volnv2>220.0)
-         volnv2=0;
-      if(volnv3>220.0)
-         volnv3=0;
-      if(volnv4>220.0)
-         volnv4=0;
-      if(volnv5>220.0)
-         volnv5=0;
-      if(volnv6>220.0)
-         volnv6=0;
-      if(volnv7>220.0)
-         volnv7=0;
-      if(volnv8>220.0)
-         volnv8=0;
+      //      if(volnv2>220.0)
+      //         volnv2=0;
+      //      if(volnv3>220.0)
+      //         volnv3=0;
+      //      if(volnv4>220.0)
+      //         volnv4=0;
+      //      if(volnv5>220.0)
+      //         volnv5=0;
+      //      if(volnv6>220.0)
+      //         volnv6=0;
+      //      if(volnv7>220.0)
+      //         volnv7=0;
+      //      if(volnv8>220.0)
+      //         volnv8=0;
 
      }
 
@@ -1148,30 +1146,24 @@ void OnTick()
    if(ativbreak==true)
      {
 
-      if(PosAberta("POSSUI","COMPRA","") && tick.bid>DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")-pontosbreak*_Point && //
-         DadosPos("COMPRA","SL DA ÚLTIMA POSIÇÃO")<DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO"))
+      if(PosFechadaTrueFalse("ÚLTIMA POSIÇÃO FECHADA FOI DE TP","COMPRA") && PosAberta("POSSUI","COMPRA","BE COMPRA")==false)
         {
-         trade.PositionModify(_Symbol,DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO"),DadosPos("COMPRA","TP DA ÚLTIMA POSIÇÃO")+pontosbreak2*_Point);
+         trade.Buy(DadosPosFechada("VOLUME DA ÚLTIMA POSIÇÃO FECHADA","COMPRA"),_Symbol,tick.ask,tick.bid-pontosbesl*_Point,NULL,"BE COMPRA");
          Sleep(200);
         }
-      if(PosAberta("POSSUI","COMPRA","") && tick.bid>DadosPos("COMPRA","SL DA ÚLTIMA POSIÇÃO")+pontosts*_Point && //
-         DadosPos("COMPRA","SL DA ÚLTIMA POSIÇÃO")>=DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO"))
+      if(PosAberta("POSSUI","COMPRA","BE COMPRA") && tick.bid>DadosPos("COMPRA","PREÇO DA ÚLTIMA POSIÇÃO")+pontosts*_Point)
         {
-         trade.PositionModify(_Symbol,DadosPos("COMPRA","SL DA ÚLTIMA POSIÇÃO")+pontosts*_Point,DadosPos("COMPRA","TP DA ÚLTIMA POSIÇÃO")+pontosts*_Point);
-         Sleep(200);
+         trade.PositionModify(TicketPosAberta(),DadosPos("COMPRA","SL DA ÚLTIMA POSIÇÃO")+pontosts2*_Point,NULL);
         }
 
-      if(PosAberta("POSSUI","VENDA","") && tick.ask<DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")+pontosbreak*_Point && //
-         DadosPos("VENDA","SL DA ÚLTIMA POSIÇÃO")>DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO"))
+      if(PosFechadaTrueFalse("ÚLTIMA POSIÇÃO FECHADA FOI DE TP","VENDA") && PosAberta("POSSUI","VENDA","BE VENDA")==false)
         {
-         trade.PositionModify(_Symbol,DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO"),DadosPos("VENDA","TP DA ÚLTIMA POSIÇÃO")-pontosbreak2*_Point);
+         trade.Buy(DadosPosFechada("VOLUME DA ÚLTIMA POSIÇÃO FECHADA","VENDA"),_Symbol,tick.bid,tick.ask+pontosbesl*_Point,NULL,"BE VENDA");
          Sleep(200);
         }
-      if(PosAberta("POSSUI","VENDA","") && tick.bid<DadosPos("VENDA","SL DA ÚLTIMA POSIÇÃO DE VENDA")-pontosts*_Point && //
-         DadosPos("VENDA","SL DA ÚLTIMA POSIÇÃO")<=DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO"))
+      if(PosAberta("POSSUI","COMPRA","BE VENDA") && tick.ask<DadosPos("VENDA","PREÇO DA ÚLTIMA POSIÇÃO")-pontosts*_Point)
         {
-         trade.PositionModify(_Symbol,DadosPos("VENDA","SL DA ÚLTIMA POSIÇÃO")-pontosts*_Point,DadosPos("VENDA","TP DA ÚLTIMA POSIÇÃO")-pontosts*_Point);
-         Sleep(200);
+         trade.PositionModify(TicketPosAberta(),DadosPos("COMPRA","SL DA ÚLTIMA POSIÇÃO")+pontosts2*_Point,NULL);
         }
      }
   }
@@ -1332,6 +1324,28 @@ bool PossuiPosAbertaOutroAtivo()
    return false;
   }
 //+------------------------------------------------------------------------------------------+
+//+---------------------------------------+
+//| RETORNA O TICKET DA ÚLTIMA POS ABERTA |
+//+---------------------------------------+
+ulong TicketPosAberta()
+  {
+   if(PositionsTotal()>0)
+     {
+      for(int i=PositionsTotal()-1; i >= 0; i--)
+        {
+         ulong ticket=PositionGetTicket(i);
+         string symbol = PositionGetString(POSITION_SYMBOL);
+         ENUM_POSITION_TYPE TipoPosicao=(ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
+         if((TipoPosicao==POSITION_TYPE_BUY||TipoPosicao==POSITION_TYPE_SELL) && symbol==_Symbol)
+           {
+            return ticket;
+            break;
+           }
+        }
+     }
+   return NULL;
+  }
+//+------------------------------------------------------------------------------------------+
 //+---------------------------------------------------------------+
 //| FUNÇÃO DE VERIFICAÇÃO DE POSIÇÕES ABERTAS E SUAS RAMIFICAÇÕES |
 //+---------------------------------------------------------------+
@@ -1370,7 +1384,7 @@ bool PosAberta(string acao, string tipo, string comentario)
         }
      }
    return false;
-   Sleep(500);
+   Sleep(200);
   }
 //+------------------------------------------------------------------------------------------+
 //+-----------------------------------------------------+
@@ -1602,16 +1616,18 @@ double DadosPosFechada(string acao, string tipo)
   {
    double      qtdeordens=0;
    double      contador=0;
-   datetime    tempopos=D'2000.01.01 01:00';
    ulong       ticket=0;
    double      profit=0;
    double      profit1=0;
+   double      volume=0;
+   double      volume1=0;
    string      symbol;
    long        reason;
    long        entry;
    long        type;
    datetime    time;
    datetime    time1=D'2000.01.01 01:00';
+   datetime    tempopos=D'2000.01.01 01:00';
    MqlDateTime timeoper;
    HistorySelect(0,TimeCurrent());
    uint        dealstotal = HistoryDealsTotal();
@@ -1624,6 +1640,7 @@ double DadosPosFechada(string acao, string tipo)
          entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
          type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
          profit=HistoryDealGetDouble(ticket,DEAL_PROFIT);
+         volume=HistoryDealGetDouble(ticket,DEAL_VOLUME);
          time  =(datetime)HistoryDealGetInteger(ticket,DEAL_TIME);
          if(tipo=="COMPRA")
            {
@@ -1635,6 +1652,14 @@ double DadosPosFechada(string acao, string tipo)
                     {
                      time1=time;
                      profit1=profit;
+                    }
+                 }
+               if(acao=="VOLUME DA ÚLTIMA POSIÇÃO FECHADA")
+                 {
+                  if(time>time1)
+                    {
+                     time1=time;
+                     volume1=volume;
                     }
                  }
                if(acao=="QTDE DE POSIÇÕES FECHADAS APÓS A ULTIMA POSIÇÃO ABERTA")
@@ -1653,10 +1678,21 @@ double DadosPosFechada(string acao, string tipo)
            {
             if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
               {
-               if(time>time1)
+               if(acao=="PROFIT DA ÚLTIMA POSIÇÃO FECHADA")
                  {
-                  time1=time;
-                  profit1=profit;
+                  if(time>time1)
+                    {
+                     time1=time;
+                     profit1=profit;
+                    }
+                 }
+               if(acao=="VOLUME DA ÚLTIMA POSIÇÃO FECHADA")
+                 {
+                  if(time>time1)
+                    {
+                     time1=time;
+                     volume1=volume;
+                    }
                  }
                if(acao=="QTDE DE POSIÇÕES FECHADAS APÓS A ULTIMA POSIÇÃO ABERTA")
                  {
@@ -1682,6 +1718,8 @@ double DadosPosFechada(string acao, string tipo)
      }
    if(acao=="PROFIT DA ÚLTIMA POSIÇÃO FECHADA")
       return profit1;
+   if(acao=="VOLUME DA ÚLTIMA POSIÇÃO FECHADA")
+      return volume1;
    if(acao=="QTDE DE POSIÇÕES FECHADAS APÓS A ULTIMA POSIÇÃO ABERTA")
       return qtdeordens;
    if(acao=="QTDE DE SL DO DIA")
@@ -2277,12 +2315,63 @@ double   puxatpsl(string tpsl)
         }
       if(tipooper==tipohedge)
         {
-         if(str=="TPV0"||str=="TPV1"||str=="TPV2"||str=="TPV3"||str=="TPV4"||str=="TPV5"||str=="TPV6"||str=="TPV7"|| //
-            str=="TPV8"||str=="TPV9"||str=="TPV10"||str=="TPV11"||str=="TPV12"||str=="TPV13"||str=="TPV14")
-            return(tick.ask-pontosc1*_Point);
-         if(str=="TPC0"||str=="TPC1"||str=="TPC2"||str=="TPC3"||str=="TPC4"||str=="TPC5"||str=="TPC6"||str=="TPC7"|| //
-            str=="TPC8"||str=="TPC9"||str=="TPC10"||str=="TPC11"||str=="TPC12"||str=="TPC13"||str=="TPC14")
+         if(str=="TPC0")
             return(tick.bid+pontosc1*_Point);
+         if(str=="TPC1")
+            return(tick.bid+pontosc2*_Point);
+         if(str=="TPC2")
+            return(tick.bid+pontosc3*_Point);
+         if(str=="TPC3")
+            return(tick.bid+pontosc4*_Point);
+         if(str=="TPC4")
+            return(tick.bid+pontosc5*_Point);
+         if(str=="TPC5")
+            return(tick.bid+pontosc6*_Point);
+         if(str=="TPC6")
+            return(tick.bid+pontosc7*_Point);
+         if(str=="TPC7")
+            return(tick.bid+pontosc8*_Point);
+         if(str=="TPC8")
+            return(tick.bid+pontosc9*_Point);
+         if(str=="TPC9")
+            return(tick.bid+pontosc10*_Point);
+         if(str=="TPC10")
+            return(tick.bid+pontosc11*_Point);
+         if(str=="TPC11")
+            return(tick.bid+pontosc12*_Point);
+         if(str=="TPC12")
+            return(tick.bid+pontosc13*_Point);
+         if(str=="TPC13")
+            return(tick.bid+pontosc14*_Point);
+
+         if(str=="TPV0")
+            return(tick.ask-pontosc1*_Point);
+         if(str=="TPV1")
+            return(tick.ask-pontosc2*_Point);
+         if(str=="TPV2")
+            return(tick.ask-pontosc3*_Point);
+         if(str=="TPV3")
+            return(tick.ask-pontosc4*_Point);
+         if(str=="TPV4")
+            return(tick.ask-pontosc5*_Point);
+         if(str=="TPV5")
+            return(tick.ask-pontosc6*_Point);
+         if(str=="TPV6")
+            return(tick.ask-pontosc7*_Point);
+         if(str=="TPV7")
+            return(tick.ask-pontosc8*_Point);
+         if(str=="TPV8")
+            return(tick.ask-pontosc9*_Point);
+         if(str=="TPV9")
+            return(tick.ask-pontosc10*_Point);
+         if(str=="TPV10")
+            return(tick.ask-pontosc11*_Point);
+         if(str=="TPV11")
+            return(tick.ask-pontosc12*_Point);
+         if(str=="TPV12")
+            return(tick.ask-pontosc13*_Point);
+         if(str=="TPV13")
+            return(tick.ask-pontosc14*_Point);
         }
      }
    return(NULL);
@@ -2573,6 +2662,8 @@ void FechaOrdensNozero()
         }
      }
   }
+//+------------------------------------------------------------------+
+
 //+------------------------------------------------------------------+
 
 //+------------------------------------------------------------------+
