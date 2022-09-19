@@ -69,7 +69,8 @@ enum ENUM_TP_GAIN
 input group              "ABERTURA DE ORDENS"
 input bool               ativatendencia      = false;      //ATIVA SEGUIDOR DE TENDÊNCIA
 input double             qtdecandlestend     = 5;          //QTDE N ÚLTIMOS CANDLES P COMPARAR
-input double             percenttend         = 0.2;         //PERCENTUAL MÍNIMO VARIAÇÃO P OPERAR
+input double             percenttend         = 0.2;        //PERCENTUAL MÍNIMO VARIAÇÃO P OPERAR
+input double             percentteste        = 75;         //PERCENTUAL MÍNIMO DA QTDE DE CHECK OK 
 input bool               ativaentradaea      = true;       //ATIVA ABERTURA AUTOMÁTICA DE ORDENS
 input double             loteinicial         = 0.1;        //TAMANHO DO LOTE INICIAL
 input double             aumentoprop         = 500.00;     //VALOR P/ AUMENTO PROPORCIONAL DO LOTE
@@ -1191,7 +1192,7 @@ void VaiTendencia()
    double percentfavorcompra = favoravelcompra/qtdecandlestend;
    Print(" ticks: ",varcompra," favoravelcompra: ",favoravelcompra," percentfavorcompra: ",percentfavorcompra);
 
-   if(percentfavorcompra>0.75 && !PosAberta("POSSUI","COMPRA","BE COMPRA"))
+   if(percentfavorcompra*100>percentteste && !PosAberta("POSSUI","COMPRA","BE COMPRA"))
       trade.Buy(0.01,_Symbol,tick.ask,tick.bid-pontosbesl*_Point,0,"BE COMPRA");
 
    double varvenda;
@@ -1205,7 +1206,7 @@ void VaiTendencia()
    double percentfavorvenda = favoravelvenda/qtdecandlestend;
    Print(" ticks: ",varvenda," favoravelvenda: ",favoravelvenda," percentfavorvenda: ",percentfavorvenda);
 
-   if(percentfavorvenda>0.75 && !PosAberta("POSSUI","VENDA","BE VENDA"))
+   if(percentfavorvenda*100>percentteste && !PosAberta("POSSUI","VENDA","BE VENDA"))
       trade.Sell(0.01,_Symbol,tick.bid,tick.ask+pontosbesl*_Point,0,"BE VENDA");
 
   }
