@@ -1191,7 +1191,7 @@ void VaiTendencia()
       varcompra = NormalizeDouble(((ticks[i].ask-ticks[1999].ask)/ticks[1999].ask*100),4);
       if(varcompra>(percenttend/100))
          favoravelcompra++;
-      Print(" % ticks ask: ",varcompra);
+      //Print(" % ticks ask: ",varcompra);
      }
    double percentfavorcompra = favoravelcompra/qtdecandlestend;
    if(percentfavorcompra*100>percentteste && !PosAberta("POSSUI","COMPRA","BE COMPRA"))
@@ -1203,7 +1203,7 @@ void VaiTendencia()
       varvenda = NormalizeDouble(((ticks[i].bid-ticks[1999].bid)/ticks[1999].bid*100),4);
       if(varvenda<-1*(percenttend/100))
          favoravelvenda++;
-      Print(" % ticks bid: ",varvenda);
+      //Print(" % ticks bid: ",varvenda);
      }
    double percentfavorvenda = favoravelvenda/qtdecandlestend;
    if(percentfavorvenda*100>percentteste && !PosAberta("POSSUI","VENDA","BE VENDA"))
