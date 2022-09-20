@@ -70,7 +70,7 @@ input group              "ABERTURA DE ORDENS"
 input bool               ativatendencia      = false;      //ATIVA SEGUIDOR DE TENDÊNCIA
 input double             qtdecandlestend     = 5;          //QTDE N ÚLTIMOS CANDLES P COMPARAR
 input double             percenttend         = 0.2;        //PERCENTUAL MÍNIMO VARIAÇÃO P OPERAR
-input double             percentteste        = 75;         //PERCENTUAL MÍNIMO DA QTDE DE CHECK OK 
+input double             percentteste        = 75;         //PERCENTUAL MÍNIMO DA QTDE DE CHECK OK
 input bool               ativaentradaea      = true;       //ATIVA ABERTURA AUTOMÁTICA DE ORDENS
 input double             loteinicial         = 0.1;        //TAMANHO DO LOTE INICIAL
 input double             aumentoprop         = 500.00;     //VALOR P/ AUMENTO PROPORCIONAL DO LOTE
@@ -165,7 +165,7 @@ double                   stopvenda           = 0.0;
 double                   takecompra          = 0.0;
 double                   takevenda           = 0.0;
 
-int                      handlebb,handlersi,handleMM,handleSAR,handleSARh4;
+int                      handlebb,handlersi,handleMM,handleSAR,handleSARh4,primeirotick=0;
 
 ulong                    magicrobo           = 941;
 
@@ -499,16 +499,14 @@ void OnTick()
 //+-----------------------------+
 //| NOVA ESTRATÉGIA - TENDÊNCIA |
 //+-----------------------------+
-
-   if(ativatendencia)
+   if(ativatendencia/* && TimeCurrent()>D'2022.02.08 01:00'*/)
      {
       VaiTendencia();
      }
+
 //+------------------------------------------------------------------+
 //| OPERAÇÕES SEGUINDO A ESTRATÉGIA ESCOLHIDA |
 //+------------------------------------------------------------------+
-
-//   Print("ABERTURA DO CANDLE: ",aberturacandleatual);
 
 //--- Check de posição aberta em outro ativo, horário de operação e margem suficiente pra operar
    if(ativaentradaea && !PossuiPosAbertaOutroAtivo() && HorarioEntrada()==true && HorarioPausa1()==false && (percent_margem>prcentabert||saldo==capital))
@@ -1181,34 +1179,38 @@ void OnTick()
 //+------------------------------------------------------------------+
 void VaiTendencia()
   {
-   double varcompra;
+   uint tempoping = TerminalInfoInteger(TERMINAL_PING_LAST);
+   double varcompra=0;
    double favoravelcompra=0;
+   double varvenda=0;
+   double favoravelvenda=0;
+   
+//--- COMPRAS
    for(int i=0; i<qtdecandlestend-1; i++)
      {
       varcompra = NormalizeDouble(((ticks[i].ask-ticks[1999].ask)/ticks[1999].ask*100),4);
       if(varcompra>(percenttend/100))
          favoravelcompra++;
+      Print(" % ticks ask: ",varcompra);
      }
    double percentfavorcompra = favoravelcompra/qtdecandlestend;
-   Print(" ticks: ",varcompra," favoravelcompra: ",favoravelcompra," percentfavorcompra: ",percentfavorcompra);
-
    if(percentfavorcompra*100>percentteste && !PosAberta("POSSUI","COMPRA","BE COMPRA"))
       trade.Buy(0.01,_Symbol,tick.ask,tick.bid-pontosbesl*_Point,0,"BE COMPRA");
-
-   double varvenda;
-   double favoravelvenda=0;
+      
+//--- VENDAS
    for(int i=0; i<qtdecandlestend-1; i++)
      {
       varvenda = NormalizeDouble(((ticks[i].bid-ticks[1999].bid)/ticks[1999].bid*100),4);
       if(varvenda<-1*(percenttend/100))
          favoravelvenda++;
+      Print(" % ticks bid: ",varvenda);
      }
    double percentfavorvenda = favoravelvenda/qtdecandlestend;
-   Print(" ticks: ",varvenda," favoravelvenda: ",favoravelvenda," percentfavorvenda: ",percentfavorvenda);
-
    if(percentfavorvenda*100>percentteste && !PosAberta("POSSUI","VENDA","BE VENDA"))
       trade.Sell(0.01,_Symbol,tick.bid,tick.ask+pontosbesl*_Point,0,"BE VENDA");
 
+   Print(" percentfavorcompra: ",percentfavorcompra," percentfavorvenda: ",percentfavorvenda);
+   
   }
 
 //+------------------------------------------------------------------------------------------+
