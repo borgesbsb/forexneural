@@ -68,10 +68,6 @@ enum ENUM_TP_GAIN
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //input ulong              magicrobo           = 941;        //MAGIC NUMBER DO ROBÔ
 input group              "ABERTURA DE ORDENS"
-input int                qtdecandlestend     = 5;          //QTDE N ÚLTIMOS CANDLES P COMPARAR
-input double             percenttend         = 0.2;        //PERCENTUAL MÍNIMO VARIAÇÃO P OPERAR
-input double             percentteste        = 75;         //PERCENTUAL MÍNIMO DA QTDE DE CHECK OK
-
 input bool               ativaentradaea      = true;       //ATIVA ABERTURA AUTOMÁTICA DE ORDENS
 input double             loteinicial         = 0.1;        //TAMANHO DO LOTE INICIAL
 input double             aumentoprop         = 500.00;     //VALOR P AUMENTO PROPORCIONAL DO LOTE
@@ -99,7 +95,11 @@ double             desviobb            = 2.0;        //DESVIO P BANDAS DE BOLING
 input group              "VALORES DEFINIDOS P/ ENVELOPE"
 input int                periodm1            = 63;         //PERIODO DA MÉDIA P/ ENVELOPE
 input double             tamanhoenvelope     = 150;        //DISTÂNCIA P ENVELOPE
-input group              "REDE NEURAL"
+input group              "TENDÊNCIA"
+input int                qtdecandlestend     = 5;          //QTDE N ÚLTIMOS TICKS P COMPARAR
+input double             prctsingle          = 0.2;        //PERCENTUAL MÍNIMO VAR UMA ORDEM
+input double             prctfull            = 75;         //PERCENTUAL MÍNIMO VAR TODAS AS ORDENS
+input long               timevar             = 500;        //TEMPO QUE OCORREU A VARIAÇÃO EM MS
 input group              "FECHAMENTO DE ORDENS"
 //input bool               ativasaidaea        = true;       //ATIVA FECHAMENTO DE ORDENS
 input ENUM_TP_GAIN       tipogain            = tpgainprct; //SELECIONE TIPO DE GANHO
@@ -179,6 +179,9 @@ CDictionary *dict = new CDictionary();
 int OnInit()
   {
 
+//--- Ajusta o timer do EA para o tempo em milisegundos no parentese
+   EventSetMillisecondTimer(50);
+
 //--- Ajusta horarios segundo inputs inseridos
    TimeToStruct(StringToTime(horainicial),hrinicialstruct);
    TimeToStruct(StringToTime(horafinal),hrfinalstruct);
@@ -239,7 +242,7 @@ void OnDeinit(const int reason)
   {
 //---
    ChartIndicatorDelete(0,1,shortname);
-
+   EventKillTimer();
 // Motivo da desinicialização do EA
    printf("Deinit reason: %d", reason);
   }
@@ -257,8 +260,11 @@ void OnTick()
       Alert("Erro ao obter informações de Mqlticks: ", GetLastError());
       return;
      }
-   CopyTicks(_Symbol,ticks,COPY_TICKS_ALL/*,aberturacandleatual,4000&*/);
    CopyRates(_Symbol,_Period,0,5,candle);
+
+   if(estrategia==estrat15)
+      CopyTicks(_Symbol,ticks,COPY_TICKS_ALL/*,aberturacandleatual,4000&*/);
+
    if(CopyRates(_Symbol,_Period,0,5,candle)<0)
      {
       Alert("Erro ao obter informações de Mqlrates: ", GetLastError());
@@ -324,7 +330,6 @@ void OnTick()
 
    if(NB1.IsNewBar(_Symbol,_Period)) //VERIFICA SE É UM NOVO CANDLE
      {
-
       //--- Definição dos lotes iniciais de compra e venda
       if(saldo<valoraumento)
          volumeoper=loteinicial;
@@ -472,12 +477,14 @@ void OnTick()
      }
 
    TimeToStruct(TimeCurrent(),hratualstruct);
-//datetime aberturacandleatual=datetime(SeriesInfoInteger(_Symbol,_Period,SERIES_LASTBAR_DATE));
+   datetime aberturacandleatual=datetime(SeriesInfoInteger(_Symbol,_Period,SERIES_LASTBAR_DATE));
+
    if(estrategia==estrat4 || estrategia==estrat9 || estrategia==estrat14)
      {
       sarnormalizado0 = NormalizeDouble(sar[0],5);
       sarnormalizado1 = NormalizeDouble(sar[1],5);
      }
+
    if(estrategia==estrat10 || estrategia==estrat11 || estrategia==estrat12 || estrategia==estrat13 || estrategia==estrat14)
       previsao = NormalizeDouble(StringToDouble(dict.Get<string>(TimeCurrent())),5);
 
@@ -513,7 +520,6 @@ void OnTick()
 //--- Check de posição aberta em outro ativo, horário de operação e margem suficiente pra operar
    if(ativaentradaea && !PossuiPosAbertaOutroAtivo() && HorarioEntrada() && !HorarioPausa1() && (percent_margem>prcentabert||saldo==capital))
      {
-
       //--- Verifica se candle acabou de abrir e se o número de STOPS ultrapassou o máximo permitido no dia
       if(NB2.IsNewBar(_Symbol,_Period))
         {
@@ -646,11 +652,6 @@ void OnTick()
             //---| ESTRATEGIA ENVELOPE |---//
             if(estrategia==estrat6)
               {
-
-               double probcompra = ProbTicks("COMPRA");
-               double probvenda = ProbTicks("VENDA");
-               Print(" Probabilidade de Compra: ",probcompra," Probabilidade de venda: ",probvenda);
-
                if(candle[1].close>mm[1]+tamanhoenvelope*_Point)
                   trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),puxatpsl("TPV0"),"V1");
               }
@@ -823,20 +824,18 @@ void OnTick()
               }
            }
         }
+
       //---| ESTRATEGIA TENDÊNCIA |---//
       if(estrategia==estrat15)
         {
-         double probcompra = ProbTicks("COMPRA");
-         double probvenda = ProbTicks("VENDA");
-         Print(" Probabilidade de Compra: ",probcompra," Probabilidade de venda: ",probvenda);
-         if(ProbTicks("COMPRA") && !PosAberta("POSSUI","COMPRA","BE COMPRA") && probcompra>percentteste)
+         if(ProbTicks("COMPRA") && (!PosAberta("POSSUI","COMPRA","BE COMPRA") && !PosAberta("POSSUI","VENDA","BE VENDA")))
            {
-            trade.Buy(volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),puxatpsl("TPC0"),"C1");
+            trade.Buy(volumeoper,_Symbol,tick.ask,tick.bid-pontosbesl*_Point,0,"BE COMPRA");
             Sleep(500);
            }
-         if(ProbTicks("VENDA") && !PosAberta("POSSUI","VENDA","BE VENDA") && probvenda>percentteste)
+         if(ProbTicks("VENDA") && (!PosAberta("POSSUI","COMPRA","BE COMPRA") && !PosAberta("POSSUI","VENDA","BE VENDA")))
            {
-            trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),puxatpsl("TPV0"),"V1");
+            trade.Sell(volumeoper,_Symbol,tick.bid,tick.ask+pontosbesl*_Point,0,"BE VENDA");
             Sleep(500);
            }
         }
@@ -902,49 +901,68 @@ void OnTick()
 /////////////////////////////////////
 //| INÍCIO DAS FUNÇÕES AUXILIARES |//
 /////////////////////////////////////
-//+----------------------------------------------------------------------+
-//|VERIFICA A PROBABILIDADE DE COMPRA/VENDA ATRAVÉS DA VARIAÇÃO DOS TICKS|
-//+----------------------------------------------------------------------+
-double ProbTicks(string tipo)
+//+-------------------------------------------------------------------------------+
+//|VERIFICA A PROBABILIDADE DE COMPRA/VENDA ATRAVÉS DA VARIAÇÃO DOS TICKS NO TEMPO|
+//+-------------------------------------------------------------------------------+
+bool ProbTicks(string tipo)
   {
+   bool tempook = false;
+   long ultimotick=0;
+   long primeirotick=0;
    double varcompra=0;
-   double favoravelcompra=0;
    double varvenda=0;
+   double favoravelcompra=0;
    double favoravelvenda=0;
    double percentfavorcompra=0;
    double percentfavorvenda=0;
+   
    if(tipo=="COMPRA")
      {
       for(int i=0; i<qtdecandlestend-1; i++)
         {
          varcompra = NormalizeDouble(((ticks[i].ask-ticks[qtdecandlestend-1].ask)/ticks[qtdecandlestend-1].ask*100),4);
-         if(varcompra>(percenttend/100))
+         if(varcompra>(prctsingle/100))
             favoravelcompra++;
-         //Print(" % ticks ask: ",varcompra);
+         if(i==0)
+            ultimotick = ticks[i].time_msc;
+         if(i==qtdecandlestend-2 && ultimotick<ticks[i].time_msc+timevar)
+           {
+            primeirotick = ticks[i].time_msc;
+            tempook = true;
+           }
+         percentfavorcompra = NormalizeDouble((favoravelcompra/qtdecandlestend*100),2);
         }
-      percentfavorcompra = NormalizeDouble((favoravelcompra/qtdecandlestend*100),2);
      }
-//   if(percentfavorcompra*100>percentteste && !PosAberta("POSSUI","COMPRA","BE COMPRA"))
+//   if(percentfavorcompra*100>prctfull && !PosAberta("POSSUI","COMPRA","BE COMPRA"))
 //      trade.Buy(0.01,_Symbol,tick.ask,tick.bid-pontosbesl*_Point,0,"BE COMPRA");
+
    if(tipo=="VENDA")
      {
       for(int i=0; i<qtdecandlestend-1; i++)
         {
          varvenda = NormalizeDouble(((ticks[i].bid-ticks[qtdecandlestend-1].bid)/ticks[qtdecandlestend-1].bid*100),4);
-         if(varvenda<-1*(percenttend/100))
+         if(varvenda<-1*(prctsingle/100))
             favoravelvenda++;
-         //Print(" % ticks bid: ",varvenda);
+         if(i==0)
+            ultimotick = ticks[i].time_msc;
+         if(i==qtdecandlestend-2 && ultimotick<ticks[i].time_msc+timevar)
+           {
+            primeirotick = ticks[i].time_msc;
+            tempook = true;
+           }
         }
       percentfavorvenda = NormalizeDouble((favoravelvenda/qtdecandlestend*100),2);
      }
-//   if(percentfavorvenda*100>percentteste && !PosAberta("POSSUI","VENDA","BE VENDA"))
+//   if(percentfavorvenda*100>prctfull && !PosAberta("POSSUI","VENDA","BE VENDA"))
 //      trade.Sell(0.01,_Symbol,tick.bid,tick.ask+pontosbesl*_Point,0,"BE VENDA");
-   if(tipo=="COMPRA")
-      return percentfavorcompra;
-   if(tipo=="VENDA")
-      return percentfavorvenda;
+   Print(" Probabilidade de Compra: ",percentfavorcompra," Probabilidade de venda: ",percentfavorvenda);
+   if((tipo=="COMPRA" && percentfavorcompra>=prctfull && tempook) || (tipo=="VENDA" && percentfavorvenda>=prctfull && tempook))
+     {
+      Print("Hora ultimo tick: ",ultimotick," Hora primeiro tick: ",primeirotick," Ultimo menos o primeiro: ",ultimotick-primeirotick," Hora máxima da condição: ",primeirotick+timevar);
+      return true;
+     }
 
-   return NULL;
+   return false;
   }
 
 //+------------------------------------------------------------------------------------------+
@@ -2352,5 +2370,8 @@ void FechaOrdensNozero()
      }
   }
 //+------------------------------------------------------------------+
+
+//+------------------------------------------------------------------+
+
 
 //+------------------------------------------------------------------+
