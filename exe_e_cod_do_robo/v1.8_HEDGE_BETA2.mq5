@@ -830,12 +830,12 @@ void OnTick()
         {
          if(ProbTicks("COMPRA") && (!PosAberta("POSSUI","COMPRA","BE COMPRA") && !PosAberta("POSSUI","VENDA","BE VENDA")))
            {
-            trade.Buy(volumeoper,_Symbol,tick.ask,tick.bid-pontosbesl*_Point,0,"BE COMPRA");
+            trade.Buy(volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),puxatpsl("TPC0"),"BE COMPRA");
             Sleep(500);
            }
          if(ProbTicks("VENDA") && (!PosAberta("POSSUI","COMPRA","BE COMPRA") && !PosAberta("POSSUI","VENDA","BE VENDA")))
            {
-            trade.Sell(volumeoper,_Symbol,tick.bid,tick.ask+pontosbesl*_Point,0,"BE VENDA");
+            trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),puxatpsl("TPV0"),"BE VENDA");
             Sleep(500);
            }
         }
