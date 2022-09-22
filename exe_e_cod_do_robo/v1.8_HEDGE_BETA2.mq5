@@ -831,12 +831,12 @@ void OnTick()
          Print(" Probabilidade de Compra: ",probcompra," Probabilidade de venda: ",probvenda);
          if(ProbTicks("COMPRA") && !PosAberta("POSSUI","COMPRA","BE COMPRA") && probcompra>percentteste)
            {
-            trade.Buy(volumeoper,_Symbol,tick.ask,tick.bid-pontosbesl*_Point,0,"BE COMPRA");
+            trade.Buy(volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),puxatpsl("TPC0"),"C1");
             Sleep(500);
            }
          if(ProbTicks("VENDA") && !PosAberta("POSSUI","VENDA","BE VENDA") && probvenda>percentteste)
            {
-            trade.Sell(volumeoper,_Symbol,tick.bid,tick.ask+pontosbesl*_Point,0,"BE VENDA");
+            trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),puxatpsl("TPV0"),"V1");
             Sleep(500);
            }
         }
