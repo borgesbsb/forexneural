@@ -533,7 +533,7 @@ void OnTick()
          ////////////////////////////////////////////////
          //---| PRIMEIRA COMPRA DE CADA ESTRATÉGIA |---//
          ////////////////////////////////////////////////
-         if(!PosAberta("POSSUI","COMPRA","C1"))
+         if(!PosAberta("POSSUI","COMPRA",""))
            {
             //---| ESTRATEGIA ENVELOPE/RSI/BOLINGER |---//
             if(estrategia==estrat1)
@@ -624,7 +624,7 @@ void OnTick()
          ///////////////////////////////////////////////
          //---| PRIMEIRA VENDA DE CADA ESTRATÉGIA |---//
          ///////////////////////////////////////////////
-         if(!PosAberta("POSSUI","VENDA","V1"))
+         if(!PosAberta("POSSUI","VENDA",""))
            {
             //---| ESTRATEGIA ENVELOPE/RSI/BOLINGER |---//
             if(estrategia==estrat1)
