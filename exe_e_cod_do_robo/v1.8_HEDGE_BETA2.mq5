@@ -44,7 +44,7 @@ enum ENUM_TP_ESTRAT
 enum ENUM_TP_CONTA
   {
    tipocent,     //[1]CONTA CENT
-   tipoprime,    //[2]CONTA PRIME/ECN
+   tipoprime,    //[2]CONTA PRIME/ECN/B3
   };
 
 enum ENUM_TP_OPER
@@ -69,7 +69,7 @@ enum ENUM_TP_GAIN
 //input ulong              magicrobo           = 941;        //MAGIC NUMBER DO ROBÔ
 input group              "ABERTURA DE ORDENS"
 input bool               ativaentradaea      = true;       //ATIVA ABERTURA AUTOMÁTICA DE ORDENS
-input double             loteinicial         = 0.1;        //TAMANHO DO LOTE INICIAL
+input double             loteinicial         = 0.1;        //TAMANHO DO LOTE INICIAL(WIN$-1CONTRATO)
 input double             aumentoprop         = 500.00;     //VALOR P AUMENTO PROPORCIONAL DO LOTE
 input ENUM_TP_CONTA      tipoconta           = tipocent;   //SELECIONE O TIPO DE CONTA
 ENUM_TP_OPER       tipooper            = tipohedge;  //SELECIONE O TIPO DE OPERAÇÃO
@@ -83,15 +83,15 @@ input int                qtdecandle          = 2;          //QTOS CANDLES P PX E
 input group              "ESCOLHA DA ESTRATÉGIA"
 input ENUM_TP_ESTRAT     estrategia          = estrat1;    //ESCOLHA A ESTRATÉGIA
 input group              "VALORES DEFINIDOS P/ SAR"
-double             stepSAR             = 0.02;       //STEP do SAR
-double             maximumSAR          = 0.2;        //MAXIMUM do SAR
+input double             stepSAR             = 0.02;       //STEP do SAR
+input double             maximumSAR          = 0.2;        //MAXIMUM do SAR
 input group              "VALORES DEFINIDOS P/ RSI"
-int                periodorsi          = 14;         //PERIODO P RSI
-int                sobrevrsi           = 70;         //PORCENTAGEM DE SOBREVENDA
-int                sobrecrsi           = 30;         //PORCENTAGEM DE SOBRECOMPRA
+input int                periodorsi          = 14;         //PERIODO P RSI
+input int                sobrevrsi           = 70;         //PORCENTAGEM DE SOBREVENDA
+input int                sobrecrsi           = 30;         //PORCENTAGEM DE SOBRECOMPRA
 input group              "VALORES DEFINIDOS P/ BANDAS DE BOLLINGER"
-int                periodobb           = 14;         //PERIODO P BANDAS DE BOLINGER
-double             desviobb            = 2.0;        //DESVIO P BANDAS DE BOLINGER
+input int                periodobb           = 14;         //PERIODO P BANDAS DE BOLINGER
+input double             desviobb            = 2.0;        //DESVIO P BANDAS DE BOLINGER
 input group              "VALORES DEFINIDOS P/ ENVELOPE"
 input int                periodm1            = 63;         //PERIODO DA MÉDIA P/ ENVELOPE
 input double             tamanhoenvelope     = 150;        //DISTÂNCIA P ENVELOPE
@@ -123,7 +123,7 @@ input bool               ativbreak           = false;      //ATIVA BREAKEVEN/TRA
 input double             pontosbesl          = 10;         //PTOS A MENOS PARA SL NOVO DO BE
 input double             pontosts            = 5;          //PTOS P ATIV TS
 input double             pontosts2           = 5;          //PTOS SL NOVO DO TS
-input group              "GERENCIAMENTO DE RISCO - ATIVAÇÃO DE FUNÇÕES"
+input group              "GERENCIAMENTO DE RISCO - ATIVAÇÃO DE FUNÇÕES(MINICONTRATO N USAR)"
 input bool               fechaordensnozero   = false;      //ATIVA FECHAMENTO NO ZERO A ZERO
 input int                qtdezero            = 4;          //QTDE MINIMA ORDENS FECHADAS P/ 0x0
 //input bool               ativafechafull      = true;       //ATIVA FECHAMENTO DE ORDENS QNDO LUCRO >=0
@@ -215,8 +215,12 @@ int OnInit()
       handleSAR = iSAR(_Symbol,_Period,stepSAR,maximumSAR);
       ArraySetAsSeries(sar,true);
      }
+   if(estrategia==estrat15)
+     {
+      ArraySetAsSeries(ticks,true);
+     }
+
    ArraySetAsSeries(candle,true);
-   ArraySetAsSeries(ticks,true);
 
 //--- Função para selecionar o arquivo de previsões quando utilizar backtest
    ReadFileToDictCSV("previsoes.csv");
@@ -334,7 +338,10 @@ void OnTick()
       if(saldo<valoraumento)
          volumeoper=loteinicial;
       else
-         volumeoper = NormalizeDouble((capital/valoraumento)*loteinicial,2);
+         if(_Symbol=="WIN$")
+            volumeoper = NormalizeDouble((capital/valoraumento)*loteinicial,0);
+         else
+            volumeoper = NormalizeDouble((capital/valoraumento)*loteinicial,2);
 
       //--- Definição dos volumes de compra e venda quando utilizar martingale
       if(tipomartingale==mart1)//sequência de fibonacci p/ volume
@@ -915,7 +922,7 @@ bool ProbTicks(string tipo)
    double favoravelvenda=0;
    double percentfavorcompra=0;
    double percentfavorvenda=0;
-   
+
    if(tipo=="COMPRA")
      {
       for(int i=0; i<qtdecandlestend-1; i++)
