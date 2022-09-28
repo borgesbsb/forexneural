@@ -123,12 +123,13 @@ input bool               ativbreak           = false;      //ATIVA BREAKEVEN/TRA
 input double             pontosbesl          = 10;         //PTOS A MENOS PARA SL NOVO DO BE
 input double             pontosts            = 5;          //PTOS P ATIV TS
 input double             pontosts2           = 5;          //PTOS SL NOVO DO TS
-input group              "GERENCIAMENTO DE RISCO - ATIVAÇÃO DE FUNÇÕES(MINICONTRATO N USAR)"
+input group              "GERENCIAMENTO DE RISCO-ATIVAÇÃO DE FUNÇÕES(MINICONTRATO N USAR)"
 input bool               fechaordensnozero   = false;      //ATIVA FECHAMENTO NO ZERO A ZERO
 input int                qtdezero            = 4;          //QTDE MINIMA ORDENS FECHADAS P/ 0x0
 //input bool               ativafechafull      = true;       //ATIVA FECHAMENTO DE ORDENS QNDO LUCRO >=0
-input group              "GERENCIAMENTO DE RISCO - % MÍNIMA DE CAPITAL LÍQUIDO PARA OPERAR"
+input group              "GERENCIAMENTO DE RISCO - CONDIÇÕES MÍNIMAS PARA OPERAR"
 input double             prcentabert         = 2000;       //% MÍNIMA DO CAPIT P ABRIR ORDENS
+input double             somapreju           = 200;        //QTDE MÁXIMA DE PONTOS STOPADOS NO DIA
 input group              "GERENCIAMENTO DE RISCO - STOP FULL"
 input bool               ativastopfull       = true;       //ATIVA STOP P LIMITE DE CAPITAL INVESTIDO
 input double             percentfull         = 5;          //% DO CAPITAL PARA FECHAR TODAS AS ORDENS
@@ -525,7 +526,7 @@ void OnTick()
 //+------------------------------------------------------------------+
 
 //--- Check de posição aberta em outro ativo, horário de operação e margem suficiente pra operar
-   if(ativaentradaea && !PossuiPosAbertaOutroAtivo() && HorarioEntrada() && !HorarioPausa1() && (percent_margem>prcentabert||saldo==capital))
+   if(ativaentradaea && !PossuiPosAbertaOutroAtivo() && HorarioEntrada() && !HorarioPausa1() && DadosPosFechada("QTDE DE SL DO DIA","")<somapreju && (percent_margem>prcentabert||saldo==capital))
      {
       //--- Verifica se candle acabou de abrir e se o número de STOPS ultrapassou o máximo permitido no dia
       if(NB2.IsNewBar(_Symbol,_Period))
@@ -1383,6 +1384,8 @@ double DadosPosFechada(string acao, string tipo)
    double      profit1=0;
    double      volume=0;
    double      volume1=0;
+   double      preco=0;
+   double      pontossldia=0;
    string      symbol;
    long        reason;
    long        entry;
@@ -1402,6 +1405,7 @@ double DadosPosFechada(string acao, string tipo)
          type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
          profit=HistoryDealGetDouble(ticket,DEAL_PROFIT);
          volume=HistoryDealGetDouble(ticket,DEAL_VOLUME);
+         preco =HistoryDealGetDouble(ticket,DEAL_PRICE);
          time  =(datetime)HistoryDealGetInteger(ticket,DEAL_TIME);
          if(tipo=="COMPRA")
            {
@@ -1467,6 +1471,17 @@ double DadosPosFechada(string acao, string tipo)
                  }
               }
            }
+         if(acao=="QTDE DE SL DO DIA")
+           {
+            MqlDateTime timestruct;
+            TimeToStruct(time,timestruct);
+            if(timestruct.day==hratualstruct.day && profit<=0 && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+              {
+               ulong ticket1=HistoryDealGetTicket(i-1);
+               double preco1 = HistoryDealGetDouble(ticket1,DEAL_PRICE);
+               pontossldia = pontossldia+MathAbs(preco-preco1);
+              }
+           }
         }
       else
          break;
@@ -1477,6 +1492,8 @@ double DadosPosFechada(string acao, string tipo)
       return volume1;
    if(acao=="QTDE DE POSIÇÕES FECHADAS APÓS A ULTIMA POSIÇÃO ABERTA")
       return qtdeordens;
+   if(acao=="QTDE DE SL DO DIA")
+      return pontossldia;
    return NULL;
   }
 //+------------------------------------------------------------------------------------------+
