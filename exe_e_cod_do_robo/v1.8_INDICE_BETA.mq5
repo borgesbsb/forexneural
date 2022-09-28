@@ -587,7 +587,7 @@ void OnTick()
             if(estrategia==estrat9)
               {
                if(sarnormalizado0 < tick.ask && sarnormalizado1 < tick.ask)
-                  trade.Buy(volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),/*puxatpsl("TPC0")*/0,"C1");
+                  trade.Buy(volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),0,"C1");
               }
             //---| ESTRATEGIA NEURAL |---//
             if(estrategia==estrat10)
@@ -617,7 +617,7 @@ void OnTick()
             if(estrategia==estrat14)
               {
                if(previsao > tick.ask && previsao != 0 && sarnormalizado0 < tick.ask && sarnormalizado1 < tick.ask)
-                  trade.Buy(volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),/*puxatpsl("TPC0")*/0,"C1");
+                  trade.Buy(volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),0,"C1");
               }
            }
 
@@ -678,7 +678,7 @@ void OnTick()
             if(estrategia==estrat9)
               {
                if(sarnormalizado0 > tick.bid && sarnormalizado1 > tick.bid)
-                  trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),/*puxatpsl("TPV0")*/0,"V1");
+                  trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),0,"V1");
               }
             //---| ESTRATEGIA NEURAL |---//
             if(estrategia==estrat10)
@@ -708,7 +708,7 @@ void OnTick()
             if(estrategia==estrat14)
               {
                if(previsao < tick.bid && previsao != 0 && sarnormalizado0 > tick.bid && sarnormalizado1 > tick.bid)
-                  trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),/*puxatpsl("TPV0")*/0,"V1");
+                  trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),0,"V1");
               }
            }
 
@@ -871,6 +871,14 @@ void OnTick()
         }
      }
 
+////////////////////////////////////////////////////////////////
+//---|FECHAMENTO DA ORDENS CRIADAS ERRADAMENTE - CORREÇÃO|----//
+////////////////////////////////////////////////////////////////
+   if(estrategia==estrat9 || estrategia==estrat14)
+     {
+      if((PosAberta("POSSUI","COMPRA","") && DadosPos("SL DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")==0) || (PosAberta("POSSUI","VENDA","") && DadosPos("SL DA ÚLTIMA POSIÇÃO ABERTA","VENDA")==0))
+         FechaTodasPosicoesAbertas();
+     }
 
 ////////////////////////////
 //---|BREAKEVEN E TS |----//
