@@ -77,6 +77,7 @@ input ENUM_TP_STOP       tipostop            = tpstopprct; //SELECIONE O TIPO DE
 input double             percentloss         = 2.5;        //% DE STOP LOSS P ABERTURA DE ORDEM
 input int                stoppontos          = 800;        //PTS DE STOP LOSS P ABERTURA DE ORDENS
 input group              "MARTINGALE"
+input bool               ativamartingale     = false;      //ATIVA USO DE MARTINGALE
 input ENUM_TP_MART       tipomartingale      = mart3;      //TIPO DE MARTINGALE
 input int                multiplicador       = 1;          //MULTIPLICADOR P MARTINGALE (N)
 input int                qtdecandle          = 2;          //QTOS CANDLES P PX ENTRADA
@@ -345,70 +346,74 @@ void OnTick()
             volumeoper = NormalizeDouble((capital/valoraumento)*loteinicial,2);
 
       //--- Definição dos volumes de compra e venda quando utilizar martingale
-      if(tipomartingale==mart1)//sequência de fibonacci p/ volume
+      if(ativamartingale)
         {
-         volnv2             = 2*volumeoper;//2
-         volnv3             = 3*volumeoper;//3
-         volnv4             = 5*volumeoper;//5
-         volnv5             = 8*volumeoper;//8
-         volnv6             = 13*volumeoper;//13
-         volnv7             = 21*volumeoper;//21
-         volnv8             = 34*volumeoper;//34
-         volnv9             = 55*volumeoper;//55
-         volnv10            = 89*volumeoper;//89
-         volnv11            = 144*volumeoper;//144
-         volnv12            = 233*volumeoper;//233
-         volnv13            = 377*volumeoper;//377
-         volnv14            = 610*volumeoper;//610
+         if(tipomartingale==mart1)//sequência de fibonacci p/ volume
+           {
+            volnv2             = 2*volumeoper;//2
+            volnv3             = 3*volumeoper;//3
+            volnv4             = 5*volumeoper;//5
+            volnv5             = 8*volumeoper;//8
+            volnv6             = 13*volumeoper;//13
+            volnv7             = 21*volumeoper;//21
+            volnv8             = 34*volumeoper;//34
+            volnv9             = 55*volumeoper;//55
+            volnv10            = 89*volumeoper;//89
+            volnv11            = 144*volumeoper;//144
+            volnv12            = 233*volumeoper;//233
+            volnv13            = 377*volumeoper;//377
+            volnv14            = 610*volumeoper;//610
+           }
+         if(tipomartingale==mart2)//mix - fibo ate a 5 ordem e N vezes o anterior nas ordens seguintes
+           {
+            volnv2             = 2*volumeoper;//2
+            volnv3             = 3*volumeoper;//3
+            volnv4             = 5*volumeoper;//5
+            volnv5             = 8*volumeoper;//8
+            volnv6             = volnv5*multiplicador;
+            volnv7             = volnv6*multiplicador;
+            volnv8             = volnv8*multiplicador;
+            volnv9             = volnv9*multiplicador;
+            volnv10            = volnv10*multiplicador;
+            volnv11            = volnv11*multiplicador;
+            volnv12            = volnv12*multiplicador;
+            volnv13            = volnv13*multiplicador;
+            volnv14            = volnv14*multiplicador;
+           }
+         if(tipomartingale==mart3)//N vezes o volume anterior conforme tabela de inputs
+           {
+            volnv2             = volumeoper*multiplicador;
+            volnv3             = volnv2*multiplicador;
+            volnv4             = volnv3*multiplicador;
+            volnv5             = volnv4*multiplicador;
+            volnv6             = volnv5*multiplicador;
+            volnv7             = volnv6*multiplicador;
+            volnv8             = volnv7*multiplicador;
+            volnv9             = volnv8*multiplicador;
+            volnv10            = volnv9*multiplicador;
+            volnv11            = volnv10*multiplicador;
+            volnv12            = volnv11*multiplicador;
+            volnv13            = volnv12*multiplicador;
+            volnv14            = volnv13*multiplicador;
+           }
+         if(tipomartingale==mart4)//N vezes o volume anterior acumulado
+           {
+            volnv2             = volumeoper*multiplicador;//2
+            volnv3             = (volumeoper+volnv2)*multiplicador;//6
+            volnv4             = (volumeoper+volnv2+volnv3)*multiplicador;//18
+            volnv5             = (volumeoper+volnv2+volnv3+volnv4)*multiplicador;//54
+            volnv6             = (volumeoper+volnv2+volnv3+volnv4+volnv5)*multiplicador;//162
+            volnv7             = (volumeoper+volnv2+volnv3+volnv4+volnv5+volnv6)*multiplicador;//486
+            volnv8             = (volumeoper+volnv2+volnv3+volnv4+volnv5+volnv6+volnv7)*multiplicador;//1458
+            volnv9             = (volumeoper+volnv2+volnv3+volnv4+volnv5+volnv6+volnv7+volnv8)*multiplicador;//
+            volnv10            = (volumeoper+volnv2+volnv3+volnv4+volnv5+volnv6+volnv7+volnv8+volnv9)*multiplicador;//
+            volnv11            = (volumeoper+volnv2+volnv3+volnv4+volnv5+volnv6+volnv7+volnv8+volnv9+volnv10)*multiplicador;//
+            volnv12            = (volumeoper+volnv2+volnv3+volnv4+volnv5+volnv6+volnv7+volnv8+volnv9+volnv10+volnv11)*multiplicador;//
+            volnv13            = (volumeoper+volnv2+volnv3+volnv4+volnv5+volnv6+volnv7+volnv8+volnv9+volnv10+volnv11+volnv12)*multiplicador;//
+            volnv14            = (volumeoper+volnv2+volnv3+volnv4+volnv5+volnv6+volnv7+volnv8+volnv9+volnv10+volnv11+volnv12+volnv13)*multiplicador;//
+           }
         }
-      if(tipomartingale==mart2)//mix - fibo ate a 5 ordem e N vezes o anterior nas ordens seguintes
-        {
-         volnv2             = 2*volumeoper;//2
-         volnv3             = 3*volumeoper;//3
-         volnv4             = 5*volumeoper;//5
-         volnv5             = 8*volumeoper;//8
-         volnv6             = volnv5*multiplicador;
-         volnv7             = volnv6*multiplicador;
-         volnv8             = volnv8*multiplicador;
-         volnv9             = volnv9*multiplicador;
-         volnv10            = volnv10*multiplicador;
-         volnv11            = volnv11*multiplicador;
-         volnv12            = volnv12*multiplicador;
-         volnv13            = volnv13*multiplicador;
-         volnv14            = volnv14*multiplicador;
-        }
-      if(tipomartingale==mart3)//N vezes o volume anterior conforme tabela de inputs
-        {
-         volnv2             = volumeoper*multiplicador;
-         volnv3             = volnv2*multiplicador;
-         volnv4             = volnv3*multiplicador;
-         volnv5             = volnv4*multiplicador;
-         volnv6             = volnv5*multiplicador;
-         volnv7             = volnv6*multiplicador;
-         volnv8             = volnv7*multiplicador;
-         volnv9             = volnv8*multiplicador;
-         volnv10            = volnv9*multiplicador;
-         volnv11            = volnv10*multiplicador;
-         volnv12            = volnv11*multiplicador;
-         volnv13            = volnv12*multiplicador;
-         volnv14            = volnv13*multiplicador;
-        }
-      if(tipomartingale==mart4)//N vezes o volume anterior acumulado
-        {
-         volnv2             = volumeoper*multiplicador;//2
-         volnv3             = (volumeoper+volnv2)*multiplicador;//6
-         volnv4             = (volumeoper+volnv2+volnv3)*multiplicador;//18
-         volnv5             = (volumeoper+volnv2+volnv3+volnv4)*multiplicador;//54
-         volnv6             = (volumeoper+volnv2+volnv3+volnv4+volnv5)*multiplicador;//162
-         volnv7             = (volumeoper+volnv2+volnv3+volnv4+volnv5+volnv6)*multiplicador;//486
-         volnv8             = (volumeoper+volnv2+volnv3+volnv4+volnv5+volnv6+volnv7)*multiplicador;//1458
-         volnv9             = (volumeoper+volnv2+volnv3+volnv4+volnv5+volnv6+volnv7+volnv8)*multiplicador;//
-         volnv10            = (volumeoper+volnv2+volnv3+volnv4+volnv5+volnv6+volnv7+volnv8+volnv9)*multiplicador;//
-         volnv11            = (volumeoper+volnv2+volnv3+volnv4+volnv5+volnv6+volnv7+volnv8+volnv9+volnv10)*multiplicador;//
-         volnv12            = (volumeoper+volnv2+volnv3+volnv4+volnv5+volnv6+volnv7+volnv8+volnv9+volnv10+volnv11)*multiplicador;//
-         volnv13            = (volumeoper+volnv2+volnv3+volnv4+volnv5+volnv6+volnv7+volnv8+volnv9+volnv10+volnv11+volnv12)*multiplicador;//
-         volnv14            = (volumeoper+volnv2+volnv3+volnv4+volnv5+volnv6+volnv7+volnv8+volnv9+volnv10+volnv11+volnv12+volnv13)*multiplicador;//
-        }
+
       //      if(volnv2>220.0)
       //         volnv2=0;
       //      if(volnv3>220.0)
@@ -427,7 +432,7 @@ void OnTick()
      }
 
 //--- Definição dos preços médios para quando houver 2 ou mais compras/vendas
-   if(PositionsTotal()>=1 && tipooper==tiponet)
+   if(PositionsTotal()>=1 && tipooper==tiponet && ativamartingale)
      {
       if(PosAberta("POSSUI","COMPRA","C1") && !PosAberta("POSSUI","COMPRA","C2"))
          PM1 = (tick.ask*volnv2 + DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")*volumeoper)/(volnv2+volumeoper);
@@ -526,7 +531,8 @@ void OnTick()
 //+------------------------------------------------------------------+
 
 //--- Check de posição aberta em outro ativo, horário de operação e margem suficiente pra operar
-   if(ativaentradaea && !PossuiPosAbertaOutroAtivo() && HorarioEntrada() && !HorarioPausa1() && DadosPosFechada("QTDE DE SL DO DIA","")<somapreju && (percent_margem>prcentabert||saldo==capital))
+   if(ativaentradaea && !PossuiPosAbertaOutroAtivo() && HorarioEntrada() && !HorarioPausa1() && DadosPosFechada("QTDE DE SL DO DIA","")<somapreju && //
+      (percent_margem>prcentabert||saldo==capital))
      {
       //--- Verifica se candle acabou de abrir e se o número de STOPS ultrapassou o máximo permitido no dia
       if(NB2.IsNewBar(_Symbol,_Period))
@@ -716,7 +722,8 @@ void OnTick()
          ////////////////////////////////////////////////////////////////////
          //---| DEMAIS COMPRAS E VENDAS DE CADA ESTATÉGIA - MARTINGALE |---//
          ////////////////////////////////////////////////////////////////////
-         if(PositionsTotal()>=1 /*&& condicaoSAR==true*/ && ((PosAberta("POSSUI","COMPRA","") && QtdeCandles("COMPRA")>qtdecandle) || (PosAberta("POSSUI","VENDA","") && QtdeCandles("VENDA")>qtdecandle)))
+         if(ativamartingale && PositionsTotal()>=1 /*&& condicaoSAR==true*/ && ((PosAberta("POSSUI","COMPRA","") && QtdeCandles("COMPRA")>qtdecandle) || //
+            (PosAberta("POSSUI","VENDA","") && QtdeCandles("VENDA")>qtdecandle)))
            {
             //---| ESTRATEGIA ENVELOPE/RSI/BOLINGER |---//
             if(estrategia==estrat1)
@@ -877,7 +884,8 @@ void OnTick()
 ////////////////////////////////////////////////////////////////
    if(estrategia==estrat9 || estrategia==estrat14)
      {
-      if((PosAberta("POSSUI","COMPRA","") && DadosPos("SL DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")==0) || (PosAberta("POSSUI","VENDA","") && DadosPos("SL DA ÚLTIMA POSIÇÃO ABERTA","VENDA")==0))
+      if((PosAberta("POSSUI","COMPRA","") && DadosPos("SL DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")==0) || (PosAberta("POSSUI","VENDA","") && //
+         DadosPos("SL DA ÚLTIMA POSIÇÃO ABERTA","VENDA")==0))
          FechaTodasPosicoesAbertas();
      }
 
@@ -1475,7 +1483,7 @@ double DadosPosFechada(string acao, string tipo)
            {
             MqlDateTime timestruct;
             TimeToStruct(time,timestruct);
-            if(timestruct.day==hratualstruct.day && profit<=0 && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+            if(timestruct.day==hratualstruct.day && profit<0 && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
               {
                ulong ticket1=HistoryDealGetTicket(i-1);
                double preco1 = HistoryDealGetDouble(ticket1,DEAL_PRICE);
