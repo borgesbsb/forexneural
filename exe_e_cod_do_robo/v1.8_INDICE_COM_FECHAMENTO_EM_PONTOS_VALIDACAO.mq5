@@ -114,7 +114,7 @@ input double             prctsingle          = 0.2;          //PERCENTUAL MÍNIM
 input double             prctfull            = 75;           //PERCENTUAL MÍNIMO VAR TODAS AS ORDENS
 input long               timevar             = 500;          //TEMPO QUE OCORREU A VARIAÇÃO EM MS
 input group              "FECHAMENTO DE ORDENS"
-//input bool               ativasaidaea        = true;         //ATIVA FECHAMENTO DE ORDENS
+input bool               ativasaidaea        = true;         //ATIVA FECHAMENTO DE ORDENS
 input ENUM_TP_GAIN       tipogain            = tpgainpontos; //SELECIONE TIPO DE GANHO
 input double             percentgain         = 0.1;          //PORCENTAGEM DE STOP GAIN
 input int                pontosc1            = 15;           //DISTANCIA P FECHAM 1 ORDEM
@@ -559,7 +559,7 @@ void OnTick()
 //+------------------------------------------------------------------+
 
 //--- Check de posição aberta em outro ativo, horário de operação, margem suficiente pra operar e se o número de stops setado nos inputs já foram alcançados
-   if(ativaentradaea && !PossuiPosAbertaOutroAtivo() && HorarioEntrada() && !HorarioPausa1() && DadosPosFechada("QTDE DE SL DO DIA","")<somapreju && //
+   if(ativaentradaea && !PossuiPosAbertaOutroAtivo() && HorarioEntrada() && !HorarioPausa1() /*&& DadosPosFechada("QTDE DE SL DO DIA","")<somapreju*/ && //
       (percent_margem>prcentabert||saldo==capital))
      {
       //--- Verifica se candle acabou de abrir
@@ -899,25 +899,24 @@ void OnTick()
       return;
      }
 
-/////////////////////////////////
-//---|FECHAMENTO DA ORDENS|----//
-/////////////////////////////////
-//   if(ativasaidaea==true)
-//     {
-//      if(estrategia==estrat9 || estrategia==estrat14)
-//         if((PosAberta("POSSUI","COMPRA","C1") && sarnormalizado0 > tick.bid) || (PosAberta("POSSUI","VENDA","V1") && sarnormalizado0 < tick.ask))
-//            FechaTodasPosicoesAbertas();
-//     }
+///////////////////////////////////////////////
+//---|FECHAMENTO DA ORDENS - SAR REVERSO|----//
+///////////////////////////////////////////////
+   if(ativasaidaea==true)
+     {
+      if(estrategia==estrat9 || estrategia==estrat14)
+         if((PosAberta("POSSUI","COMPRA","C1") && sarnormalizado0 > tick.bid) || (PosAberta("POSSUI","VENDA","V1") && sarnormalizado0 < tick.ask))
+            FechaTodasPosicoesAbertas();
+     }
 
-////////////////////////////////////////////////////////////////
-//---|FECHAMENTO DA ORDENS CRIADAS ERRADAMENTE - CORREÇÃO|----//
-////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+//---|FECHAMENTO DA ORDENS CRIADAS ERRADAMENTE - CORREÇÃO PARA CORRETORA CLEAR|----//
+/////////////////////////////////////////////////////////////////////////////////////
    if(estrategia==estrat9 || estrategia==estrat14)
      {
       if(PosAberta("POSSUI","COMPRA",""))
          if((DadosPos("SL DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")==0) || (PosAberta("POSSUI","VENDA","") && DadosPos("SL DA ÚLTIMA POSIÇÃO ABERTA","VENDA")==0))
             FechaTodasPosicoesAbertas();
-
      }
 
 ////////////////////////////
