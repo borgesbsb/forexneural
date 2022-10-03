@@ -929,7 +929,7 @@ void OnTick()
         {
          trade.PositionModify(_Symbol,tick.bid-pontosbesl*_Point,0);
         }
-      if(PosAberta("POSSUI","VENDA","") && tick.ask<=DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","VENDA")+pontospxbe*_Point && DadosPos("TP DA ÚLTIMA POSIÇÃO ABERTA","VENDA")!=0)
+      if(PosAberta("POSSUI","VENDA","") && tick.ask<=DadosPos("TP DA ÚLTIMA POSIÇÃO ABERTA","VENDA")+pontospxbe*_Point && DadosPos("TP DA ÚLTIMA POSIÇÃO ABERTA","VENDA")!=0)
         {
          trade.PositionModify(_Symbol,tick.ask+pontosbesl*_Point,0);
         }
