@@ -135,8 +135,8 @@ input group              "BREAKEVEN/TRAILING STOP"
 input bool               ativbreak           = false;        //ATIVA BREAKEVEN/TRAILING STOP
 //input double             pontospxbe          = 5;            //PTOS PX AO TP P ATIVAR BE
 input double             pontosbesl          = 10;           //PTOS A MENOS PARA SL NOVO DO BE
-input double             pontosts            = 5;            //PTOS P ATIV TS
-input double             pontosts2           = 5;            //PTOS SL NOVO DO TS
+//input double             pontosts            = 5;            //PTOS P ATIV TS
+//input double             pontosts2           = 5;            //PTOS SL NOVO DO TS
 input group              "GERENCIAMENTO DE RISCO-ATIVAÇÃO DE FUNÇÕES(MINICONTRATO N USAR)"
 input bool               fechaordensnozero   = false;        //ATIVA FECHAMENTO NO ZERO A ZERO
 input int                qtdezero            = 4;            //QTDE MINIMA ORDENS FECHADAS P/ 0x0
@@ -933,13 +933,13 @@ void OnTick()
         {
          trade.PositionModify(_Symbol,tick.ask+pontosbesl*_Point,tick.bid-3*pontosc1*_Point);
         }
-      if(PosAberta("POSSUI","COMPRA","") && tick.bid>=DadosPos("SL DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")+pontosts*_Point && DadosPos("TP DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")!=0)
+      if(PosAberta("POSSUI","COMPRA","") && tick.bid>=DadosPos("SL DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")+2*pontosbesl*_Point && DadosPos("TP DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")!=0)
         {
-         trade.PositionModify(_Symbol,DadosPos("SL DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")+pontosts2*_Point,DadosPos("TP DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")+pontosts2*_Point);
+         trade.PositionModify(_Symbol,DadosPos("SL DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")+pontosbesl*_Point,DadosPos("TP DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")+pontosbesl*_Point);
         }
-      if(PosAberta("POSSUI","VENDA","") && tick.ask<=DadosPos("SL DA ÚLTIMA POSIÇÃO ABERTA","VENDA")-pontosts*_Point && DadosPos("TP DA ÚLTIMA POSIÇÃO ABERTA","VENDA")!=0)
+      if(PosAberta("POSSUI","VENDA","") && tick.ask<=DadosPos("SL DA ÚLTIMA POSIÇÃO ABERTA","VENDA")-2*pontosbesl*_Point && DadosPos("TP DA ÚLTIMA POSIÇÃO ABERTA","VENDA")!=0)
         {
-         trade.PositionModify(_Symbol,DadosPos("SL DA ÚLTIMA POSIÇÃO ABERTA","VENDA")-pontosts2*_Point,DadosPos("TP DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")+pontosts2*_Point);
+         trade.PositionModify(_Symbol,DadosPos("SL DA ÚLTIMA POSIÇÃO ABERTA","VENDA")-pontosbesl*_Point,DadosPos("TP DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")-pontosbesl*_Point);
         }
 
       /*      if(PosFechadaTrueFalse("ÚLTIMA POSIÇÃO FECHADA FOI DE TP","COMPRA") && PosAberta("POSSUI","COMPRA","BE COMPRA")==false)
