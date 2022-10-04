@@ -356,6 +356,8 @@ void OnTick()
 
    if(NB1.IsNewBar(_Symbol,_Period)) //VERIFICA SE É UM NOVO CANDLE
      {
+      FechaTodasPosicoesAbertas();
+      Sleep(200);
       //--- Definição dos lotes iniciais de compra e venda
       if(saldo<valoraumento)
          volumeoper=loteinicial;
@@ -567,8 +569,6 @@ void OnTick()
       //--- Verifica se candle acabou de abrir
       if(NB2.IsNewBar(_Symbol,_Period))
         {
-         FechaTodasPosicoesAbertas();
-         Sleep(200);
          ////////////////////////////////////////////////
          //---| PRIMEIRA COMPRA DE CADA ESTRATÉGIA |---//
          ////////////////////////////////////////////////
