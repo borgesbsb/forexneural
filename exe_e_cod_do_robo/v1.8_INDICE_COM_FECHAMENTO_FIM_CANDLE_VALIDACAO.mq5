@@ -567,6 +567,8 @@ void OnTick()
       //--- Verifica se candle acabou de abrir
       if(NB2.IsNewBar(_Symbol,_Period))
         {
+         FechaTodasPosicoesAbertas();
+         Sleep(200);
          ////////////////////////////////////////////////
          //---| PRIMEIRA COMPRA DE CADA ESTRATÉGIA |---//
          ////////////////////////////////////////////////
@@ -625,8 +627,7 @@ void OnTick()
               {
                if(sarnormalizado0 < tick.ask && sarnormalizado1 < tick.ask /*&& candle[1].close<candle[1].open*/)
                  {
-                  FechaTodasPosicoesAbertas();
-                  Sleep(200);
+
                   trade.Buy(volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),puxatpsl("TPC0"),"C1");
                  }
               }
@@ -719,11 +720,7 @@ void OnTick()
             if(estrategia==estrat9)
               {
                if(sarnormalizado0 > tick.bid && sarnormalizado1 > tick.bid /*&& candle[1].close>candle[1].open*/)
-                 {
-                  FechaTodasPosicoesAbertas();
-                  Sleep(200);
                   trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),puxatpsl("TPV0"),"V1");
-                 }
               }
             //---| ESTRATEGIA NEURAL |---//
             if(estrategia==estrat10)
