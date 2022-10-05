@@ -94,6 +94,7 @@ input ENUM_TP_MART       tipomartingale      = mart3;        //TIPO DE MARTINGAL
 input int                multiplicador       = 1;            //MULTIPLICADOR P MARTINGALE (N)
 input int                qtdecandle          = 2;            //QTOS CANDLES P PX ENTRADA
 input int                pontosmart          = 80;           //PTS P PX ORDEM - MARTINGALE
+input int                qtdedemart          = 4;            //QTDE MÁXIMA DE MARTINGALES
 input group              "ESCOLHA DA ESTRATÉGIA"
 input ENUM_TP_ESTRAT     estrategia          = estrat1;      //ESCOLHA A ESTRATÉGIA
 input group              "VALORES DEFINIDOS P/ SAR"
@@ -772,8 +773,9 @@ void OnTick()
 ////////////////////////////////////////////////////////////////////////////////////
    if(ativamartingale)
      {
+      Sleep(300);
       if(PositionsTotal()>=1 && ((PosAberta("POSSUI","COMPRA","") && QtdeCandles("COMPRA")>=qtdecandle) || //
-                                 (PosAberta("POSSUI","VENDA","") && QtdeCandles("VENDA")>=qtdecandle)))
+                                 (PosAberta("POSSUI","VENDA","") && QtdeCandles("VENDA")>=qtdecandle)) && QtsMartingale()<=qtdedemart)
         {
          //---| ESTRATEGIA ENVELOPE/RSI/BOLINGER |---//
          if(estrategia==estrat1)
@@ -1797,6 +1799,44 @@ void  VendasMartingale()
       Sleep(500);
       return;
      }
+  }
+//+---------------------------------------------------------------------------------------------------------------------------------+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+//---| AJUSTA O VALOR DE TAKE PROFIT E STOP LOSS PARA POSTERIOR INSERÇÃO NAS ORDENS DE COMPRA/VENDA |---//
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+int   QtsMartingale()
+  {
+   int maximo = 0;
+   if(PosAberta("POSSUI","COMPRA","C1") || PosAberta("POSSUI","VENDA","V1"))
+      maximo = 1;
+   if(PosAberta("POSSUI","COMPRA","C2") || PosAberta("POSSUI","VENDA","V2"))
+      maximo = 2;
+   if(PosAberta("POSSUI","COMPRA","C3") || PosAberta("POSSUI","VENDA","V3"))
+      maximo = 3;
+   if(PosAberta("POSSUI","COMPRA","C4") || PosAberta("POSSUI","VENDA","V4"))
+      maximo = 4;
+   if(PosAberta("POSSUI","COMPRA","C5") || PosAberta("POSSUI","VENDA","V5"))
+      maximo = 5;
+   if(PosAberta("POSSUI","COMPRA","C6") || PosAberta("POSSUI","VENDA","V6"))
+      maximo = 6;
+   if(PosAberta("POSSUI","COMPRA","C7") || PosAberta("POSSUI","VENDA","V7"))
+      maximo = 7;
+   if(PosAberta("POSSUI","COMPRA","C8") || PosAberta("POSSUI","VENDA","V8"))
+      maximo = 8;
+   if(PosAberta("POSSUI","COMPRA","C9") || PosAberta("POSSUI","VENDA","V9"))
+      maximo = 9;
+   if(PosAberta("POSSUI","COMPRA","C10") || PosAberta("POSSUI","VENDA","V10"))
+      maximo = 10;
+   if(PosAberta("POSSUI","COMPRA","C11") || PosAberta("POSSUI","VENDA","V11"))
+      maximo = 11;
+   if(PosAberta("POSSUI","COMPRA","C12") || PosAberta("POSSUI","VENDA","V12"))
+      maximo = 12;
+   if(PosAberta("POSSUI","COMPRA","C13") || PosAberta("POSSUI","VENDA","V13"))
+      maximo = 13;
+   if(PosAberta("POSSUI","COMPRA","C14") || PosAberta("POSSUI","VENDA","V14"))
+      maximo = 14;
+   return maximo;
+
   }
 //+---------------------------------------------------------------------------------------------------------------------------------+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
