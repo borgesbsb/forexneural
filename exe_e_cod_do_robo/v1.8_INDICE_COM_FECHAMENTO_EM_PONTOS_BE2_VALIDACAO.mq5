@@ -93,26 +93,27 @@ input bool               ativamartingale     = false;        //ATIVA USO DE MART
 input ENUM_TP_MART       tipomartingale      = mart3;        //TIPO DE MARTINGALE
 input int                multiplicador       = 1;            //MULTIPLICADOR P MARTINGALE (N)
 input int                qtdecandle          = 2;            //QTOS CANDLES P PX ENTRADA
+input int                pontosmart          = 80;           //PTS P PX ORDEM - MARTINGALE
 input group              "ESCOLHA DA ESTRATÉGIA"
 input ENUM_TP_ESTRAT     estrategia          = estrat1;      //ESCOLHA A ESTRATÉGIA
 input group              "VALORES DEFINIDOS P/ SAR"
 input double             stepSAR             = 0.014;        //STEP do SAR
 input double             maximumSAR          = 0.14;         //MAXIMUM do SAR
 input group              "VALORES DEFINIDOS P/ RSI"
-input int                periodorsi          = 14;           //PERIODO P RSI
-input int                sobrevrsi           = 70;           //PORCENTAGEM DE SOBREVENDA
-input int                sobrecrsi           = 30;           //PORCENTAGEM DE SOBRECOMPRA
-input group              "VALORES DEFINIDOS P/ BANDAS DE BOLLINGER"
-input int                periodobb           = 14;           //PERIODO P BANDAS DE BOLINGER
-input double             desviobb            = 2.0;          //DESVIO P BANDAS DE BOLINGER
-input group              "VALORES DEFINIDOS P/ ENVELOPE"
-input int                periodm1            = 63;           //PERIODO DA MÉDIA P/ ENVELOPE
-input double             tamanhoenvelope     = 150;          //DISTÂNCIA P ENVELOPE
-input group              "TENDÊNCIA"
-input int                qtdecandlestend     = 5;            //QTDE N ÚLTIMOS TICKS P COMPARAR
-input double             prctsingle          = 0.2;          //PERCENTUAL MÍNIMO VAR UMA ORDEM
-input double             prctfull            = 75;           //PERCENTUAL MÍNIMO VAR TODAS AS ORDENS
-input long               timevar             = 500;          //TEMPO QUE OCORREU A VARIAÇÃO EM MS
+/*input*/ int                periodorsi          = 14;           //PERIODO P RSI
+/*input*/ int                sobrevrsi           = 70;           //PORCENTAGEM DE SOBREVENDA
+/*input*/ int                sobrecrsi           = 30;           //PORCENTAGEM DE SOBRECOMPRA
+/*input*/ //group              "VALORES DEFINIDOS P/ BANDAS DE BOLLINGER"
+/*input*/ int                periodobb           = 14;           //PERIODO P BANDAS DE BOLINGER
+/*input*/ double             desviobb            = 2.0;          //DESVIO P BANDAS DE BOLINGER
+/*input*/ //group              "VALORES DEFINIDOS P/ ENVELOPE"
+/*input*/ int                periodm1            = 63;           //PERIODO DA MÉDIA P/ ENVELOPE
+/*input*/ double             tamanhoenvelope     = 150;          //DISTÂNCIA P ENVELOPE
+/*input*/ //group              "TENDÊNCIA"
+/*input*/ int                qtdecandlestend     = 5;            //QTDE N ÚLTIMOS TICKS P COMPARAR
+/*input*/ double             prctsingle          = 0.2;          //PERCENTUAL MÍNIMO VAR UMA ORDEM
+/*input*/ double             prctfull            = 75;           //PERCENTUAL MÍNIMO VAR TODAS AS ORDENS
+/*input*/ long               timevar             = 500;          //TEMPO QUE OCORREU A VARIAÇÃO EM MS
 input group              "FECHAMENTO DE ORDENS"
 //input bool               ativasaidaea        = true;         //ATIVA FECHAMENTO DE ORDENS
 input ENUM_TP_GAIN       tipogain            = tpgainpontos; //SELECIONE TIPO DE GANHO
@@ -560,7 +561,7 @@ void OnTick()
 //+------------------------------------------------------------------+
 
 //--- Check de posição aberta em outro ativo, horário de operação, margem suficiente pra operar e se o número de stops setado nos inputs já foram alcançados
-   if(ativaentradaea && !PossuiPosAbertaOutroAtivo() && HorarioEntrada() && !HorarioPausa1() /*&& DadosPosFechada("QTDE DE SL DO DIA","")<somapreju*/ && //
+   if(ativaentradaea /*&& !PossuiPosAbertaOutroAtivo()*/ && HorarioEntrada() && !HorarioPausa1() /*&& DadosPosFechada("QTDE DE SL DO DIA","")<somapreju*/ && //
       (percent_margem>prcentabert||saldo==capital))
      {
       //--- Verifica se candle acabou de abrir
@@ -714,7 +715,7 @@ void OnTick()
             if(estrategia==estrat9)
               {
                if(sarnormalizado0 > tick.bid && sarnormalizado1 > tick.bid)
-                  trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),puxatpsl("TPV0"),"V1");
+                  trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),0,"V1");
               }
             //---| ESTRATEGIA NEURAL |---//
             if(estrategia==estrat10)
@@ -748,129 +749,6 @@ void OnTick()
               }
            }
 
-         ////////////////////////////////////////////////////////////////////////////////////
-         //---| DEMAIS COMPRAS E VENDAS DE CADA ESTATÉGIA - CASO MARTINGALE HABILITADO |---//
-         ////////////////////////////////////////////////////////////////////////////////////
-         if(ativamartingale)
-           {
-            if(PositionsTotal()>=1 /*&& condicaoSAR==true*/ && ((PosAberta("POSSUI","COMPRA","") && QtdeCandles("COMPRA")>qtdecandle) || //
-                  (PosAberta("POSSUI","VENDA","") && QtdeCandles("VENDA")>qtdecandle)))
-              {
-               //---| ESTRATEGIA ENVELOPE/RSI/BOLINGER |---//
-               if(estrategia==estrat1)
-                 {
-                  if(candle[1].close<mm[1]-tamanhoenvelope*_Point && rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/ && candle[1].close<bbd[1])
-                     ComprasMartingale();
-                  if(candle[1].close>mm[1]+tamanhoenvelope*_Point && rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/ && candle[1].close>bbu[1])
-                     VendasMartingale();
-                 }
-               //---| ESTRATEGIA ENVELOPE/RSI |---//
-               if(estrategia==estrat2)
-                 {
-                  if(candle[1].close<mm[1]-tamanhoenvelope*_Point && rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/)
-                     ComprasMartingale();
-                  if(candle[1].close>mm[1]+tamanhoenvelope*_Point && rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/)
-                     VendasMartingale();
-                 }
-               //---| ESTRATEGIA ENVELOPE/BOLINGER |---//
-               if(estrategia==estrat3)
-                 {
-                  if(candle[1].close<mm[1]-tamanhoenvelope*_Point && candle[1].close<bbd[1])
-                     ComprasMartingale();
-                  if(candle[1].close>mm[1]+tamanhoenvelope*_Point && candle[1].close>bbu[1])
-                     VendasMartingale();
-                 }
-               //---| ESTRATEGIA ENVELOPE/SAR |---//
-               if(estrategia==estrat4)
-                 {
-                  if(candle[1].close<mm[1]-tamanhoenvelope*_Point && sarnormalizado0 < tick.ask && sarnormalizado1 < tick.ask)
-                     ComprasMartingale();
-                  if(candle[1].close>mm[1]+tamanhoenvelope*_Point && sarnormalizado0 > tick.bid && sarnormalizado1 > tick.bid)
-                     VendasMartingale();
-                 }
-               //---| ESTRATEGIA RSI/BOLINGER |---//
-               if(estrategia==estrat5)
-                 {
-                  if(rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/ && candle[1].close<bbd[1])
-                     ComprasMartingale();
-                  if(rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/ && candle[1].close>bbu[1])
-                     VendasMartingale();
-                 }
-               //---| ESTRATEGIA ENVELOPE |---//
-               if(estrategia==estrat6)
-                 {
-                  if(candle[1].close<mm[1]-tamanhoenvelope*_Point)
-                     ComprasMartingale();
-                  if(candle[1].close>mm[1]+tamanhoenvelope*_Point)
-                     VendasMartingale();
-                 }
-               //---| ESTRATEGIA RSI |---//
-               if(estrategia==estrat7)
-                 {
-                  if(rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/)
-                     ComprasMartingale();
-                  if(rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/)
-                     VendasMartingale();
-                 }
-               //---| ESTRATEGIA BOLINGER |---//
-               if(estrategia==estrat8)
-                 {
-                  if(candle[1].close<bbd[1])
-                     ComprasMartingale();
-                  if(candle[1].close>bbu[1])
-                     VendasMartingale();
-                 }
-               //---| ESTRATEGIA SAR |---//
-               if(estrategia==estrat9)
-                 {
-                  if(sarnormalizado0 < tick.ask && sarnormalizado1 < tick.ask)
-                     ComprasMartingale();
-                  if(sarnormalizado0 > tick.bid && sarnormalizado1 > tick.bid)
-                     VendasMartingale();
-                 }
-               //---| ESTRATEGIA NEURAL |---//
-               if(estrategia==estrat10)
-                 {
-                  if(previsao > tick.ask && previsao != 0)
-                     ComprasMartingale();
-                  if(previsao < tick.bid && previsao !=0)
-                     VendasMartingale();
-                 }
-               //---| ESTRATEGIA NEURAL/RSI |---//
-               if(estrategia==estrat11)
-                 {
-                  if(previsao > tick.ask && previsao != 0 && rsi[1]<sobrecrsi)
-                     ComprasMartingale();
-                  if(previsao < tick.bid && previsao !=0 && rsi[1]>sobrevrsi)
-                     VendasMartingale();
-                 }
-               //---| ESTRATEGIA NEURAL/BOLINGER |---//
-               if(estrategia==estrat12)
-                 {
-                  if(previsao > tick.ask && previsao != 0 && candle[1].close<bbd[1])
-                     ComprasMartingale();
-                  if(previsao < tick.bid && previsao !=0 && candle[1].close>bbu[1])
-                     VendasMartingale();
-                 }
-               //---| ESTRATEGIA NEURAL/ENVELOPE |---//
-               if(estrategia==estrat13)
-                 {
-                  if(previsao > tick.ask && previsao != 0 && candle[1].close<mm[1]-tamanhoenvelope*_Point)
-                     ComprasMartingale();
-                  if(previsao < tick.bid && previsao !=0 && candle[1].close>mm[1]+tamanhoenvelope*_Point)
-                     VendasMartingale();
-                 }
-               //---| ESTRATEGIA NEURAL/SAR |---//
-               if(estrategia==estrat14)
-                 {
-                  if(previsao > tick.ask && previsao != 0 && sarnormalizado0 < tick.ask && sarnormalizado1 < tick.ask)
-                     ComprasMartingale();
-                  if(previsao < tick.bid && previsao != 0 && sarnormalizado0 > tick.bid && sarnormalizado1 > tick.bid)
-                     VendasMartingale();
-                 }
-              }
-           }
-
          //---| ESTRATEGIA TENDÊNCIA |---//
          if(estrategia==estrat15)
            {
@@ -887,6 +765,131 @@ void OnTick()
            }
         }
      }
+
+
+////////////////////////////////////////////////////////////////////////////////////
+//---| DEMAIS COMPRAS E VENDAS DE CADA ESTATÉGIA - CASO MARTINGALE HABILITADO |---//
+////////////////////////////////////////////////////////////////////////////////////
+   if(ativamartingale)
+     {
+      if(PositionsTotal()>=1 && ((PosAberta("POSSUI","COMPRA","") && QtdeCandles("COMPRA")>=qtdecandle) || //
+                                 (PosAberta("POSSUI","VENDA","") && QtdeCandles("VENDA")>=qtdecandle)))
+        {
+         //---| ESTRATEGIA ENVELOPE/RSI/BOLINGER |---//
+         if(estrategia==estrat1)
+           {
+            if(candle[1].close<mm[1]-tamanhoenvelope*_Point && rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/ && candle[1].close<bbd[1])
+               ComprasMartingale();
+            if(candle[1].close>mm[1]+tamanhoenvelope*_Point && rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/ && candle[1].close>bbu[1])
+               VendasMartingale();
+           }
+         //---| ESTRATEGIA ENVELOPE/RSI |---//
+         if(estrategia==estrat2)
+           {
+            if(candle[1].close<mm[1]-tamanhoenvelope*_Point && rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/)
+               ComprasMartingale();
+            if(candle[1].close>mm[1]+tamanhoenvelope*_Point && rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/)
+               VendasMartingale();
+           }
+         //---| ESTRATEGIA ENVELOPE/BOLINGER |---//
+         if(estrategia==estrat3)
+           {
+            if(candle[1].close<mm[1]-tamanhoenvelope*_Point && candle[1].close<bbd[1])
+               ComprasMartingale();
+            if(candle[1].close>mm[1]+tamanhoenvelope*_Point && candle[1].close>bbu[1])
+               VendasMartingale();
+           }
+         //---| ESTRATEGIA ENVELOPE/SAR |---//
+         if(estrategia==estrat4)
+           {
+            if(candle[1].close<mm[1]-tamanhoenvelope*_Point && sarnormalizado0 < tick.ask && sarnormalizado1 < tick.ask)
+               ComprasMartingale();
+            if(candle[1].close>mm[1]+tamanhoenvelope*_Point && sarnormalizado0 > tick.bid && sarnormalizado1 > tick.bid)
+               VendasMartingale();
+           }
+         //---| ESTRATEGIA RSI/BOLINGER |---//
+         if(estrategia==estrat5)
+           {
+            if(rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/ && candle[1].close<bbd[1])
+               ComprasMartingale();
+            if(rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/ && candle[1].close>bbu[1])
+               VendasMartingale();
+           }
+         //---| ESTRATEGIA ENVELOPE |---//
+         if(estrategia==estrat6)
+           {
+            if(candle[1].close<mm[1]-tamanhoenvelope*_Point)
+               ComprasMartingale();
+            if(candle[1].close>mm[1]+tamanhoenvelope*_Point)
+               VendasMartingale();
+           }
+         //---| ESTRATEGIA RSI |---//
+         if(estrategia==estrat7)
+           {
+            if(rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/)
+               ComprasMartingale();
+            if(rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/)
+               VendasMartingale();
+           }
+         //---| ESTRATEGIA BOLINGER |---//
+         if(estrategia==estrat8)
+           {
+            if(candle[1].close<bbd[1])
+               ComprasMartingale();
+            if(candle[1].close>bbu[1])
+               VendasMartingale();
+           }
+         //---| ESTRATEGIA SAR |---//
+         if(estrategia==estrat9)
+           {
+            if(sarnormalizado0 < tick.ask && sarnormalizado1 < tick.ask)
+               ComprasMartingale();
+            if(sarnormalizado0 > tick.bid && sarnormalizado1 > tick.bid)
+               VendasMartingale();
+           }
+         //---| ESTRATEGIA NEURAL |---//
+         if(estrategia==estrat10)
+           {
+            if(previsao > tick.ask && previsao != 0)
+               ComprasMartingale();
+            if(previsao < tick.bid && previsao !=0)
+               VendasMartingale();
+           }
+         //---| ESTRATEGIA NEURAL/RSI |---//
+         if(estrategia==estrat11)
+           {
+            if(previsao > tick.ask && previsao != 0 && rsi[1]<sobrecrsi)
+               ComprasMartingale();
+            if(previsao < tick.bid && previsao !=0 && rsi[1]>sobrevrsi)
+               VendasMartingale();
+           }
+         //---| ESTRATEGIA NEURAL/BOLINGER |---//
+         if(estrategia==estrat12)
+           {
+            if(previsao > tick.ask && previsao != 0 && candle[1].close<bbd[1])
+               ComprasMartingale();
+            if(previsao < tick.bid && previsao !=0 && candle[1].close>bbu[1])
+               VendasMartingale();
+           }
+         //---| ESTRATEGIA NEURAL/ENVELOPE |---//
+         if(estrategia==estrat13)
+           {
+            if(previsao > tick.ask && previsao != 0 && candle[1].close<mm[1]-tamanhoenvelope*_Point)
+               ComprasMartingale();
+            if(previsao < tick.bid && previsao !=0 && candle[1].close>mm[1]+tamanhoenvelope*_Point)
+               VendasMartingale();
+           }
+         //---| ESTRATEGIA NEURAL/SAR |---//
+         if(estrategia==estrat14)
+           {
+            if(previsao > tick.ask && previsao != 0 && sarnormalizado0 < tick.ask && sarnormalizado1 < tick.ask)
+               ComprasMartingale();
+            if(previsao < tick.bid && previsao != 0 && sarnormalizado0 > tick.bid && sarnormalizado1 > tick.bid)
+               VendasMartingale();
+           }
+        }
+     }
+
 
 ///////////////////////
 //---|STOP FULL |----//
@@ -927,11 +930,11 @@ void OnTick()
      {
       if(PosAberta("POSSUI","COMPRA","") && tick.bid>=DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")+pontosc1*_Point && DadosPos("TP DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")==0)
         {
-         trade.PositionModify(_Symbol,tick.bid-pontosbesl*_Point,tick.ask+3*pontosc1*_Point);
+         trade.PositionModify(_Symbol,tick.bid-pontosbesl*_Point,tick.ask+5*pontosc1*_Point);
         }
       if(PosAberta("POSSUI","VENDA","") && tick.ask<=DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","VENDA")-pontosc1*_Point && DadosPos("TP DA ÚLTIMA POSIÇÃO ABERTA","VENDA")==0)
         {
-         trade.PositionModify(_Symbol,tick.ask+pontosbesl*_Point,tick.bid-3*pontosc1*_Point);
+         trade.PositionModify(_Symbol,tick.ask+pontosbesl*_Point,tick.bid-5*pontosc1*_Point);
         }
       if(PosAberta("POSSUI","COMPRA","") && tick.bid>=DadosPos("SL DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")+2*pontosbesl*_Point && DadosPos("TP DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")!=0)
         {
@@ -939,29 +942,8 @@ void OnTick()
         }
       if(PosAberta("POSSUI","VENDA","") && tick.ask<=DadosPos("SL DA ÚLTIMA POSIÇÃO ABERTA","VENDA")-2*pontosbesl*_Point && DadosPos("TP DA ÚLTIMA POSIÇÃO ABERTA","VENDA")!=0)
         {
-         trade.PositionModify(_Symbol,DadosPos("SL DA ÚLTIMA POSIÇÃO ABERTA","VENDA")-pontosbesl*_Point,DadosPos("TP DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")-pontosbesl*_Point);
+         trade.PositionModify(_Symbol,DadosPos("SL DA ÚLTIMA POSIÇÃO ABERTA","VENDA")-pontosbesl*_Point,DadosPos("TP DA ÚLTIMA POSIÇÃO ABERTA","VENDA")-pontosbesl*_Point);
         }
-
-      /*      if(PosFechadaTrueFalse("ÚLTIMA POSIÇÃO FECHADA FOI DE TP","COMPRA") && PosAberta("POSSUI","COMPRA","BE COMPRA")==false)
-              {
-               trade.Buy(DadosPosFechada("VOLUME DA ÚLTIMA POSIÇÃO FECHADA","COMPRA"),_Symbol,tick.ask,tick.bid-pontosbesl*_Point,NULL,"BE COMPRA");
-               Sleep(200);
-              }
-            if(PosAberta("POSSUI","COMPRA","BE COMPRA") && tick.bid>DadosPos("SL DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")+pontosts*_Point)
-              {
-               trade.PositionModify(TicketPosAberta(),DadosPos("SL DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")+pontosts2*_Point,NULL);
-              }
-
-            if(PosFechadaTrueFalse("ÚLTIMA POSIÇÃO FECHADA FOI DE TP","VENDA") && PosAberta("POSSUI","VENDA","BE VENDA")==false)
-              {
-               trade.Sell(DadosPosFechada("VOLUME DA ÚLTIMA POSIÇÃO FECHADA","VENDA"),_Symbol,tick.bid,tick.ask+pontosbesl*_Point,NULL,"BE VENDA");
-               Sleep(200);
-              }
-            if(PosAberta("POSSUI","VENDA","BE VENDA") && tick.ask<DadosPos("SL DA ÚLTIMA POSIÇÃO ABERTA","VENDA")-pontosts*_Point)
-              {
-               trade.PositionModify(TicketPosAberta(),DadosPos("SL DA ÚLTIMA POSIÇÃO ABERTA","VENDA")-pontosts2*_Point,NULL);
-              }
-      */
      }
   }
 
@@ -1650,81 +1632,83 @@ bool PosFechadaTrueFalse(string acao,string tipo)
 //////////////////////////////////////////
 void  ComprasMartingale()
   {
-   if(PosAberta("POSSUI","COMPRA","C1") && !PosAberta("POSSUI","COMPRA","C2") && tick.ask<DadosPos("PREÇO DA MENOR POSIÇÃO ABERTA","COMPRA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv2!=0)
+   if(PosAberta("POSSUI","COMPRA","C1") && !PosAberta("POSSUI","COMPRA","C2") && tick.ask<DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")-pontosmart*_Point && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv2!=0)
      {
-      trade.Buy(volnv2,_Symbol,tick.ask,puxatpsl("SLC1"),puxatpsl("TPC1"),"C2");
+      Print("CHEGOU NO MARTINGALE");
+
+      trade.Buy(volnv2,_Symbol,tick.ask,puxatpsl("SLC1"),0,"C2");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","COMPRA","C2") && !PosAberta("POSSUI","COMPRA","C3") && tick.ask<DadosPos("PREÇO DA MENOR POSIÇÃO ABERTA","COMPRA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv3!=0)
+   if(PosAberta("POSSUI","COMPRA","C2") && !PosAberta("POSSUI","COMPRA","C3") && tick.ask<DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")-pontosmart*_Point && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv3!=0)
      {
-      trade.Buy(volnv3,_Symbol,tick.ask,puxatpsl("SLC2"),puxatpsl("TPC2"),"C3");
+      trade.Buy(volnv3,_Symbol,tick.ask,puxatpsl("SLC2"),0,"C3");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","COMPRA","C3") && !PosAberta("POSSUI","COMPRA","C4") && tick.ask<DadosPos("PREÇO DA MENOR POSIÇÃO ABERTA","COMPRA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv4!=0)
+   if(PosAberta("POSSUI","COMPRA","C3") && !PosAberta("POSSUI","COMPRA","C4") && tick.ask<DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")-pontosmart*_Point && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv4!=0)
      {
-      trade.Buy(volnv4,_Symbol,tick.ask,puxatpsl("SLC3"),puxatpsl("TPC3"),"C4");
+      trade.Buy(volnv4,_Symbol,tick.ask,puxatpsl("SLC3"),0,"C4");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","COMPRA","C4") && !PosAberta("POSSUI","COMPRA","C5") && tick.ask<DadosPos("PREÇO DA MENOR POSIÇÃO ABERTA","COMPRA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv5!=0)
+   if(PosAberta("POSSUI","COMPRA","C4") && !PosAberta("POSSUI","COMPRA","C5") && tick.ask<DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")-pontosmart*_Point && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv5!=0)
      {
-      trade.Buy(volnv5,_Symbol,tick.ask,puxatpsl("SLC4"),puxatpsl("TPC4"),"C5");
+      trade.Buy(volnv5,_Symbol,tick.ask,puxatpsl("SLC4"),0,"C5");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","COMPRA","C5") && !PosAberta("POSSUI","COMPRA","C6") && tick.ask<DadosPos("PREÇO DA MENOR POSIÇÃO ABERTA","COMPRA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv6!=0)
+   if(PosAberta("POSSUI","COMPRA","C5") && !PosAberta("POSSUI","COMPRA","C6") && tick.ask<DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")-pontosmart*_Point && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv6!=0)
      {
-      trade.Buy(volnv6,_Symbol,tick.ask,puxatpsl("SLC5"),puxatpsl("TPC5"),"C6");
+      trade.Buy(volnv6,_Symbol,tick.ask,puxatpsl("SLC5"),0,"C6");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","COMPRA","C6") && !PosAberta("POSSUI","COMPRA","C7") && tick.ask<DadosPos("PREÇO DA MENOR POSIÇÃO ABERTA","COMPRA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv7!=0)
+   if(PosAberta("POSSUI","COMPRA","C6") && !PosAberta("POSSUI","COMPRA","C7") && tick.ask<DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")-pontosmart*_Point && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv7!=0)
      {
-      trade.Buy(volnv7,_Symbol,tick.ask,puxatpsl("SLC6"),puxatpsl("TPC6"),"C7");
+      trade.Buy(volnv7,_Symbol,tick.ask,puxatpsl("SLC6"),0,"C7");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","COMPRA","C7") && !PosAberta("POSSUI","COMPRA","C8") && tick.ask<DadosPos("PREÇO DA MENOR POSIÇÃO ABERTA","COMPRA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv8!=0)
+   if(PosAberta("POSSUI","COMPRA","C7") && !PosAberta("POSSUI","COMPRA","C8") && tick.ask<DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")-pontosmart*_Point && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv8!=0)
      {
-      trade.Buy(volnv8,_Symbol,tick.ask,puxatpsl("SLC7"),puxatpsl("TPC7"),"C8");
+      trade.Buy(volnv8,_Symbol,tick.ask,puxatpsl("SLC7"),0,"C8");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","COMPRA","C8") && !PosAberta("POSSUI","COMPRA","C9") && tick.ask<DadosPos("PREÇO DA MENOR POSIÇÃO ABERTA","COMPRA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv9!=0)
+   if(PosAberta("POSSUI","COMPRA","C8") && !PosAberta("POSSUI","COMPRA","C9") && tick.ask<DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")-pontosmart*_Point && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv9!=0)
      {
-      trade.Buy(volnv9,_Symbol,tick.ask,puxatpsl("SLC8"),puxatpsl("TPC8"),"C9");
+      trade.Buy(volnv9,_Symbol,tick.ask,puxatpsl("SLC8"),0,"C9");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","COMPRA","C9") && !PosAberta("POSSUI","COMPRA","C10") && tick.ask<DadosPos("PREÇO DA MENOR POSIÇÃO ABERTA","COMPRA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv10!=0)
+   if(PosAberta("POSSUI","COMPRA","C9") && !PosAberta("POSSUI","COMPRA","C10") && tick.ask<DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")-pontosmart*_Point && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv10!=0)
      {
-      trade.Buy(volnv10,_Symbol,tick.ask,puxatpsl("SLC9"),puxatpsl("TPC9"),"C10");
+      trade.Buy(volnv10,_Symbol,tick.ask,puxatpsl("SLC9"),0,"C10");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","COMPRA","C10") && !PosAberta("POSSUI","COMPRA","C11") && tick.ask<DadosPos("PREÇO DA MENOR POSIÇÃO ABERTA","COMPRA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv11!=0)
+   if(PosAberta("POSSUI","COMPRA","C10") && !PosAberta("POSSUI","COMPRA","C11") && tick.ask<DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")-pontosmart*_Point && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv11!=0)
      {
-      trade.Buy(volnv11,_Symbol,tick.ask,puxatpsl("SLC10"),puxatpsl("TPC10"),"C11");
+      trade.Buy(volnv11,_Symbol,tick.ask,puxatpsl("SLC10"),0,"C11");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","COMPRA","C11") && !PosAberta("POSSUI","COMPRA","C12") && tick.ask<DadosPos("PREÇO DA MENOR POSIÇÃO ABERTA","COMPRA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv12!=0)
+   if(PosAberta("POSSUI","COMPRA","C11") && !PosAberta("POSSUI","COMPRA","C12") && tick.ask<DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")-pontosmart*_Point && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv12!=0)
      {
-      trade.Buy(volnv12,_Symbol,tick.ask,puxatpsl("SLC11"),puxatpsl("TPC11"),"C12");
+      trade.Buy(volnv12,_Symbol,tick.ask,puxatpsl("SLC11"),0,"C12");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","COMPRA","C12") && !PosAberta("POSSUI","COMPRA","C13") && tick.ask<DadosPos("PREÇO DA MENOR POSIÇÃO ABERTA","COMPRA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv13!=0)
+   if(PosAberta("POSSUI","COMPRA","C12") && !PosAberta("POSSUI","COMPRA","C13") && tick.ask<DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")-pontosmart*_Point && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv13!=0)
      {
-      trade.Buy(volnv13,_Symbol,tick.ask,puxatpsl("SLC12"),puxatpsl("TPC12"),"C13");
+      trade.Buy(volnv13,_Symbol,tick.ask,puxatpsl("SLC12"),0,"C13");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","COMPRA","C13") && !PosAberta("POSSUI","COMPRA","C14") && tick.ask<DadosPos("PREÇO DA MENOR POSIÇÃO ABERTA","COMPRA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv14!=0)
+   if(PosAberta("POSSUI","COMPRA","C13") && !PosAberta("POSSUI","COMPRA","C14") && tick.ask<DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")-pontosmart*_Point && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","COMPRA")<=500 && volnv14!=0)
      {
-      trade.Buy(volnv14,_Symbol,tick.ask,puxatpsl("SLC13"),puxatpsl("TPC13"),"C14");
+      trade.Buy(volnv14,_Symbol,tick.ask,puxatpsl("SLC13"),0,"C14");
       Sleep(500);
       return;
      }
@@ -1735,81 +1719,81 @@ void  ComprasMartingale()
 /////////////////////////////////////////
 void  VendasMartingale()
   {
-   if(PosAberta("POSSUI","VENDA","V1") && !PosAberta("POSSUI","VENDA","V2") && tick.bid>DadosPos("PREÇO DA MAIOR POSIÇÃO ABERTA","VENDA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv2!=0)
+   if(PosAberta("POSSUI","VENDA","V1") && !PosAberta("POSSUI","VENDA","V2") && tick.bid>DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","VENDA")+pontosmart*_Point && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv2!=0)
      {
-      trade.Sell(volnv2,_Symbol,tick.bid,puxatpsl("SLV1"),puxatpsl("TPV1"),"V2");
+      trade.Sell(volnv2,_Symbol,tick.bid,puxatpsl("SLV1"),0,"V2");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","VENDA","V2") && !PosAberta("POSSUI","VENDA","V3") && tick.bid>DadosPos("PREÇO DA MAIOR POSIÇÃO ABERTA","VENDA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv3!=0)
+   if(PosAberta("POSSUI","VENDA","V2") && !PosAberta("POSSUI","VENDA","V3") && tick.bid>DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","VENDA")+pontosmart*_Point && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv3!=0)
      {
-      trade.Sell(volnv3,_Symbol,tick.bid,puxatpsl("SLV2"),puxatpsl("TPV2"),"V3");
+      trade.Sell(volnv3,_Symbol,tick.bid,puxatpsl("SLV2"),0,"V3");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","VENDA","V3") && !PosAberta("POSSUI","VENDA","V4") && tick.bid>DadosPos("PREÇO DA MAIOR POSIÇÃO ABERTA","VENDA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv4!=0)
+   if(PosAberta("POSSUI","VENDA","V3") && !PosAberta("POSSUI","VENDA","V4") && tick.bid>DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","VENDA")+pontosmart*_Point && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv4!=0)
      {
-      trade.Sell(volnv4,_Symbol,tick.bid,puxatpsl("SLV3"),puxatpsl("TPV3"),"V4");
+      trade.Sell(volnv4,_Symbol,tick.bid,puxatpsl("SLV3"),0,"V4");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","VENDA","V4") && !PosAberta("POSSUI","VENDA","V5") && tick.bid>DadosPos("PREÇO DA MAIOR POSIÇÃO ABERTA","VENDA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv5!=0)
+   if(PosAberta("POSSUI","VENDA","V4") && !PosAberta("POSSUI","VENDA","V5") && tick.bid>DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","VENDA")+pontosmart*_Point && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv5!=0)
      {
-      trade.Sell(volnv5,_Symbol,tick.bid,puxatpsl("SLV4"),puxatpsl("TPV4"),"V5");
+      trade.Sell(volnv5,_Symbol,tick.bid,puxatpsl("SLV4"),0,"V5");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","VENDA","V5") && !PosAberta("POSSUI","VENDA","V6") && tick.bid>DadosPos("PREÇO DA MAIOR POSIÇÃO ABERTA","VENDA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv6!=0)
+   if(PosAberta("POSSUI","VENDA","V5") && !PosAberta("POSSUI","VENDA","V6") && tick.bid>DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","VENDA")+pontosmart*_Point && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv6!=0)
      {
-      trade.Sell(volnv6,_Symbol,tick.bid,puxatpsl("SLV5"),puxatpsl("TPV5"),"V6");
+      trade.Sell(volnv6,_Symbol,tick.bid,puxatpsl("SLV5"),0,"V6");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","VENDA","V6") && !PosAberta("POSSUI","VENDA","V7") && tick.bid>DadosPos("PREÇO DA MAIOR POSIÇÃO ABERTA","VENDA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv7!=0)
+   if(PosAberta("POSSUI","VENDA","V6") && !PosAberta("POSSUI","VENDA","V7") && tick.bid>DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","VENDA")+pontosmart*_Point && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv7!=0)
      {
-      trade.Sell(volnv7,_Symbol,tick.bid,puxatpsl("SLV6"),puxatpsl("TPV6"),"V7");
+      trade.Sell(volnv7,_Symbol,tick.bid,puxatpsl("SLV6"),0,"V7");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","VENDA","V7") && !PosAberta("POSSUI","VENDA","V8") && tick.bid>DadosPos("PREÇO DA MAIOR POSIÇÃO ABERTA","VENDA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv8!=0)
+   if(PosAberta("POSSUI","VENDA","V7") && !PosAberta("POSSUI","VENDA","V8") && tick.bid>DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","VENDA")+pontosmart*_Point && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv8!=0)
      {
-      trade.Sell(volnv8,_Symbol,tick.bid,puxatpsl("SLV7"),puxatpsl("TPV7"),"V8");
+      trade.Sell(volnv8,_Symbol,tick.bid,puxatpsl("SLV7"),0,"V8");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","VENDA","V8") && !PosAberta("POSSUI","VENDA","V9") && tick.bid>DadosPos("PREÇO DA MAIOR POSIÇÃO ABERTA","VENDA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv9!=0)
+   if(PosAberta("POSSUI","VENDA","V8") && !PosAberta("POSSUI","VENDA","V9") && tick.bid>DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","VENDA")+pontosmart*_Point && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv9!=0)
      {
-      trade.Sell(volnv9,_Symbol,tick.bid,puxatpsl("SLV8"),puxatpsl("TPV8"),"V9");
+      trade.Sell(volnv9,_Symbol,tick.bid,puxatpsl("SLV8"),0,"V9");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","VENDA","V9") && !PosAberta("POSSUI","VENDA","V10") && tick.bid>DadosPos("PREÇO DA MAIOR POSIÇÃO ABERTA","VENDA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv10!=0)
+   if(PosAberta("POSSUI","VENDA","V9") && !PosAberta("POSSUI","VENDA","V10") && tick.bid>DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","VENDA")+pontosmart*_Point && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv10!=0)
      {
-      trade.Sell(volnv10,_Symbol,tick.bid,puxatpsl("SLV9"),puxatpsl("TPV9"),"V10");
+      trade.Sell(volnv10,_Symbol,tick.bid,puxatpsl("SLV9"),0,"V10");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","VENDA","V10") && !PosAberta("POSSUI","VENDA","V11") && tick.bid>DadosPos("PREÇO DA MAIOR POSIÇÃO ABERTA","VENDA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv11!=0)
+   if(PosAberta("POSSUI","VENDA","V10") && !PosAberta("POSSUI","VENDA","V11") && tick.bid>DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","VENDA")+pontosmart*_Point && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv11!=0)
      {
-      trade.Sell(volnv11,_Symbol,tick.bid,puxatpsl("SLV10"),puxatpsl("TPV10"),"V11");
+      trade.Sell(volnv11,_Symbol,tick.bid,puxatpsl("SLV10"),0,"V11");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","VENDA","V11") && !PosAberta("POSSUI","VENDA","V12") && tick.bid>DadosPos("PREÇO DA MAIOR POSIÇÃO ABERTA","VENDA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv12!=0)
+   if(PosAberta("POSSUI","VENDA","V11") && !PosAberta("POSSUI","VENDA","V12") && tick.bid>DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","VENDA")+pontosmart*_Point && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv12!=0)
      {
-      trade.Sell(volnv12,_Symbol,tick.bid,puxatpsl("SLV11"),puxatpsl("TPV11"),"V12");
+      trade.Sell(volnv12,_Symbol,tick.bid,puxatpsl("SLV11"),0,"V12");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","VENDA","V12") && !PosAberta("POSSUI","VENDA","V13") && tick.bid>DadosPos("PREÇO DA MAIOR POSIÇÃO ABERTA","VENDA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv13!=0)
+   if(PosAberta("POSSUI","VENDA","V12") && !PosAberta("POSSUI","VENDA","V13") && tick.bid>DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","VENDA")+pontosmart*_Point && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv13!=0)
      {
-      trade.Sell(volnv13,_Symbol,tick.bid,puxatpsl("SLV12"),puxatpsl("TPV12"),"V13");
+      trade.Sell(volnv13,_Symbol,tick.bid,puxatpsl("SLV12"),0,"V13");
       Sleep(500);
       return;
      }
-   if(PosAberta("POSSUI","VENDA","V13") && !PosAberta("POSSUI","VENDA","V14") && tick.bid>DadosPos("PREÇO DA MAIOR POSIÇÃO ABERTA","VENDA") && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv14!=0)
+   if(PosAberta("POSSUI","VENDA","V13") && !PosAberta("POSSUI","VENDA","V14") && tick.bid>DadosPos("PREÇO DA ÚLTIMA POSIÇÃO ABERTA","VENDA")+pontosmart*_Point && DadosPos("VOLUME DA ÚLTIMA POSIÇÃO ABERTA","VENDA")<=500 && volnv14!=0)
      {
-      trade.Sell(volnv14,_Symbol,tick.bid,puxatpsl("SLV13"),puxatpsl("TPV13"),"V14");
+      trade.Sell(volnv14,_Symbol,tick.bid,puxatpsl("SLV13"),0,"V14");
       Sleep(500);
       return;
      }
