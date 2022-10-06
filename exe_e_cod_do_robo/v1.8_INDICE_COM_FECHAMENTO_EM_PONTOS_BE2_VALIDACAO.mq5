@@ -427,7 +427,7 @@ void OnTick()
      {
       double ganhos = DadosPosFechada("QTDE DE GANHOS DO DIA","");
       double perdas = DadosPosFechada("QTDE DE PERDAS DO DIA","");
-      Print("ORDENS COM LUCRO: ",ganhos," ORDENS COM PERDAS: ",perdas," SALDO DO DIA:",ganhos-perdas);
+      //Print("ORDENS COM LUCRO: ",ganhos," ORDENS COM PERDAS: ",perdas," SALDO DO DIA:",ganhos-perdas);
       //--- Definição dos lotes iniciais de compra e venda
       if(saldo<valoraumento)
          volumeoper=loteinicial;
@@ -897,7 +897,7 @@ void OnTick()
       prejudodia = DadosPos("PREJUÍZO DO DIA","");
       if(MathAbs(prejudodia)/capital*100>=percentfull && prejudodia<0 && saldo!=capital)
         {
-         Print("STOP FULL ACIONADO");
+         //Print("STOP FULL ACIONADO");
          FechaTodasPosicoesAbertas();
          Sleep(500);
          return;
@@ -911,7 +911,7 @@ void OnTick()
      {
       if((possuicompra && slultimaposcompra==0) || (possuivenda && slultimaposvenda==0))
         {
-         Print("ERRO DA CORRETORA - ORDEM SEM STOP LOSS CRIADA");
+         //Print("ERRO DA CORRETORA - ORDEM SEM STOP LOSS CRIADA");
          FechaTodasPosicoesAbertas();
          Sleep(200);
         }
@@ -1004,10 +1004,10 @@ bool ProbTicks(string tipo)
      }
 //   if(percentfavorvenda*100>prctfull && !PosAberta("POSSUI","VENDA","BE VENDA"))
 //      trade.Sell(0.01,_Symbol,tick.bid,tick.ask+pontosbesl*_Point,0,"BE VENDA");
-   Print(" Probabilidade de Compra: ",percentfavorcompra," Probabilidade de venda: ",percentfavorvenda);
+   //Print(" Probabilidade de Compra: ",percentfavorcompra," Probabilidade de venda: ",percentfavorvenda);
    if((tipo=="COMPRA" && percentfavorcompra>=prctfull && tempook) || (tipo=="VENDA" && percentfavorvenda>=prctfull && tempook))
      {
-      Print("Hora ultimo tick: ",ultimotick," Hora primeiro tick: ",primeirotick," Ultimo menos o primeiro: ",ultimotick-primeirotick," Hora máxima da condição: ",primeirotick+timevar);
+      //Print("Hora ultimo tick: ",ultimotick," Hora primeiro tick: ",primeirotick," Ultimo menos o primeiro: ",ultimotick-primeirotick," Hora máxima da condição: ",primeirotick+timevar);
       return true;
      }
 
