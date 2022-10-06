@@ -363,7 +363,7 @@ void OnTick()
    possuicompra12 = PosAberta("POSSUI","COMPRA","C12");
    possuicompra13 = PosAberta("POSSUI","COMPRA","C13");
    possuicompra14 = PosAberta("POSSUI","COMPRA","C14");
-   
+
    possuivenda = PosAberta("POSSUI","VENDA","");
    possuivenda1 = PosAberta("POSSUI","VENDA","V1");
    possuivenda2 = PosAberta("POSSUI","VENDA","V2");
@@ -390,6 +390,16 @@ void OnTick()
       tpultimaposcompra = DadosPos("TP DA ÚLTIMA POSIÇÃO ABERTA","COMPRA");
       dataultimaposabertacompra = DataHoraUltPosAberta("COMPRA");
      }
+   else
+     {
+      precoultimacompra = 0;
+      volumeultimacompra = 0;
+      PMultimacompra = 0;
+      VMultimacompra = 0;
+      slultimaposcompra = 0;
+      tpultimaposcompra = 0;
+      dataultimaposabertacompra = TimeCurrent();
+     }
 
    if(possuivenda)
      {
@@ -400,6 +410,16 @@ void OnTick()
       slultimaposvenda = DadosPos("SL DA ÚLTIMA POSIÇÃO ABERTA","VENDA");
       tpultimaposvenda = DadosPos("TP DA ÚLTIMA POSIÇÃO ABERTA","VENDA");
       dataultimaposabertavenda = DataHoraUltPosAberta("VENDA");
+     }
+   else
+     {
+      precoultimavenda = 0;
+      volumeultimavenda = 0;
+      PMultimavenda = 0;
+      VMultimavenda = 0;
+      slultimaposvenda = 0;
+      tpultimaposvenda = 0;
+      dataultimaposabertavenda = TimeCurrent();
      }
 //--------------------------------------------------------------------
 
@@ -2240,3 +2260,5 @@ bool HorarioPausa1() //VERIFICA SE ESTÁ NO HORÁRIO DE PAUSA DO ROBÔ
   }
 
 //+------------------------------------------------------------------------------------------+
+
+//+------------------------------------------------------------------+
