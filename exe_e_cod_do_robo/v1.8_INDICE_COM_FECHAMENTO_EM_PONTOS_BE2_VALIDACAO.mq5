@@ -425,8 +425,8 @@ void OnTick()
 
    if(NB1.IsNewBar(_Symbol,_Period)) //VERIFICA SE É UM NOVO CANDLE
      {
-      double ganhos = DadosPosFechada("QTDE DE GANHOS DO DIA","");
-      double perdas = DadosPosFechada("QTDE DE PERDAS DO DIA","");
+      //double ganhos = DadosPosFechada("QTDE DE GANHOS DO DIA","");
+      //double perdas = DadosPosFechada("QTDE DE PERDAS DO DIA","");
       //Print("ORDENS COM LUCRO: ",ganhos," ORDENS COM PERDAS: ",perdas," SALDO DO DIA:",ganhos-perdas);
       //--- Definição dos lotes iniciais de compra e venda
       if(saldo<valoraumento)
@@ -770,7 +770,7 @@ void OnTick()
 ////////////////////////////////////////////////////////////////////////////////////
    if(ativamartingale)
      {
-      Sleep(300);
+      Sleep(150);
       if(PositionsTotal()>=1 && ((possuicompra && QtdeCandles("COMPRA")>=qtdecandle) || (possuivenda && QtdeCandles("VENDA")>=qtdecandle)) && QtsMartingale()<=qtdedemart)
         {
          //---| ESTRATEGIA ENVELOPE/RSI/BOLINGER |---//
@@ -913,7 +913,7 @@ void OnTick()
         {
          //Print("ERRO DA CORRETORA - ORDEM SEM STOP LOSS CRIADA");
          FechaTodasPosicoesAbertas();
-         Sleep(200);
+         Sleep(150);
         }
      }
 
@@ -1630,79 +1630,79 @@ void  ComprasMartingale()
    if(possuicompra1 && !possuicompra2 && tick.ask<precoultimacompra-pontosmart*_Point && volumeultimacompra<=500 && volnv2!=0)
      {
       trade.Buy(volnv2,_Symbol,tick.ask,slultimaposcompra,0,"C2");
-      Sleep(500);
+      Sleep(200);
       return;
      }
    if(possuicompra2 && !possuicompra3 && tick.ask<precoultimacompra-pontosmart*_Point && volumeultimacompra<=500 && volnv3!=0)
      {
       trade.Buy(volnv3,_Symbol,tick.ask,slultimaposcompra,0,"C3");
-      Sleep(500);
+      Sleep(200);
       return;
      }
    if(possuicompra3 && !possuicompra4 && tick.ask<precoultimacompra-pontosmart*_Point && volumeultimacompra<=500 && volnv4!=0)
      {
       trade.Buy(volnv4,_Symbol,tick.ask,slultimaposcompra,0,"C4");
-      Sleep(500);
+      Sleep(200);
       return;
      }
    if(possuicompra4 && !possuicompra5 && tick.ask<precoultimacompra-pontosmart*_Point && volumeultimacompra<=500 && volnv5!=0)
      {
       trade.Buy(volnv5,_Symbol,tick.ask,slultimaposcompra,0,"C5");
-      Sleep(500);
+      Sleep(200);
       return;
      }
    if(possuicompra5 && !possuicompra6 && tick.ask<precoultimacompra-pontosmart*_Point && volumeultimacompra<=500 && volnv6!=0)
      {
       trade.Buy(volnv6,_Symbol,tick.ask,slultimaposcompra,0,"C6");
-      Sleep(500);
+      Sleep(200);
       return;
      }
    if(possuicompra6 && !possuicompra7 && tick.ask<precoultimacompra-pontosmart*_Point && volumeultimacompra<=500 && volnv7!=0)
      {
       trade.Buy(volnv7,_Symbol,tick.ask,slultimaposcompra,0,"C7");
-      Sleep(500);
+      Sleep(200);
       return;
      }
    if(possuicompra7 && !possuicompra8 && tick.ask<precoultimacompra-pontosmart*_Point && volumeultimacompra<=500 && volnv8!=0)
      {
       trade.Buy(volnv8,_Symbol,tick.ask,slultimaposcompra,0,"C8");
-      Sleep(500);
+      Sleep(200);
       return;
      }
    if(possuicompra8 && !possuicompra9 && tick.ask<precoultimacompra-pontosmart*_Point && volumeultimacompra<=500 && volnv9!=0)
      {
       trade.Buy(volnv9,_Symbol,tick.ask,slultimaposcompra,0,"C9");
-      Sleep(500);
+      Sleep(200);
       return;
      }
    if(possuicompra9 && !possuicompra10 && tick.ask<precoultimacompra-pontosmart*_Point && volumeultimacompra<=500 && volnv10!=0)
      {
       trade.Buy(volnv10,_Symbol,tick.ask,slultimaposcompra,0,"C10");
-      Sleep(500);
+      Sleep(200);
       return;
      }
    if(possuicompra10 && !possuicompra11 && tick.ask<precoultimacompra-pontosmart*_Point && volumeultimacompra<=500 && volnv11!=0)
      {
       trade.Buy(volnv11,_Symbol,tick.ask,slultimaposcompra,0,"C11");
-      Sleep(500);
+      Sleep(200);
       return;
      }
    if(possuicompra11 && !possuicompra12 && tick.ask<precoultimacompra-pontosmart*_Point && volumeultimacompra<=500 && volnv12!=0)
      {
       trade.Buy(volnv12,_Symbol,tick.ask,slultimaposcompra,0,"C12");
-      Sleep(500);
+      Sleep(200);
       return;
      }
    if(possuicompra12 && !possuicompra13 && tick.ask<precoultimacompra-pontosmart*_Point && volumeultimacompra<=500 && volnv13!=0)
      {
       trade.Buy(volnv13,_Symbol,tick.ask,slultimaposcompra,0,"C13");
-      Sleep(500);
+      Sleep(200);
       return;
      }
    if(possuicompra13 && !possuicompra14 && tick.ask<precoultimacompra-pontosmart*_Point && volumeultimacompra<=500 && volnv14!=0)
      {
       trade.Buy(volnv14,_Symbol,tick.ask,slultimaposcompra,0,"C14");
-      Sleep(500);
+      Sleep(200);
       return;
      }
   }
@@ -1715,79 +1715,79 @@ void  VendasMartingale()
    if(possuivenda1 && !possuivenda2 && tick.bid>precoultimavenda+pontosmart*_Point && volumeultimavenda<=500 && volnv2!=0)
      {
       trade.Sell(volnv2,_Symbol,tick.bid,slultimaposvenda,0,"V2");
-      Sleep(500);
+      Sleep(200);
       return;
      }
    if(possuivenda2 && !possuivenda3 && tick.bid>precoultimavenda+pontosmart*_Point && volumeultimavenda<=500 && volnv3!=0)
      {
       trade.Sell(volnv3,_Symbol,tick.bid,slultimaposvenda,0,"V3");
-      Sleep(500);
+      Sleep(200);
       return;
      }
    if(possuivenda3 && !possuivenda4 && tick.bid>precoultimavenda+pontosmart*_Point && volumeultimavenda<=500 && volnv4!=0)
      {
       trade.Sell(volnv4,_Symbol,tick.bid,slultimaposvenda,0,"V4");
-      Sleep(500);
+      Sleep(200);
       return;
      }
    if(possuivenda4 && !possuivenda5 && tick.bid>precoultimavenda+pontosmart*_Point && volumeultimavenda<=500 && volnv5!=0)
      {
       trade.Sell(volnv5,_Symbol,tick.bid,slultimaposvenda,0,"V5");
-      Sleep(500);
+      Sleep(200);
       return;
      }
    if(possuivenda5 && !possuivenda6 && tick.bid>precoultimavenda+pontosmart*_Point && volumeultimavenda<=500 && volnv6!=0)
      {
       trade.Sell(volnv6,_Symbol,tick.bid,slultimaposvenda,0,"V6");
-      Sleep(500);
+      Sleep(200);
       return;
      }
    if(possuivenda6 && !possuivenda7 && tick.bid>precoultimavenda+pontosmart*_Point && volumeultimavenda<=500 && volnv7!=0)
      {
       trade.Sell(volnv7,_Symbol,tick.bid,slultimaposvenda,0,"V7");
-      Sleep(500);
+      Sleep(200);
       return;
      }
    if(possuivenda7 && !possuivenda8 && tick.bid>precoultimavenda+pontosmart*_Point && volumeultimavenda<=500 && volnv8!=0)
      {
       trade.Sell(volnv8,_Symbol,tick.bid,slultimaposvenda,0,"V8");
-      Sleep(500);
+      Sleep(200);
       return;
      }
    if(possuivenda8 && !possuivenda9 && tick.bid>precoultimavenda+pontosmart*_Point && volumeultimavenda<=500 && volnv9!=0)
      {
       trade.Sell(volnv9,_Symbol,tick.bid,slultimaposvenda,0,"V9");
-      Sleep(500);
+      Sleep(200);
       return;
      }
    if(possuivenda9 && !possuivenda10 && tick.bid>precoultimavenda+pontosmart*_Point && volumeultimavenda<=500 && volnv10!=0)
      {
       trade.Sell(volnv10,_Symbol,tick.bid,slultimaposvenda,0,"V10");
-      Sleep(500);
+      Sleep(200);
       return;
      }
    if(possuivenda10 && !possuivenda11 && tick.bid>precoultimavenda+pontosmart*_Point && volumeultimavenda<=500 && volnv11!=0)
      {
       trade.Sell(volnv11,_Symbol,tick.bid,slultimaposvenda,0,"V11");
-      Sleep(500);
+      Sleep(200);
       return;
      }
    if(possuivenda11 && !possuivenda12 && tick.bid>precoultimavenda+pontosmart*_Point && volumeultimavenda<=500 && volnv12!=0)
      {
       trade.Sell(volnv12,_Symbol,tick.bid,slultimaposvenda,0,"V12");
-      Sleep(500);
+      Sleep(200);
       return;
      }
    if(possuivenda12 && !possuivenda13 && tick.bid>precoultimavenda+pontosmart*_Point && volumeultimavenda<=500 && volnv13!=0)
      {
       trade.Sell(volnv13,_Symbol,tick.bid,slultimaposvenda,0,"V13");
-      Sleep(500);
+      Sleep(200);
       return;
      }
    if(possuivenda13 && !possuivenda14 && tick.bid>precoultimavenda+pontosmart*_Point && volumeultimavenda<=500 && volnv14!=0)
      {
       trade.Sell(volnv14,_Symbol,tick.bid,slultimaposvenda,0,"V14");
-      Sleep(500);
+      Sleep(200);
       return;
      }
   }
