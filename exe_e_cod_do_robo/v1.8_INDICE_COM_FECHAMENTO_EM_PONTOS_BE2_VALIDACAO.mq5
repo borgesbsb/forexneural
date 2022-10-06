@@ -926,7 +926,7 @@ void OnTick()
         {
          trade.PositionModify(_Symbol,tick.bid-pontosbesl*_Point,tick.ask+5*pontosc1*_Point);
         }
-      if(possuivenda && tick.ask<=precoultimavenda-pontosc1*_Point && tpultimaposvenda==0)
+      if(possuivenda && tick.ask<=PMultimavenda-pontosc1*_Point && tpultimaposvenda==0)
         {
          trade.PositionModify(_Symbol,tick.ask+pontosbesl*_Point,tick.bid-5*pontosc1*_Point);
         }
@@ -1004,7 +1004,7 @@ bool ProbTicks(string tipo)
      }
 //   if(percentfavorvenda*100>prctfull && !PosAberta("POSSUI","VENDA","BE VENDA"))
 //      trade.Sell(0.01,_Symbol,tick.bid,tick.ask+pontosbesl*_Point,0,"BE VENDA");
-   //Print(" Probabilidade de Compra: ",percentfavorcompra," Probabilidade de venda: ",percentfavorvenda);
+//Print(" Probabilidade de Compra: ",percentfavorcompra," Probabilidade de venda: ",percentfavorvenda);
    if((tipo=="COMPRA" && percentfavorcompra>=prctfull && tempook) || (tipo=="VENDA" && percentfavorvenda>=prctfull && tempook))
      {
       //Print("Hora ultimo tick: ",ultimotick," Hora primeiro tick: ",primeirotick," Ultimo menos o primeiro: ",ultimotick-primeirotick," Hora máxima da condição: ",primeirotick+timevar);
