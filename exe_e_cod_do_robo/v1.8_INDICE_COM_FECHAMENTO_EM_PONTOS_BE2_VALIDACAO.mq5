@@ -81,6 +81,7 @@ enum ENUM_TP_GAIN
 ////////////////////////////////////////////////////////////////////////////////////////
 input group              "ABERTURA DE ORDENS"
 input bool               ativaentradaea      = true;         //ATIVA ABERTURA AUTOMÁTICA DE ORDENS
+//input int                qtdeposperda        = 5;            //QTS CANDLES(MIN)DE ESPERA DO ÚLTIMO SL
 input double             loteinicial         = 0.1;          //TAMANHO DO LOTE INICIAL(WIN$-1CONTRATO)
 input double             aumentoprop         = 500.00;       //VALOR P AUMENTO PROPORCIONAL DO LOTE
 input ENUM_TP_CONTA      tipoconta           = tipoprime;    //SELECIONE O TIPO DE CONTA
@@ -111,7 +112,7 @@ input group              "VALORES DEFINIDOS P/ RSI"
 /*input*/ int                periodm1            = 63;           //PERIODO DA MÉDIA P/ ENVELOPE
 /*input*/ double             tamanhoenvelope     = 150;          //DISTÂNCIA P ENVELOPE
 /*input*/ //group              "TENDÊNCIA"
-/*input*/ int                qtdecandlestend     = 5;            //QTDE N ÚLTIMOS TICKS P COMPARAR
+/*input*/ int                QtdeCandlesPosAbertatend     = 5;            //QTDE N ÚLTIMOS TICKS P COMPARAR
 /*input*/ double             prctsingle          = 0.2;          //PERCENTUAL MÍNIMO VAR UMA ORDEM
 /*input*/ double             prctfull            = 75;           //PERCENTUAL MÍNIMO VAR TODAS AS ORDENS
 /*input*/ long               timevar             = 500;          //TEMPO QUE OCORREU A VARIAÇÃO EM MS
@@ -166,13 +167,15 @@ bool                     possuicompra,possuicompra1,possuicompra2,possuicompra3,
                          possuivenda,possuivenda1,possuivenda2,possuivenda3,possuivenda4,possuivenda5,possuivenda6,possuivenda7,possuivenda8, //
                          possuivenda9,possuivenda10,possuivenda11,possuivenda12,possuivenda13,possuivenda14;
 
+bool                     mitigacaook = false;
+
 //--- Definição dos doubles
 double                   percent_margem,saldo,capital,lucro_prejuizo,volumemaximo,volumeoper,valoraumento,sarnormalizado0,sarnormalizado1, //
                          slcomprapadrao,slvendapadrao,tpcomprapadrao,tpvendapadrao,previsao,rsi[],bbu[],bbm[],bbd[],mm[],sar[], //
                          precoultimacompra,precoultimavenda,volumeultimacompra,volumeultimavenda,VMultimacompra,VMultimavenda,PMultimacompra,PMultimavenda, //
                          slultimaposcompra,slultimaposvenda,tpultimaposcompra,tpultimaposvenda, //
                          volnv2,volnv3,volnv4,volnv5,volnv6,volnv7,volnv8,volnv9,volnv10,volnv11,volnv12,volnv13,volnv14, //
-                         PM1,PM2,PM3,PM4,PM5,PM6,PM7,PM8,PM9,PM10,PM11,PM12,PM13,PM14;
+                         PMC1,PMC2,PMC3,PMC4,PMC5,PMC6,PMC7,PMC8,PMC9,PMC10,PMC11,PMC12,PMC13,PMC14,PMV1,PMV2,PMV3,PMV4,PMV5,PMV6,PMV7,PMV8,PMV9,PMV10,PMV11,PMV12,PMV13,PMV14;
 
 double                   prejudodia=0.0;
 
@@ -180,7 +183,7 @@ double                   prejudodia=0.0;
 MqlTick                  tick, ticks[];
 MqlRates                 candle[];
 MqlDateTime              hratualstruct,hrinicialstruct,hrfinalstruct,hrfechstruct,hrinipausa1,hrterpausa1;
-datetime                 dataultimaposabertacompra,dataultimaposabertavenda;
+datetime                 dataultimaposabertacompra,dataultimaposabertavenda,aberturacandleatual;
 
 //--- Classe responsável pela execução das ordens - Ctrade
 CTrade                   trade;
@@ -271,6 +274,13 @@ void OnDeinit(const int reason)
 ///////////////////////////////
 void OnTick()
   {
+
+
+//--- AJUSTA HORA ATUAL PARA O FORMATO STRUCT
+   TimeToStruct(TimeCurrent(),hratualstruct);
+
+//--- RECEBE O HORÁRIO DE ABERTURA DO PREGÃO DO DIA
+   aberturacandleatual=datetime(SeriesInfoInteger(_Symbol,PERIOD_D1,SERIES_LASTBAR_DATE));
 
 //--- Cópia dos dados dos handles para as variáveis, necessários de acordo com a estratégia escolhida
    if(!SymbolInfoTick(_Symbol,tick))
@@ -425,9 +435,30 @@ void OnTick()
 
    if(NB1.IsNewBar(_Symbol,_Period)) //VERIFICA SE É UM NOVO CANDLE
      {
-      //double ganhos = DadosPosFechada("QTDE DE GANHOS DO DIA","");
-      //double perdas = DadosPosFechada("QTDE DE PERDAS DO DIA","");
-      //Print("ORDENS COM LUCRO: ",ganhos," ORDENS COM PERDAS: ",perdas," SALDO DO DIA:",ganhos-perdas);
+      ////////////////////////////////////////////////////////////////////////////
+      //---| MITIGAÇÃO PARA EVITAR ENTRADAS APÓS ORDENS FECHADAS COM PERDA |----//
+      ////////////////////////////////////////////////////////////////////////////
+      /*HistorySelect(aberturacandleatual,TimeCurrent());
+      if(HistoryDealsTotal()>1)
+        {
+         if(DadosPosFechada("PROFIT DA ÚLTIMA POSIÇÃO FECHADA","")<0)
+           {
+            if(QtdeCandlesPosFechada()<qtdeposperda)
+               mitigacaook = false;
+            else
+               mitigacaook = true;
+           }
+         else
+            mitigacaook = true;
+        }
+      else
+         mitigacaook = true;*/
+
+      //--- Mostrar na aba "EXPERT" os saldos do dia
+      double ganhos = DadosPosFechada("QTDE DE GANHOS DO DIA","");
+      double perdas = DadosPosFechada("QTDE DE PERDAS DO DIA","");
+      Print("ORDENS COM LUCRO: ",ganhos," ORDENS COM PERDAS: ",perdas," SALDO DO DIA:",ganhos-perdas);
+
       //--- Definição dos lotes iniciais de compra e venda
       if(saldo<valoraumento)
          volumeoper=loteinicial;
@@ -531,64 +562,60 @@ void OnTick()
       if(PositionsTotal()>=1)
         {
          if(possuicompra1 && !possuicompra2)
-            PM1 = (tick.ask*volnv2 + precoultimacompra*volumeoper)/(volnv2+volumeoper);
+            PMC1 = (tick.ask*volnv2 + precoultimacompra*volumeoper)/(volnv2+volumeoper);
          if(possuicompra2 && !possuicompra3)
-            PM2 = (tick.ask*volnv3 + PMultimacompra*VMultimacompra)/(volnv3+VMultimacompra);
+            PMC2 = (tick.ask*volnv3 + PMultimacompra*VMultimacompra)/(volnv3+VMultimacompra);
          if(possuicompra3 && !possuicompra4)
-            PM3 = (tick.ask*volnv4 + PMultimacompra*VMultimacompra)/(volnv4+VMultimacompra);
+            PMC3 = (tick.ask*volnv4 + PMultimacompra*VMultimacompra)/(volnv4+VMultimacompra);
          if(possuicompra4 && !possuicompra5)
-            PM4 = (tick.ask*volnv5 + PMultimacompra*VMultimacompra)/(volnv5+VMultimacompra);
+            PMC4 = (tick.ask*volnv5 + PMultimacompra*VMultimacompra)/(volnv5+VMultimacompra);
          if(possuicompra5 && !possuicompra6)
-            PM5 = (tick.ask*volnv6 + PMultimacompra*VMultimacompra)/(volnv6+VMultimacompra);
+            PMC5 = (tick.ask*volnv6 + PMultimacompra*VMultimacompra)/(volnv6+VMultimacompra);
          if(possuicompra6 && !possuicompra7)
-            PM6 = (tick.ask*volnv7 + PMultimacompra*VMultimacompra)/(volnv7+VMultimacompra);
+            PMC6 = (tick.ask*volnv7 + PMultimacompra*VMultimacompra)/(volnv7+VMultimacompra);
          if(possuicompra7 && !possuicompra8)
-            PM7 = (tick.ask*volnv8 + PMultimacompra*VMultimacompra)/(volnv8+VMultimacompra);
+            PMC7 = (tick.ask*volnv8 + PMultimacompra*VMultimacompra)/(volnv8+VMultimacompra);
          if(possuicompra8 && !possuicompra9)
-            PM8 = (tick.ask*volnv9 + PMultimacompra*VMultimacompra)/(volnv9+VMultimacompra);
+            PMC8 = (tick.ask*volnv9 + PMultimacompra*VMultimacompra)/(volnv9+VMultimacompra);
          if(possuicompra9 && !possuicompra10)
-            PM9 = (tick.ask*volnv10 + PMultimacompra*VMultimacompra)/(volnv10+VMultimacompra);
+            PMC9 = (tick.ask*volnv10 + PMultimacompra*VMultimacompra)/(volnv10+VMultimacompra);
          if(possuicompra10 && !possuicompra11)
-            PM10 = (tick.ask*volnv11 + PMultimacompra*VMultimacompra)/(volnv11+VMultimacompra);
+            PMC10 = (tick.ask*volnv11 + PMultimacompra*VMultimacompra)/(volnv11+VMultimacompra);
          if(possuicompra11 && !possuicompra12)
-            PM11 = (tick.ask*volnv12 + PMultimacompra*VMultimacompra)/(volnv12+VMultimacompra);
+            PMC11 = (tick.ask*volnv12 + PMultimacompra*VMultimacompra)/(volnv12+VMultimacompra);
          if(possuicompra12 && !possuicompra13)
-            PM12 = (tick.ask*volnv13 + PMultimacompra*VMultimacompra)/(volnv13+VMultimacompra);
+            PMC12 = (tick.ask*volnv13 + PMultimacompra*VMultimacompra)/(volnv13+VMultimacompra);
          if(possuicompra13 && !possuicompra14)
-            PM13 = (tick.ask*volnv14 + PMultimacompra*VMultimacompra)/(volnv14+VMultimacompra);
+            PMC13 = (tick.ask*volnv14 + PMultimacompra*VMultimacompra)/(volnv14+VMultimacompra);
 
          if(possuivenda1 && !possuivenda2)
-            PM1 = (tick.bid*volnv2 + PMultimavenda*volumeoper)/(volnv2+volumeoper);
+            PMV1 = (tick.bid*volnv2 + PMultimavenda*volumeoper)/(volnv2+volumeoper);
          if(possuivenda2 && !possuivenda3)
-            PM2 = (tick.bid*volnv3 + PMultimavenda*VMultimavenda)/(volnv3+VMultimavenda);
+            PMV2 = (tick.bid*volnv3 + PMultimavenda*VMultimavenda)/(volnv3+VMultimavenda);
          if(possuivenda3 && !possuivenda4)
-            PM3 = (tick.bid*volnv4 + PMultimavenda*VMultimavenda)/(volnv4+VMultimavenda);
+            PMV3 = (tick.bid*volnv4 + PMultimavenda*VMultimavenda)/(volnv4+VMultimavenda);
          if(possuivenda4 && !possuivenda5)
-            PM4 = (tick.bid*volnv5 + PMultimavenda*VMultimavenda)/(volnv5+VMultimavenda);
+            PMV4 = (tick.bid*volnv5 + PMultimavenda*VMultimavenda)/(volnv5+VMultimavenda);
          if(possuivenda5 && !possuivenda6)
-            PM5 = (tick.bid*volnv6 + PMultimavenda*VMultimavenda)/(volnv6+VMultimavenda);
+            PMV5 = (tick.bid*volnv6 + PMultimavenda*VMultimavenda)/(volnv6+VMultimavenda);
          if(possuivenda6 && !possuivenda7)
-            PM6 = (tick.bid*volnv7 + PMultimavenda*VMultimavenda)/(volnv7+VMultimavenda);
+            PMV6 = (tick.bid*volnv7 + PMultimavenda*VMultimavenda)/(volnv7+VMultimavenda);
          if(possuivenda7 && !possuivenda8)
-            PM7 = (tick.bid*volnv8 + PMultimavenda*VMultimavenda)/(volnv8+VMultimavenda);
+            PMV7 = (tick.bid*volnv8 + PMultimavenda*VMultimavenda)/(volnv8+VMultimavenda);
          if(possuivenda8 && !possuivenda9)
-            PM8 = (tick.bid*volnv9 + PMultimavenda*VMultimavenda)/(volnv9+VMultimavenda);
+            PMV8 = (tick.bid*volnv9 + PMultimavenda*VMultimavenda)/(volnv9+VMultimavenda);
          if(possuivenda9 && !possuivenda10)
-            PM9 = (tick.bid*volnv10 + PMultimavenda*VMultimavenda)/(volnv10+VMultimavenda);
+            PMV9 = (tick.bid*volnv10 + PMultimavenda*VMultimavenda)/(volnv10+VMultimavenda);
          if(possuivenda10 && !possuivenda11)
-            PM10 = (tick.bid*volnv11 + PMultimavenda*VMultimavenda)/(volnv11+VMultimavenda);
+            PMV10 = (tick.bid*volnv11 + PMultimavenda*VMultimavenda)/(volnv11+VMultimavenda);
          if(possuivenda11 && !possuivenda12)
-            PM11 = (tick.bid*volnv12 + PMultimavenda*VMultimavenda)/(volnv12+VMultimavenda);
+            PMV11 = (tick.bid*volnv12 + PMultimavenda*VMultimavenda)/(volnv12+VMultimavenda);
          if(possuivenda12 && !possuivenda13)
-            PM12 = (tick.bid*volnv13 + PMultimavenda*VMultimavenda)/(volnv13+VMultimavenda);
+            PMV12 = (tick.bid*volnv13 + PMultimavenda*VMultimavenda)/(volnv13+VMultimavenda);
          if(possuivenda13 && !possuivenda14)
-            PM13 = (tick.bid*volnv14 + PMultimavenda*VMultimavenda)/(volnv14+VMultimavenda);
+            PMV13 = (tick.bid*volnv14 + PMultimavenda*VMultimavenda)/(volnv14+VMultimavenda);
         }
      }
-
-//--- AJUSTA HORA ATUAL PARA O FORMATO STRUCT E RECEBE O HORÁRIO DE ABERTURA DO CANDLE ATUAL
-   TimeToStruct(TimeCurrent(),hratualstruct);
-   datetime aberturacandleatual=datetime(SeriesInfoInteger(_Symbol,_Period,SERIES_LASTBAR_DATE));
 
 //--- SE ESTRATÉGIA QUE UTILIZA SAR FOR ESCOLHIDA, ARMAZENA O VALOR DOS 2 ÚLTIMOS VALORES DE SAR
    if(estrategia==estrat4 || estrategia==estrat9 || estrategia==estrat14)
@@ -615,8 +642,23 @@ void OnTick()
 //---| FECHA ORDENS QNDO SAR INVERTER |----//
 /////////////////////////////////////////////
    if(PositionsTotal()>=1)
+     {
       if((possuicompra && sarnormalizado0>tick.ask && sarnormalizado1>tick.ask)||(possuivenda && sarnormalizado0<tick.bid && sarnormalizado1<tick.bid))
+        {
          FechaTodasPosicoesAbertas();
+         Sleep(100);
+         if(!possuicompra1 && sarnormalizado0 < tick.ask)
+           {
+            trade.Buy(2*volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),0,"C1");
+            Sleep(100);
+           }
+         if(!possuivenda1 && sarnormalizado0 > tick.bid)
+           {
+            trade.Sell(2*volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),0,"V1");
+            Sleep(100);
+           }
+        }
+     }
 
 //+------------------------------------------------------------------+
 //| OPERAÇÕES SEGUINDO A ESTRATÉGIA ESCOLHIDA |
@@ -631,7 +673,7 @@ void OnTick()
          //////////////////////////////////////////////////////
          //---| PRIMEIRA COMPRA/VENDA DE CADA ESTRATÉGIA |---//
          //////////////////////////////////////////////////////
-         if(PositionsTotal()==0)
+         if(PositionsTotal()==0 /*&& mitigacaook*/)
            {
             //---| ESTRATEGIA ENVELOPE/RSI/BOLINGER |---//
             if(estrategia==estrat1)
@@ -700,9 +742,9 @@ void OnTick()
             //---| ESTRATEGIA SAR |---//
             if(estrategia==estrat9)
               {
-               if(sarnormalizado0 < tick.ask && sarnormalizado1 < tick.ask)
+               if(sarnormalizado0 < tick.ask/* && sarnormalizado1 < tick.ask*/)
                   trade.Buy(volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),0,"C1");
-               if(sarnormalizado0 > tick.bid && sarnormalizado1 > tick.bid)
+               if(sarnormalizado0 > tick.bid/* && sarnormalizado1 > tick.bid*/)
                   trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),0,"V1");
               }
             //---| ESTRATEGIA NEURAL |---//
@@ -771,7 +813,7 @@ void OnTick()
    if(ativamartingale)
      {
       Sleep(150);
-      if(PositionsTotal()>=1 && ((possuicompra && QtdeCandles("COMPRA")>=qtdecandle) || (possuivenda && QtdeCandles("VENDA")>=qtdecandle)) && QtsMartingale()<=qtdedemart)
+      if(PositionsTotal()>=1 && ((possuicompra && QtdeCandlesPosAberta("COMPRA")>=qtdecandle) || (possuivenda && QtdeCandlesPosAberta("VENDA")>=qtdecandle)) && QtsMartingale()<=qtdedemart)
         {
          //---| ESTRATEGIA ENVELOPE/RSI/BOLINGER |---//
          if(estrategia==estrat1)
@@ -888,7 +930,6 @@ void OnTick()
         }
      }
 
-
 ///////////////////////
 //---|STOP FULL |----//
 ///////////////////////
@@ -897,9 +938,9 @@ void OnTick()
       prejudodia = DadosPos("PREJUÍZO DO DIA","");
       if(MathAbs(prejudodia)/capital*100>=percentfull && prejudodia<0 && saldo!=capital)
         {
-         //Print("STOP FULL ACIONADO");
+         Print("STOP FULL ACIONADO");
          FechaTodasPosicoesAbertas();
-         Sleep(500);
+         Sleep(300);
          return;
         }
      }
@@ -911,7 +952,7 @@ void OnTick()
      {
       if((possuicompra && slultimaposcompra==0) || (possuivenda && slultimaposvenda==0))
         {
-         //Print("ERRO DA CORRETORA - ORDEM SEM STOP LOSS CRIADA");
+         Print("ERRO DA CORRETORA - ORDEM SEM STOP LOSS CRIADA");
          FechaTodasPosicoesAbertas();
          Sleep(150);
         }
@@ -967,19 +1008,19 @@ bool ProbTicks(string tipo)
 
    if(tipo=="COMPRA")
      {
-      for(int i=0; i<qtdecandlestend-1; i++)
+      for(int i=0; i<QtdeCandlesPosAbertatend-1; i++)
         {
-         varcompra = NormalizeDouble(((ticks[i].ask-ticks[qtdecandlestend-1].ask)/ticks[qtdecandlestend-1].ask*100),4);
+         varcompra = NormalizeDouble(((ticks[i].ask-ticks[QtdeCandlesPosAbertatend-1].ask)/ticks[QtdeCandlesPosAbertatend-1].ask*100),4);
          if(varcompra>(prctsingle/100))
             favoravelcompra++;
          if(i==0)
             ultimotick = ticks[i].time_msc;
-         if(i==qtdecandlestend-2 && ultimotick<ticks[i].time_msc+timevar)
+         if(i==QtdeCandlesPosAbertatend-2 && ultimotick<ticks[i].time_msc+timevar)
            {
             primeirotick = ticks[i].time_msc;
             tempook = true;
            }
-         percentfavorcompra = NormalizeDouble((favoravelcompra/qtdecandlestend*100),2);
+         percentfavorcompra = NormalizeDouble((favoravelcompra/QtdeCandlesPosAbertatend*100),2);
         }
      }
 //   if(percentfavorcompra*100>prctfull && !PosAberta("POSSUI","COMPRA","BE COMPRA"))
@@ -987,27 +1028,27 @@ bool ProbTicks(string tipo)
 
    if(tipo=="VENDA")
      {
-      for(int i=0; i<qtdecandlestend-1; i++)
+      for(int i=0; i<QtdeCandlesPosAbertatend-1; i++)
         {
-         varvenda = NormalizeDouble(((ticks[i].bid-ticks[qtdecandlestend-1].bid)/ticks[qtdecandlestend-1].bid*100),4);
+         varvenda = NormalizeDouble(((ticks[i].bid-ticks[QtdeCandlesPosAbertatend-1].bid)/ticks[QtdeCandlesPosAbertatend-1].bid*100),4);
          if(varvenda<-1*(prctsingle/100))
             favoravelvenda++;
          if(i==0)
             ultimotick = ticks[i].time_msc;
-         if(i==qtdecandlestend-2 && ultimotick<ticks[i].time_msc+timevar)
+         if(i==QtdeCandlesPosAbertatend-2 && ultimotick<ticks[i].time_msc+timevar)
            {
             primeirotick = ticks[i].time_msc;
             tempook = true;
            }
         }
-      percentfavorvenda = NormalizeDouble((favoravelvenda/qtdecandlestend*100),2);
+      percentfavorvenda = NormalizeDouble((favoravelvenda/QtdeCandlesPosAbertatend*100),2);
      }
 //   if(percentfavorvenda*100>prctfull && !PosAberta("POSSUI","VENDA","BE VENDA"))
 //      trade.Sell(0.01,_Symbol,tick.bid,tick.ask+pontosbesl*_Point,0,"BE VENDA");
-//Print(" Probabilidade de Compra: ",percentfavorcompra," Probabilidade de venda: ",percentfavorvenda);
+   Print(" Probabilidade de Compra: ",percentfavorcompra," Probabilidade de venda: ",percentfavorvenda);
    if((tipo=="COMPRA" && percentfavorcompra>=prctfull && tempook) || (tipo=="VENDA" && percentfavorvenda>=prctfull && tempook))
      {
-      //Print("Hora ultimo tick: ",ultimotick," Hora primeiro tick: ",primeirotick," Ultimo menos o primeiro: ",ultimotick-primeirotick," Hora máxima da condição: ",primeirotick+timevar);
+      Print("Hora ultimo tick: ",ultimotick," Hora primeiro tick: ",primeirotick," Ultimo menos o primeiro: ",ultimotick-primeirotick," Hora máxima da condição: ",primeirotick+timevar);
       return true;
      }
 
@@ -1089,13 +1130,24 @@ void WebPrevision()
 //+---------------------------------------------+
 //| CONTADOR DE CANDLES DESDE ÚLTIMA POS ABERTA |
 //+---------------------------------------------+
-int   QtdeCandles(string tipo)
+int   QtdeCandlesPosAberta(string tipo)
   {
    int qtdebars=0;
    if(possuicompra && tipo=="COMPRA")
       qtdebars = Bars(_Symbol,_Period,dataultimaposabertacompra,TimeCurrent());
    if(possuivenda && tipo=="VENDA")
       qtdebars = Bars(_Symbol,_Period,dataultimaposabertavenda,TimeCurrent());
+   return qtdebars;
+  }
+//+------------------------------------------------------------------------------------------+
+//+----------------------------------------------+
+//| CONTADOR DE CANDLES DESDE ÚLTIMA POS FECHADA |
+//+----------------------------------------------+
+int   QtdeCandlesPosFechada()
+  {
+   int qtdebars=0;
+   if(PosFechadaTrueFalse("EXISTE AO MENOS UMA POSIÇÃO FECHADA",""))
+      qtdebars = Bars(_Symbol,_Period,DataHoraUltPosFechada(),TimeCurrent());
    return qtdebars;
   }
 //+------------------------------------------------------------------------------------------+
@@ -1195,7 +1247,7 @@ bool PosAberta(string acao, string tipo, string comentario)
         }
      }
    return false;
-   Sleep(200);
+   Sleep(100);
   }
 //+------------------------------------------------------------------------------------------+
 //+-----------------------------------------------------+
@@ -1351,54 +1403,27 @@ datetime DataHoraUltPosAberta(string tipo)
 //+-----------------------------------------------------+
 //| RETORNA A DATA/HORA DO FECHAMENTO DA ULTIMA POSIÇÃO |
 //+-----------------------------------------------------+
-datetime DataHoraUltPosFechada(string tipo)
+datetime DataHoraUltPosFechada()
   {
    datetime timedefault=D'2000.01.01 01:00';
-   if(PosFechadaTrueFalse("ÚLTIMA POSIÇÃO FECHADA FOI DE TP","COMPRA"))
+   HistorySelect(aberturacandleatual,TimeCurrent());
+   ulong       ticket=0;
+   string      symbol;
+   long        entry;
+   long        type;
+   datetime    time;
+   for(uint i=HistoryDealsTotal()-1; i >= 0; i--)
      {
-      HistorySelect(0,TimeCurrent());
-      ulong       ticket=0;
-      string      symbol;
-      long        entry;
-      long        type;
-      datetime    time;
-      for(uint i=HistoryDealsTotal()-1; i >= 0; i--)
+      if((ticket=HistoryDealGetTicket(i))>0)
         {
-         if((ticket=HistoryDealGetTicket(i))>0)
+         time  =(datetime)HistoryDealGetInteger(ticket,DEAL_TIME);
+         symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+         entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+         type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+         if(entry==DEAL_ENTRY_OUT && symbol==_Symbol)
            {
-            time  =(datetime)HistoryDealGetInteger(ticket,DEAL_TIME);
-            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
-            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
-            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
-            if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
-              {
-               return time;
-               break;
-              }
-           }
-        }
-     }
-   if(PosFechadaTrueFalse("ÚLTIMA POSIÇÃO FECHADA FOI DE TP","VENDA"))
-     {
-      HistorySelect(0,TimeCurrent());
-      ulong       ticket=0;
-      string      symbol;
-      long        entry;
-      long        type;
-      datetime    time;
-      for(uint i=HistoryDealsTotal()-1; i >= 0; i--)
-        {
-         if((ticket=HistoryDealGetTicket(i))>0)
-           {
-            time  =(datetime)HistoryDealGetInteger(ticket,DEAL_TIME);
-            symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
-            entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
-            type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
-            if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
-              {
-               return time;
-               break;
-              }
+            return time;
+            break;
            }
         }
      }
@@ -1446,8 +1471,6 @@ double DadosPosFechada(string acao, string tipo)
            {
             if(type==DEAL_TYPE_SELL && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
               {
-               if(acao=="PROFIT DA ÚLTIMA POSIÇÃO FECHADA")
-                  profit1=profit;
                if(acao=="VOLUME DA ÚLTIMA POSIÇÃO FECHADA")
                   volume1=volume;
               }
@@ -1465,8 +1488,6 @@ double DadosPosFechada(string acao, string tipo)
            {
             if(type==DEAL_TYPE_BUY && entry==DEAL_ENTRY_OUT && symbol==_Symbol)
               {
-               if(acao=="PROFIT DA ÚLTIMA POSIÇÃO FECHADA")
-                  profit1=profit;
                if(acao=="VOLUME DA ÚLTIMA POSIÇÃO FECHADA")
                   volume1=volume;
               }
@@ -1510,6 +1531,8 @@ double DadosPosFechada(string acao, string tipo)
                perdadia = perdadia+MathAbs(profit);
               }
            }
+         if(acao=="PROFIT DA ÚLTIMA POSIÇÃO FECHADA")
+            profit1 = profit;
         }
       else
          break;
@@ -1556,10 +1579,6 @@ bool PosFechadaTrueFalse(string acao,string tipo)
            {
             if(tipo=="COMPRA")
               {
-               if(acao=="EXISTE AO MENOS UMA POSIÇÃO FECHADA")
-                 {
-                  condicao=true;
-                 }
                if(acao=="ÚLTIMA POSIÇÃO FECHADA FOI DE SL")
                  {
                   if(reason==DEAL_REASON_SL)
@@ -1588,10 +1607,6 @@ bool PosFechadaTrueFalse(string acao,string tipo)
            {
             if(tipo=="VENDA")
               {
-               if(acao=="EXISTE AO MENOS UMA POSIÇÃO FECHADA")
-                 {
-                  condicao=true;
-                 }
                if(acao=="ÚLTIMA POSIÇÃO FECHADA FOI DE SL")
                  {
                   if(reason==DEAL_REASON_SL)
@@ -1616,6 +1631,8 @@ bool PosFechadaTrueFalse(string acao,string tipo)
                  }
               }
            }
+         if(entry==DEAL_ENTRY_OUT && symbol==_Symbol && acao=="EXISTE AO MENOS UMA POSIÇÃO FECHADA")
+            condicao=true;
         }
      }
 
@@ -1844,64 +1861,64 @@ double   puxatpsl(string tpsl)
          if(str=="SLV0")
             return(tick.bid*(1+percentloss/100));
          if(str=="SLV1")
-            return(PM1*(1+percentloss/100));
+            return(PMV1*(1+percentloss/100));
          if(str=="SLV2")
-            return(PM2*(1+percentloss/100));
+            return(PMV2*(1+percentloss/100));
          if(str=="SLV3")
-            return(PM3*(1+percentloss/100));
+            return(PMV3*(1+percentloss/100));
          if(str=="SLV4")
-            return(PM4*(1+percentloss/100));
+            return(PMV4*(1+percentloss/100));
          if(str=="SLV5")
-            return(PM5*(1+percentloss/100));
+            return(PMV5*(1+percentloss/100));
          if(str=="SLV6")
-            return(PM6*(1+percentloss/100));
+            return(PMV6*(1+percentloss/100));
          if(str=="SLV7")
-            return(PM7*(1+percentloss/100));
+            return(PMV7*(1+percentloss/100));
          if(str=="SLV8")
-            return(PM8*(1+percentloss/100));
+            return(PMV8*(1+percentloss/100));
          if(str=="SLV9")
-            return(PM9*(1+percentloss/100));
+            return(PMV9*(1+percentloss/100));
          if(str=="SLV10")
-            return(PM10*(1+percentloss/100));
+            return(PMV10*(1+percentloss/100));
          if(str=="SLV11")
-            return(PM11*(1+percentloss/100));
+            return(PMV11*(1+percentloss/100));
          if(str=="SLV12")
-            return(PM12*(1+percentloss/100));
+            return(PMV12*(1+percentloss/100));
          if(str=="SLV13")
-            return(PM13*(1+percentloss/100));
+            return(PMV13*(1+percentloss/100));
          if(str=="SLV14")
-            return(PM14*(1+percentloss/100));
+            return(PMV14*(1+percentloss/100));
 
          if(str=="SLC0")
             return(tick.ask*(1-percentloss/100));
          if(str=="SLC1")
-            return(PM1*(1-percentloss/100));
+            return(PMC1*(1-percentloss/100));
          if(str=="SLC2")
-            return(PM2*(1-percentloss/100));
+            return(PMC2*(1-percentloss/100));
          if(str=="SLC3")
-            return(PM3*(1-percentloss/100));
+            return(PMC3*(1-percentloss/100));
          if(str=="SLC4")
-            return(PM4*(1-percentloss/100));
+            return(PMC4*(1-percentloss/100));
          if(str=="SLC5")
-            return(PM5*(1-percentloss/100));
+            return(PMC5*(1-percentloss/100));
          if(str=="SLC6")
-            return(PM6*(1-percentloss/100));
+            return(PMC6*(1-percentloss/100));
          if(str=="SLC7")
-            return(PM7*(1-percentloss/100));
+            return(PMC7*(1-percentloss/100));
          if(str=="SLC8")
-            return(PM8*(1-percentloss/100));
+            return(PMC8*(1-percentloss/100));
          if(str=="SLC9")
-            return(PM9*(1-percentloss/100));
+            return(PMC9*(1-percentloss/100));
          if(str=="SLC10")
-            return(PM10*(1-percentloss/100));
+            return(PMC10*(1-percentloss/100));
          if(str=="SLC11")
-            return(PM11*(1-percentloss/100));
+            return(PMC11*(1-percentloss/100));
          if(str=="SLC12")
-            return(PM12*(1-percentloss/100));
+            return(PMC12*(1-percentloss/100));
          if(str=="SLC13")
-            return(PM13*(1-percentloss/100));
+            return(PMC13*(1-percentloss/100));
          if(str=="SLC14")
-            return(PM14*(1-percentloss/100));
+            return(PMC14*(1-percentloss/100));
         }
       if(tipooper==tipohedge)
         {
@@ -1920,64 +1937,64 @@ double   puxatpsl(string tpsl)
          if(str=="SLV0")
             return(tick.bid+stoppontos*_Point);
          if(str=="SLV1")
-            return(PM1+stoppontos*_Point);
+            return(PMV1+stoppontos*_Point);
          if(str=="SLV2")
-            return(PM2+stoppontos*_Point);
+            return(PMV2+stoppontos*_Point);
          if(str=="SLV3")
-            return(PM3+stoppontos*_Point);
+            return(PMV3+stoppontos*_Point);
          if(str=="SLV4")
-            return(PM4+stoppontos*_Point);
+            return(PMV4+stoppontos*_Point);
          if(str=="SLV5")
-            return(PM5+stoppontos*_Point);
+            return(PMV5+stoppontos*_Point);
          if(str=="SLV6")
-            return(PM6+stoppontos*_Point);
+            return(PMV6+stoppontos*_Point);
          if(str=="SLV7")
-            return(PM7+stoppontos*_Point);
+            return(PMV7+stoppontos*_Point);
          if(str=="SLV8")
-            return(PM8+stoppontos*_Point);
+            return(PMV8+stoppontos*_Point);
          if(str=="SLV9")
-            return(PM9+stoppontos*_Point);
+            return(PMV9+stoppontos*_Point);
          if(str=="SLV10")
-            return(PM10+stoppontos*_Point);
+            return(PMV10+stoppontos*_Point);
          if(str=="SLV11")
-            return(PM11+stoppontos*_Point);
+            return(PMV11+stoppontos*_Point);
          if(str=="SLV12")
-            return(PM12+stoppontos*_Point);
+            return(PMV12+stoppontos*_Point);
          if(str=="SLV13")
-            return(PM13+stoppontos*_Point);
+            return(PMV13+stoppontos*_Point);
          if(str=="SLV14")
-            return(PM14+stoppontos*_Point);
+            return(PMV14+stoppontos*_Point);
 
          if(str=="SLC0")
             return(tick.ask-stoppontos*_Point);
          if(str=="SLC1")
-            return(PM1-stoppontos*_Point);
+            return(PMC1-stoppontos*_Point);
          if(str=="SLC2")
-            return(PM2-stoppontos*_Point);
+            return(PMC2-stoppontos*_Point);
          if(str=="SLC3")
-            return(PM3-stoppontos*_Point);
+            return(PMC3-stoppontos*_Point);
          if(str=="SLC4")
-            return(PM4-stoppontos*_Point);
+            return(PMC4-stoppontos*_Point);
          if(str=="SLC5")
-            return(PM5-stoppontos*_Point);
+            return(PMC5-stoppontos*_Point);
          if(str=="SLC6")
-            return(PM6-stoppontos*_Point);
+            return(PMC6-stoppontos*_Point);
          if(str=="SLC7")
-            return(PM7-stoppontos*_Point);
+            return(PMC7-stoppontos*_Point);
          if(str=="SLC8")
-            return(PM8-stoppontos*_Point);
+            return(PMC8-stoppontos*_Point);
          if(str=="SLC9")
-            return(PM9-stoppontos*_Point);
+            return(PMC9-stoppontos*_Point);
          if(str=="SLC10")
-            return(PM10-stoppontos*_Point);
+            return(PMC10-stoppontos*_Point);
          if(str=="SLC11")
-            return(PM11-stoppontos*_Point);
+            return(PMC11-stoppontos*_Point);
          if(str=="SLC12")
-            return(PM12-stoppontos*_Point);
+            return(PMC12-stoppontos*_Point);
          if(str=="SLC13")
-            return(PM13-stoppontos*_Point);
+            return(PMC13-stoppontos*_Point);
          if(str=="SLC14")
-            return(PM14-stoppontos*_Point);
+            return(PMC14-stoppontos*_Point);
         }
       if(tipooper==tipohedge)
         {
@@ -1996,64 +2013,64 @@ double   puxatpsl(string tpsl)
          if(str=="TPC0")
             return(tick.bid*(1+percentgain/100));
          if(str=="TPC1")
-            return(PM1*(1+percentgain/100));
+            return(PMC1*(1+percentgain/100));
          if(str=="TPC2")
-            return(PM2*(1+percentgain/100));
+            return(PMC2*(1+percentgain/100));
          if(str=="TPC3")
-            return(PM3*(1+percentgain/100));
+            return(PMC3*(1+percentgain/100));
          if(str=="TPC4")
-            return(PM4*(1+percentgain/100));
+            return(PMC4*(1+percentgain/100));
          if(str=="TPC5")
-            return(PM5*(1+percentgain/100));
+            return(PMC5*(1+percentgain/100));
          if(str=="TPC6")
-            return(PM6*(1+percentgain/100));
+            return(PMC6*(1+percentgain/100));
          if(str=="TPC7")
-            return(PM7*(1+percentgain/100));
+            return(PMC7*(1+percentgain/100));
          if(str=="TPC8")
-            return(PM8*(1+percentgain/100));
+            return(PMC8*(1+percentgain/100));
          if(str=="TPC9")
-            return(PM9*(1+percentgain/100));
+            return(PMC9*(1+percentgain/100));
          if(str=="TPC10")
-            return(PM10*(1+percentgain/100));
+            return(PMC10*(1+percentgain/100));
          if(str=="TPC11")
-            return(PM11*(1+percentgain/100));
+            return(PMC11*(1+percentgain/100));
          if(str=="TPC12")
-            return(PM12*(1+percentgain/100));
+            return(PMC12*(1+percentgain/100));
          if(str=="TPC13")
-            return(PM13*(1+percentgain/100));
+            return(PMC13*(1+percentgain/100));
          if(str=="TPC14")
-            return(PM14*(1+percentgain/100));
+            return(PMC14*(1+percentgain/100));
 
          if(str=="TPV0")
             return(tick.ask*(1-percentgain/100));
          if(str=="TPV1")
-            return(PM1*(1-percentgain/100));
+            return(PMV1*(1-percentgain/100));
          if(str=="TPV2")
-            return(PM2*(1-percentgain/100));
+            return(PMV2*(1-percentgain/100));
          if(str=="TPV3")
-            return(PM3*(1-percentgain/100));
+            return(PMV3*(1-percentgain/100));
          if(str=="TPV4")
-            return(PM4*(1-percentgain/100));
+            return(PMV4*(1-percentgain/100));
          if(str=="TPV5")
-            return(PM5*(1-percentgain/100));
+            return(PMV5*(1-percentgain/100));
          if(str=="TPV6")
-            return(PM6*(1-percentgain/100));
+            return(PMV6*(1-percentgain/100));
          if(str=="TPV7")
-            return(PM7*(1-percentgain/100));
+            return(PMV7*(1-percentgain/100));
          if(str=="TPV8")
-            return(PM8*(1-percentgain/100));
+            return(PMV8*(1-percentgain/100));
          if(str=="TPV9")
-            return(PM9*(1-percentgain/100));
+            return(PMV9*(1-percentgain/100));
          if(str=="TPV10")
-            return(PM10*(1-percentgain/100));
+            return(PMV10*(1-percentgain/100));
          if(str=="TPV11")
-            return(PM11*(1-percentgain/100));
+            return(PMV11*(1-percentgain/100));
          if(str=="TPV12")
-            return(PM12*(1-percentgain/100));
+            return(PMV12*(1-percentgain/100));
          if(str=="TPV13")
-            return(PM13*(1-percentgain/100));
+            return(PMV13*(1-percentgain/100));
          if(str=="TPV14")
-            return(PM14*(1-percentgain/100));
+            return(PMV14*(1-percentgain/100));
         }
       if(tipooper==tipohedge)
         {
@@ -2072,60 +2089,60 @@ double   puxatpsl(string tpsl)
          if(str=="TPC0")
             return(tick.bid+pontosc1*_Point);
          if(str=="TPC1")
-            return(PM1+pontosc2*_Point);
+            return(PMC1+pontosc2*_Point);
          if(str=="TPC2")
-            return(PM2+pontosc3*_Point);
+            return(PMC2+pontosc3*_Point);
          if(str=="TPC3")
-            return(PM3+pontosc4*_Point);
+            return(PMC3+pontosc4*_Point);
          if(str=="TPC4")
-            return(PM4+pontosc5*_Point);
+            return(PMC4+pontosc5*_Point);
          if(str=="TPC5")
-            return(PM5+pontosc6*_Point);
+            return(PMC5+pontosc6*_Point);
          if(str=="TPC6")
-            return(PM6+pontosc7*_Point);
+            return(PMC6+pontosc7*_Point);
          if(str=="TPC7")
-            return(PM7+pontosc8*_Point);
+            return(PMC7+pontosc8*_Point);
          if(str=="TPC8")
-            return(PM8+pontosc9*_Point);
+            return(PMC8+pontosc9*_Point);
          if(str=="TPC9")
-            return(PM9+pontosc10*_Point);
+            return(PMC9+pontosc10*_Point);
          if(str=="TPC10")
-            return(PM10+pontosc11*_Point);
+            return(PMC10+pontosc11*_Point);
          if(str=="TPC11")
-            return(PM11+pontosc12*_Point);
+            return(PMC11+pontosc12*_Point);
          if(str=="TPC12")
-            return(PM12+pontosc13*_Point);
+            return(PMC12+pontosc13*_Point);
          if(str=="TPC13")
-            return(PM13+pontosc14*_Point);
+            return(PMC13+pontosc14*_Point);
 
          if(str=="TPV0")
             return(tick.ask-pontosc1*_Point);
          if(str=="TPV1")
-            return(PM1-pontosc2*_Point);
+            return(PMV1-pontosc2*_Point);
          if(str=="TPV2")
-            return(PM2-pontosc3*_Point);
+            return(PMV2-pontosc3*_Point);
          if(str=="TPV3")
-            return(PM3-pontosc4*_Point);
+            return(PMV3-pontosc4*_Point);
          if(str=="TPV4")
-            return(PM4-pontosc5*_Point);
+            return(PMV4-pontosc5*_Point);
          if(str=="TPV5")
-            return(PM5-pontosc6*_Point);
+            return(PMV5-pontosc6*_Point);
          if(str=="TPV6")
-            return(PM6-pontosc7*_Point);
+            return(PMV6-pontosc7*_Point);
          if(str=="TPV7")
-            return(PM7-pontosc8*_Point);
+            return(PMV7-pontosc8*_Point);
          if(str=="TPV8")
-            return(PM8-pontosc9*_Point);
+            return(PMV8-pontosc9*_Point);
          if(str=="TPV9")
-            return(PM9-pontosc10*_Point);
+            return(PMV9-pontosc10*_Point);
          if(str=="TPV10")
-            return(PM10-pontosc11*_Point);
+            return(PMV10-pontosc11*_Point);
          if(str=="TPV11")
-            return(PM11-pontosc12*_Point);
+            return(PMV11-pontosc12*_Point);
          if(str=="TPV12")
-            return(PM12-pontosc13*_Point);
+            return(PMV12-pontosc13*_Point);
          if(str=="TPV13")
-            return(PM13-pontosc14*_Point);
+            return(PMV13-pontosc14*_Point);
         }
       if(tipooper==tipohedge)
         {
@@ -2260,5 +2277,8 @@ bool HorarioPausa1() //VERIFICA SE ESTÁ NO HORÁRIO DE PAUSA DO ROBÔ
   }
 
 //+------------------------------------------------------------------------------------------+
+
+//+------------------------------------------------------------------+
+
 
 //+------------------------------------------------------------------+
