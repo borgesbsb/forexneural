@@ -198,7 +198,7 @@ int OnInit()
   {
 
 //--- Ajusta o timer do EA para o tempo em milisegundos entre parenteses
-   EventSetMillisecondTimer(50);
+   //EventSetMillisecondTimer(50);
 
 //--- Ajusta horarios para structs conforme inputs
    TimeToStruct(StringToTime(horainicial),hrinicialstruct);
@@ -263,7 +263,7 @@ void OnDeinit(const int reason)
   {
 //---
    ChartIndicatorDelete(0,1,shortname);
-   EventKillTimer();
+   //EventKillTimer();
 // Motivo da desinicialização do EA
    printf("Deinit reason: %d", reason);
   }
