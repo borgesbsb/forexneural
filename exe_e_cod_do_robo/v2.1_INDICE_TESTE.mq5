@@ -64,6 +64,7 @@ input double             maximumSAR          = 0.14;         //MAXIMUM do SAR
 input group              "FECHAMENTO DE ORDENS"
 input ENUM_TP_GAIN       tipogain            = tpgainpontos; //SELECIONE TIPO DE GANHO
 input double             percentgain         = 0.1;          //PORCENTAGEM DE STOP GAIN
+input int                candlesfechamento   = 3;            //QTDE DE CANDLES MÍNIMO P FECHAR
 input int                pontosc1            = 15;           //DISTANCIA P FECHAM 1 ORDEM
 input int                pontosc2            = 40;           //DISTANCIA P FECHAM 2 ORDENS
 input int                pontosc3            = 40;           //DISTANCIA P FECHAM 3 ORDENS
@@ -117,10 +118,9 @@ bool                     mitigacaook = false;
 double                   percent_margem,saldo,capital,lucro_prejuizo,volumemaximo,volumeoper,valoraumento,sarnormalizado0,sarnormalizado1,sarnormalizado2, //
                          slcomprapadrao,slvendapadrao,tpcomprapadrao,tpvendapadrao,previsao,sar[], //
                          precoultimacompra,precoultimavenda,volumeultimacompra,volumeultimavenda,VMultimacompra,VMultimavenda,PMultimacompra,PMultimavenda, //
-                         slultimaposcompra,slultimaposvenda,tpultimaposcompra,tpultimaposvenda, //
+                         slultimaposcompra,slultimaposvenda,tpultimaposcompra,tpultimaposvenda,PMCDL1,PMCDL2,PMCDL3, //
                          volnv2,volnv3,volnv4,volnv5,volnv6,volnv7,volnv8,volnv9,volnv10,volnv11,volnv12,volnv13,volnv14, //
-                         PMC1,PMC2,PMC3,PMC4,PMC5,PMC6,PMC7,PMC8,PMC9,PMC10,PMC11,PMC12,PMC13,PMC14,PMV1,PMV2,PMV3,PMV4,PMV5,PMV6,PMV7,PMV8,PMV9,PMV10,PMV11,PMV12,PMV13,PMV14, //
-                         PMCDL1,PMCDL2,PMCDL3;
+                         PMC1,PMC2,PMC3,PMC4,PMC5,PMC6,PMC7,PMC8,PMC9,PMC10,PMC11,PMC12,PMC13,PMC14,PMV1,PMV2,PMV3,PMV4,PMV5,PMV6,PMV7,PMV8,PMV9,PMV10,PMV11,PMV12,PMV13,PMV14;
 
 double                   prejudodia=0.0;
 
@@ -343,7 +343,7 @@ void OnTick()
       PMCDL1 = (MathMax(candle[1].open,candle[1].close)+MathMin(candle[1].open,candle[1].close))/2;
       PMCDL2 = (MathMax(candle[2].open,candle[2].close)+MathMin(candle[2].open,candle[2].close))/2;
       PMCDL3 = (MathMax(candle[3].open,candle[3].close)+MathMin(candle[3].open,candle[3].close))/2;
-      
+
       //--- Mostrar na aba "EXPERT" os saldos do dia
       double ganhos = DadosPosFechada("QTDE DE GANHOS DO DIA","");
       double perdas = DadosPosFechada("QTDE DE PERDAS DO DIA","");
@@ -517,18 +517,21 @@ void OnTick()
 /////////////////////////////////////////////////
    if(ativaentradaea && HorarioEntrada() && !HorarioPausa1() /*&& DadosPosFechada("QTDE DE SL DO DIA","")<somapreju*/ && (percent_margem>prcentabert||saldo==capital))
      {
-      //////////////////////////////////////////////////////
-      //---| PRIMEIRA COMPRA/VENDA DE CADA ESTRATÉGIA |---//
-      //////////////////////////////////////////////////////
-      if(PositionsTotal()==0 /*&& mitigacaook*/)
+      if(NB2.IsNewBar(_Symbol,_Period)) //VERIFICA SE É UM NOVO CANDLE
         {
-         //---| ESTRATEGIA SAR |---//
-         if(sarnormalizado0 < tick.ask/* && sarnormalizado1 < tick.ask*/)
-            trade.Buy(volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),0,"C1");
-         Sleep(100);
-         if(sarnormalizado0 > tick.bid/* && sarnormalizado1 > tick.bid*/)
-            trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),0,"V1");
-         Sleep(100);
+         //////////////////////////////////////////////////////
+         //---| PRIMEIRA COMPRA/VENDA DE CADA ESTRATÉGIA |---//
+         //////////////////////////////////////////////////////
+         if(PositionsTotal()==0 && mitigacaook)
+           {
+            //---| ESTRATEGIA SAR |---//
+            if(sarnormalizado0 < PMCDL1 && sarnormalizado1 < PMCDL2 && (PMCDL1-sarnormalizado1) > (PMCDL2-sarnormalizado2))
+               trade.Buy(volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),0,"C1");
+            Sleep(100);
+            if(sarnormalizado0 > PMCDL1 && sarnormalizado1 > PMCDL2 && (sarnormalizado1-PMCDL1) > (sarnormalizado2-PMCDL2))
+               trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),0,"V1");
+            Sleep(100);
+           }
         }
      }
 
@@ -575,11 +578,11 @@ void OnTick()
 ////////////////////////////
    if(ativbreak)
      {
-      if(possuicompra && /*tick.bid>=PMultimacompra+pontosc1*_Point*/(PMCDL1-sarnormalizado1)<(PMCDL2-sarnormalizado2) && qtdecandposabertcompra>=1 && tick.bid>precoultimacompra && tpultimaposcompra==0)
+      if(possuicompra && /*tick.bid>=PMultimacompra+pontosc1*_Point*/(PMCDL1-sarnormalizado1) < (PMCDL2-sarnormalizado2) && qtdecandposabertcompra>=candlesfechamento && tick.bid>precoultimacompra && tpultimaposcompra==0)
         {
          trade.PositionModify(_Symbol,tick.bid-pontosbesl*_Point,tick.ask+5*pontosc1*_Point);
         }
-      if(possuivenda && /*tick.ask<=PMultimavenda-pontosc1*_Point*/(sarnormalizado1-PMCDL1)>(sarnormalizado2-PMCDL2) && qtdecandposabertcompra>=1 && tpultimaposvenda==0)
+      if(possuivenda && /*tick.ask<=PMultimavenda-pontosc1*_Point*/(sarnormalizado1-PMCDL1) < (sarnormalizado2-PMCDL2) && qtdecandposabertvenda>=candlesfechamento && tick.ask<precoultimavenda && tpultimaposvenda==0)
         {
          trade.PositionModify(_Symbol,tick.ask+pontosbesl*_Point,tick.bid-5*pontosc1*_Point);
         }
