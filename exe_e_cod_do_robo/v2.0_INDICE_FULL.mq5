@@ -184,7 +184,7 @@ int OnInit()
   {
 
 //--- Ajusta o timer do EA para o tempo em milisegundos entre parenteses
-   //EventSetMillisecondTimer(50);
+   EventSetMillisecondTimer(50);
 
 //--- Ajusta horarios para structs conforme inputs
    TimeToStruct(StringToTime(horainicial),hrinicialstruct);
@@ -239,7 +239,7 @@ void OnDeinit(const int reason)
   {
 //---
    ChartIndicatorDelete(0,1,shortname);
-   //EventKillTimer();
+   EventKillTimer();
 // Motivo da desinicialização do EA
    printf("Deinit reason: %d", reason);
   }
@@ -652,82 +652,16 @@ void OnTick()
          //////////////////////////////////////////////////////
          if(PositionsTotal()==0 /*&& mitigacaook*/)
            {
-            //---| ESTRATEGIA ENVELOPE/RSI/BOLINGER |---//
-            if(estrategia==estrat1)
-              {
-               if(candle[1].close<mm[1]-tamanhoenvelope*_Point && rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/ && candle[1].close<bbd[1])
-                  trade.Buy(volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),puxatpsl("TPC0"),"C1");
-               if(candle[1].close>mm[1]+tamanhoenvelope*_Point && rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/ && candle[1].close>bbu[1])
-                  trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),puxatpsl("TPV0"),"V1");
-              }
-            //---| ESTRATEGIA ENVELOPE/RSI |---//
-            if(estrategia==estrat2)
-              {
-               if(candle[1].close<mm[1]-tamanhoenvelope*_Point && rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/)
-                  trade.Buy(volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),puxatpsl("TPC0"),"C1");
-               if(candle[1].close>mm[1]+tamanhoenvelope*_Point && rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/)
-                  trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),puxatpsl("TPV0"),"V1");
-              }
-            //---| ESTRATEGIA ENVELOPE/BOLINGER |---//
-            if(estrategia==estrat3)
-              {
-               if(candle[1].close<mm[1]-tamanhoenvelope*_Point && candle[1].close<bbd[1])
-                  trade.Buy(volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),puxatpsl("TPC0"),"C1");
-               if(candle[1].close>mm[1]+tamanhoenvelope*_Point && candle[1].close>bbu[1])
-                  trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),puxatpsl("TPV0"),"V1");
-              }
-            //---| ESTRATEGIA ENVELOPE/SAR |---//
-            if(estrategia==estrat4)
-              {
-               if(candle[1].close<mm[1]-tamanhoenvelope*_Point && sarnormalizado0 < tick.ask && sarnormalizado1 < tick.ask)
-                  trade.Buy(volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),puxatpsl("TPC0"),"C1");
-               if(candle[1].close>mm[1]+tamanhoenvelope*_Point && sarnormalizado0 > tick.bid && sarnormalizado1 > tick.bid)
-                  trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),puxatpsl("TPV0"),"V1");
-              }
-            //---| ESTRATEGIA RSI/BOLINGER |---//
-            if(estrategia==estrat5)
-              {
-               if(rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/ && candle[1].close<bbd[1])
-                  trade.Buy(volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),puxatpsl("TPC0"),"C1");
-               if(rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/ && candle[1].close>bbu[1])
-                  trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),puxatpsl("TPV0"),"V1");
-              }
-            //---| ESTRATEGIA ENVELOPE |---//
-            if(estrategia==estrat6)
-              {
-               if(candle[1].close<mm[1]-tamanhoenvelope*_Point)
-                  trade.Buy(volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),puxatpsl("TPC0"),"C1");
-               if(candle[1].close>mm[1]+tamanhoenvelope*_Point)
-                  trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),puxatpsl("TPV0"),"V1");
-              }
-            //---| ESTRATEGIA RSI |---//
-            if(estrategia==estrat7)
-              {
-               if(rsi[1]<sobrecrsi/* && rsi[0]>sobrecrsi*/)
-                  trade.Buy(volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),puxatpsl("TPC0"),"C1");
-               if(rsi[1]>sobrevrsi/* && rsi[0]<sobrevrsi*/)
-                  trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),puxatpsl("TPV0"),"V1");
-              }
-            //---| ESTRATEGIA BOLINGER |---//
-            if(estrategia==estrat8)
-              {
-               if(candle[1].close<bbd[1])
-                  trade.Buy(volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),puxatpsl("TPC0"),"C1");
-               if(candle[1].close>bbu[1])
-                  trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),puxatpsl("TPV0"),"V1");
-              }
             //---| ESTRATEGIA SAR |---//
             if(estrategia==estrat9)
               {
                if(sarnormalizado0 < tick.ask/* && sarnormalizado1 < tick.ask*/)
                  {
-                  FechaTodasPosicoesAbertas("FECHAMENTO SAR DE COMPRA");
                   trade.Buy(volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),0,"ABERTURA SAR DE COMPRA");
                  }
                Sleep(100);
                if(sarnormalizado0 > tick.bid/* && sarnormalizado1 > tick.bid*/)
                  {
-                  FechaTodasPosicoesAbertas("FECHAMENTO SAR DE VENDA");
                   trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),0,"ABERTURA SAR DE VENDA");
                  }
                Sleep(100);
@@ -735,6 +669,11 @@ void OnTick()
            }
         }
      }
+     
+     if(hratualstruct.sec==58 || hratualstruct.sec==59)
+       {
+        FechaTodasPosicoesAbertas("FECHAMENTO FINAL DO CANDLE");
+       }
 
 //Print(NormalizeDouble(sarnormalizado4-sarnormalizado3,0),";",NormalizeDouble(sarnormalizado3-sarnormalizado2,0),";",NormalizeDouble(sarnormalizado2-sarnormalizado1,0),";",NormalizeDouble(sarnormalizado1-sarnormalizado0,0));
 
@@ -851,25 +790,25 @@ void OnTick()
 ////////////////////////////
 //---|BREAKEVEN E TS |----//
 ////////////////////////////
-/*   if(ativbreak)
-     {
-      if(possuicompra && tick.bid>=PMultimacompra+pontosc1*_Point && tpultimaposcompra==0)
+   /*   if(ativbreak)
         {
-         trade.PositionModify(_Symbol,tick.bid-pontosbesl*_Point,tick.ask+5*pontosc1*_Point);
-        }
-      if(possuivenda && tick.ask<=PMultimavenda-pontosc1*_Point && tpultimaposvenda==0)
-        {
-         trade.PositionModify(_Symbol,tick.ask+pontosbesl*_Point,tick.bid-5*pontosc1*_Point);
-        }
-      if(possuicompra && tick.bid>=slultimaposcompra+2*pontosbesl*_Point && tpultimaposcompra!=0)
-        {
-         trade.PositionModify(_Symbol,slultimaposcompra+pontosbesl*_Point,tpultimaposcompra+pontosbesl*_Point);
-        }
-      if(possuivenda && tick.ask<=slultimaposvenda-2*pontosbesl*_Point && tpultimaposvenda!=0)
-        {
-         trade.PositionModify(_Symbol,slultimaposvenda-pontosbesl*_Point,tpultimaposvenda-pontosbesl*_Point);
-        }
-     }*/
+         if(possuicompra && tick.bid>=PMultimacompra+pontosc1*_Point && tpultimaposcompra==0)
+           {
+            trade.PositionModify(_Symbol,tick.bid-pontosbesl*_Point,tick.ask+5*pontosc1*_Point);
+           }
+         if(possuivenda && tick.ask<=PMultimavenda-pontosc1*_Point && tpultimaposvenda==0)
+           {
+            trade.PositionModify(_Symbol,tick.ask+pontosbesl*_Point,tick.bid-5*pontosc1*_Point);
+           }
+         if(possuicompra && tick.bid>=slultimaposcompra+2*pontosbesl*_Point && tpultimaposcompra!=0)
+           {
+            trade.PositionModify(_Symbol,slultimaposcompra+pontosbesl*_Point,tpultimaposcompra+pontosbesl*_Point);
+           }
+         if(possuivenda && tick.ask<=slultimaposvenda-2*pontosbesl*_Point && tpultimaposvenda!=0)
+           {
+            trade.PositionModify(_Symbol,slultimaposvenda-pontosbesl*_Point,tpultimaposvenda-pontosbesl*_Point);
+           }
+        }*/
   }
 
 ////////////////////////////
