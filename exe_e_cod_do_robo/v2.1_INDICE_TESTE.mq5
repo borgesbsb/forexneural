@@ -13,7 +13,6 @@
 #include <Trade/SymbolInfo.mqh>
 #include <Trade/PositionInfo.mqh>
 #include <Trade/HistoryOrderInfo.mqh>
-#include <Dictionary.mqh>
 #include <IsNewBar.mqh>
 //////////////////////////////////////
 //--- DEFINIÇÃO DOS ENUMERADORES ---//
@@ -26,20 +25,6 @@ enum ENUM_TP_MART
    mart2,        //[3]N x VOL ANTERIOR
   };
 
-//--- ENUMERADOR DO TIPO DE STOP A SER UTILIZADO
-enum ENUM_TP_STOP
-  {
-   tpstopprct,   //[1]EM PERCENTUAL
-   tpstoppontos, //[2]EM PONTOS
-  };
-
-//--- ENUMERADOR DO TIPO DE TAKE PROFIT A SER UTILIZADO
-enum ENUM_TP_GAIN
-  {
-   tpgainprct,   //[1]EM PERCENTUAL
-   tpgainpontos, //[2]EM PONTOS
-  };
-
 ////////////////////////////////////////////////////////////////////////////////////////
 //--- TABELA DOS INPUTS - VALOR DAS VARIÁVEIS A SEREM ESCOLHIDAS PARA OS BACKTESTS ---//
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -48,9 +33,8 @@ input bool               ativaentradaea      = true;         //ATIVA ABERTURA AU
 input int                qtdeposperda        = 5;            //QTS CANDLES(MIN)DE ESPERA DO ÚLTIMO SL
 input double             loteinicial         = 0.1;          //TAMANHO DO LOTE INICIAL(WIN$-1CONTRATO)
 input double             aumentoprop         = 500.00;       //VALOR P AUMENTO PROPORCIONAL DO LOTE
-input ENUM_TP_STOP       tipostop            = tpstoppontos; //SELECIONE O TIPO DE STOP LOSS
-input double             percentloss         = 2.5;          //% DE STOP LOSS P ABERTURA DE ORDEM
 input int                stoppontos          = 800;          //PTS DE STOP LOSS P ABERTURA DE ORDENS
+input double             maximopontossar     = 15;           //MÁXIMO DE PONTOS P SEQUENCIA DE SAR
 input group              "MARTINGALE"
 input bool               ativamartingale     = false;        //ATIVA USO DE MARTINGALE
 input ENUM_TP_MART       tipomartingale      = mart2;        //TIPO DE MARTINGALE
@@ -62,9 +46,6 @@ input group              "VALORES DEFINIDOS P/ SAR"
 input double             stepSAR             = 0.014;        //STEP do SAR
 input double             maximumSAR          = 0.14;         //MAXIMUM do SAR
 input group              "FECHAMENTO DE ORDENS"
-input ENUM_TP_GAIN       tipogain            = tpgainpontos; //SELECIONE TIPO DE GANHO
-input double             percentgain         = 0.1;          //PORCENTAGEM DE STOP GAIN
-input int                candlesfechamento   = 3;            //QTDE DE CANDLES MÍNIMO P FECHAR
 input int                pontosc1            = 15;           //DISTANCIA P FECHAM 1 ORDEM
 input int                pontosc2            = 40;           //DISTANCIA P FECHAM 2 ORDENS
 input int                pontosc3            = 40;           //DISTANCIA P FECHAM 3 ORDENS
@@ -84,7 +65,7 @@ input bool               ativbreak           = false;        //ATIVA BREAKEVEN/T
 input double             pontosbesl          = 10;           //PTOS A MENOS PARA SL NOVO DO BE
 input group              "GERENCIAMENTO DE RISCO - CONDIÇÕES MÍNIMAS PARA OPERAR"
 input double             prcentabert         = 2000;         //% MÍNIMA DO CAPIT P ABRIR ORDENS
-input double             somapreju           = 300;          //QTDE MÁXIMA DE PONTOS STOPADOS NO DIA
+//input double             somapreju           = 300;          //QTDE MÁXIMA DE PONTOS STOPADOS NO DIA
 input group              "GERENCIAMENTO DE RISCO - STOP FULL"
 input bool               ativastopfull       = true;         //ATIVA STOP P LIMITE DE CAPITAL INVESTIDO
 input double             percentfull         = 5;            //% DO CAPITAL PARA FECHAR TODAS AS ORDENS
@@ -112,29 +93,30 @@ bool                     possuicompra,possuicompra1,possuicompra2,possuicompra3,
                          possuivenda,possuivenda1,possuivenda2,possuivenda3,possuivenda4,possuivenda5,possuivenda6,possuivenda7,possuivenda8, //
                          possuivenda9,possuivenda10,possuivenda11,possuivenda12,possuivenda13,possuivenda14;
 
-bool                     mitigacaook = false;
+bool                     mitigacaook1 = false;
+bool                     mitigacaook2 = false;
+bool                     mitigacaook3 = true;
 
 //--- Definição dos doubles
 double                   percent_margem,saldo,capital,lucro_prejuizo,volumemaximo,volumeoper,valoraumento,sarnormalizado0,sarnormalizado1,sarnormalizado2, //
-                         slcomprapadrao,slvendapadrao,tpcomprapadrao,tpvendapadrao,previsao,sar[], //
+                         slcomprapadrao,slvendapadrao,tpcomprapadrao,tpvendapadrao,sar[], //
                          precoultimacompra,precoultimavenda,volumeultimacompra,volumeultimavenda,VMultimacompra,VMultimavenda,PMultimacompra,PMultimavenda, //
-                         slultimaposcompra,slultimaposvenda,tpultimaposcompra,tpultimaposvenda,PMCDL1,PMCDL2,PMCDL3, //
+                         slultimaposcompra,slultimaposvenda,tpultimaposcompra,tpultimaposvenda, //
                          volnv2,volnv3,volnv4,volnv5,volnv6,volnv7,volnv8,volnv9,volnv10,volnv11,volnv12,volnv13,volnv14, //
                          PMC1,PMC2,PMC3,PMC4,PMC5,PMC6,PMC7,PMC8,PMC9,PMC10,PMC11,PMC12,PMC13,PMC14,PMV1,PMV2,PMV3,PMV4,PMV5,PMV6,PMV7,PMV8,PMV9,PMV10,PMV11,PMV12,PMV13,PMV14;
 
 double                   prejudodia=0.0;
+double                   controlepontossar=0.0;
 
 //--- Variáveis p/ ticks, candles e tempo
 MqlTick                  tick;
 MqlRates                 candle[];
 MqlDateTime              hratualstruct,hrinicialstruct,hrfinalstruct,hrfechstruct,hrinipausa1,hrterpausa1;
 datetime                 dataultimaposabertacompra,dataultimaposabertavenda,aberturacandleatual;
+datetime                 datahoraviradasar = D'2000.01.01 01:00';
 
 //--- Classe responsável pela execução das ordens - Ctrade
 CTrade                   trade;
-
-//--- Quando for executar backtest com o arquivo gerado da rede neural
-//CDictionary *dict = new CDictionary();
 
 //+-----------------------------------------+
 //| Expert initialization function - ONINIT |
@@ -161,8 +143,6 @@ int OnInit()
 //------------------------------------------------------------------
    ArraySetAsSeries(candle,true);
 
-//   ReadFileToDictCSV("previsoes.csv");
-
    valoraumento=aumentoprop;
 
    return(INIT_SUCCEEDED);
@@ -187,7 +167,6 @@ void OnDeinit(const int reason)
 ///////////////////////////////
 void OnTick()
   {
-
 //--- AJUSTA HORA ATUAL PARA O FORMATO STRUCT
    TimeToStruct(TimeCurrent(),hratualstruct);
 
@@ -314,40 +293,49 @@ void OnTick()
 //|                                                                  |
 //+------------------------------------------------------------------+
 
-////////////////////////////////////////////////////////////////////////////
-//---| MITIGAÇÃO PARA EVITAR ENTRADAS APÓS ORDENS FECHADAS COM PERDA |----//
-////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
+//---| MITIGAÇÃO PARA EVITAR ENTRADAS APÓS ORDENS FECHADAS COM PERDA OU APÓS AJUSTE DE SL |----//
+/////////////////////////////////////////////////////////////////////////////////////////////////
    HistorySelect(aberturacandleatual,TimeCurrent());
    if(HistoryDealsTotal()>1)
      {
       if(DadosPosFechada("PROFIT DA ÚLTIMA POSIÇÃO FECHADA","")<0)
         {
-         if(PosFechadaTrueFalse("ÚLTIMA POSIÇÃO FECHADA FOI DE SL",""))
+         if(PosFechadaTrueFalse("ÚLTIMA POSIÇÃO FECHADA FOI DE SL","",""))
            {
             if(QtdeCandlesPosFechada()<qtdeposperda)
-               mitigacaook = false;
+               mitigacaook1 = false;
             else
-               mitigacaook = true;
+               mitigacaook1 = true;
            }
          else
-            mitigacaook = true;
+            mitigacaook1 = true;
         }
       else
-         mitigacaook = true;
+         mitigacaook1 = true;
+
+      if(PosFechadaTrueFalse("","","FECHAMENTO DE AJUSTE DE SL"))
+        {
+         if(QtdeCandlesPosFechada()<qtdeposperda)
+            mitigacaook2 = false;
+         else
+            mitigacaook2 = true;
+        }
+      else
+         mitigacaook2 = true;
      }
    else
-      mitigacaook = true;
+     {
+      mitigacaook1 = true;
+      mitigacaook2 = true;
+     }
 
    if(NB1.IsNewBar(_Symbol,_Period)) //VERIFICA SE É UM NOVO CANDLE
      {
-      PMCDL1 = (MathMax(candle[1].open,candle[1].close)+MathMin(candle[1].open,candle[1].close))/2;
-      PMCDL2 = (MathMax(candle[2].open,candle[2].close)+MathMin(candle[2].open,candle[2].close))/2;
-      PMCDL3 = (MathMax(candle[3].open,candle[3].close)+MathMin(candle[3].open,candle[3].close))/2;
-
       //--- Mostrar na aba "EXPERT" os saldos do dia
-      double ganhos = DadosPosFechada("QTDE DE GANHOS DO DIA","");
-      double perdas = DadosPosFechada("QTDE DE PERDAS DO DIA","");
-      Print("ORDENS COM LUCRO: ",ganhos," ORDENS COM PERDAS: ",perdas," SALDO DO DIA:",ganhos-perdas);
+      //double ganhos = DadosPosFechada("QTDE DE GANHOS DO DIA","");
+      //double perdas = DadosPosFechada("QTDE DE PERDAS DO DIA","");
+      //Print("ORDENS COM LUCRO: ",ganhos," ORDENS COM PERDAS: ",perdas," SALDO DO DIA:",ganhos-perdas);
 
       //--- Definição dos lotes iniciais de compra e venda
       if(saldo<valoraumento)
@@ -480,7 +468,33 @@ void OnTick()
    sarnormalizado1 = NormalizeDouble(sar[1],5);
    sarnormalizado2 = NormalizeDouble(sar[2],5);
 
-//      previsao = NormalizeDouble(StringToDouble(dict.Get<string>(TimeCurrent())),5);
+//--- Cálculo da condição para operar no SAR dentro do número de pontos de lucro definidos nos inputs
+   if(((sarnormalizado0>tick.bid && sarnormalizado1<tick.ask) || (sarnormalizado0<tick.ask && sarnormalizado1>tick.bid)) && mitigacaook3 == false)
+     {
+      mitigacaook3 = true;
+      datahoraviradasar = TimeCurrent();
+     }
+   if(mitigacaook3 == true)
+     {
+      HistorySelect(aberturacandleatual,TimeCurrent());
+      if(HistoryDealsTotal()>1)
+        {
+         if(datahoraviradasar!=D'2000.01.01 01:00')
+           {
+            controlepontossar = NormalizeDouble(PontosGanhosAposViradaSar(datahoraviradasar),2);
+            Print("CONTROLE DE GANHO OK: ",controlepontossar);
+            if(controlepontossar>=maximopontossar)
+               mitigacaook3 = false;
+           }
+         else
+           {
+            controlepontossar = NormalizeDouble(PontosGanhosAposViradaSar(aberturacandleatual),2);
+            Print("CONTROLE DE GANHO OK: ",controlepontossar);
+            if(controlepontossar>=maximopontossar)
+               mitigacaook3 = false;
+           }
+        }
+     }
 
 ////////////////////////////////////////////
 //---| FECHA ORDENS NO FIM DO PREGÃO |----//
@@ -489,7 +503,7 @@ void OnTick()
      {
       if(PositionsTotal()>=1)
          if((possuicompra||possuivenda) && hratualstruct.hour==hrfechstruct.hour && hratualstruct.min==hrfechstruct.min)
-            FechaTodasPosicoesAbertas();
+            FechaTodasPosicoesAbertas("FULL","FIM DE PREGÃO");
      }
 
 /////////////////////////////////////////////
@@ -497,18 +511,35 @@ void OnTick()
 /////////////////////////////////////////////
    if(PositionsTotal()>=1)
      {
-      if((possuicompra && sarnormalizado0>tick.bid)||(possuivenda && sarnormalizado0<tick.ask))
+      if((possuicompra && sarnormalizado0>tick.bid) || (possuivenda && sarnormalizado0<tick.ask))
         {
-         FechaTodasPosicoesAbertas();
+         FechaTodasPosicoesAbertas("FULL","SAR INVERTIDO");
          Sleep(100);
          if(sarnormalizado0 < tick.ask)
-           {
-            trade.Buy(3,_Symbol,tick.ask,puxatpsl("SLC0"),0,"COMPRA INVERTIDA");
-           }
+            trade.Buy(3,_Symbol,tick.ask,puxatpsl("SLC0"),0,"COMPRA SAR INVERTIDO");
          if(sarnormalizado0 > tick.bid)
-           {
-            trade.Sell(3,_Symbol,tick.bid,puxatpsl("SLV0"),0,"VENDA INVERTIDA");
-           }
+            trade.Sell(3,_Symbol,tick.bid,puxatpsl("SLV0"),0,"VENDA SAR INVERTIDO");
+        }
+     }
+
+////////////////////////////////////////////////////
+//---| AJUSTA STOP LOSS A CADA CANDLE ABERTO |----//
+////////////////////////////////////////////////////
+   if(NB2.IsNewBar(_Symbol,_Period)) //VERIFICA SE É UM NOVO CANDLE
+     {
+      if(possuicompra)
+        {
+         if(slultimaposcompra<candle[1].low)
+            trade.PositionModify(_Symbol,candle[1].low,0);
+         else
+            FechaTodasPosicoesAbertas("FULL","AJUSTE DE SL");
+        }
+      if(possuivenda)
+        {
+         if(slultimaposvenda>candle[1].high)
+            trade.PositionModify(_Symbol,candle[1].high,0);
+         else
+            FechaTodasPosicoesAbertas("FULL","AJUSTE DE SL");
         }
      }
 
@@ -517,21 +548,19 @@ void OnTick()
 /////////////////////////////////////////////////
    if(ativaentradaea && HorarioEntrada() && !HorarioPausa1() /*&& DadosPosFechada("QTDE DE SL DO DIA","")<somapreju*/ && (percent_margem>prcentabert||saldo==capital))
      {
-      if(NB2.IsNewBar(_Symbol,_Period)) //VERIFICA SE É UM NOVO CANDLE
+      ///////////////////////////////////
+      //---| PRIMEIRA COMPRA/VENDA |---//
+      ///////////////////////////////////
+      if(PositionsTotal()==0 && mitigacaook1 && mitigacaook2 && mitigacaook3)
         {
-         //////////////////////////////////////////////////////
-         //---| PRIMEIRA COMPRA/VENDA DE CADA ESTRATÉGIA |---//
-         //////////////////////////////////////////////////////
-         if(PositionsTotal()==0 && mitigacaook)
-           {
-            //---| ESTRATEGIA SAR |---//
-            if(sarnormalizado0 < PMCDL1 && sarnormalizado1 < PMCDL2 && (PMCDL1-sarnormalizado1) > (PMCDL2-sarnormalizado2))
-               trade.Buy(volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),0,"C1");
-            Sleep(100);
-            if(sarnormalizado0 > PMCDL1 && sarnormalizado1 > PMCDL2 && (sarnormalizado1-PMCDL1) > (sarnormalizado2-PMCDL2))
-               trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),0,"V1");
-            Sleep(100);
-           }
+         //---| ESTRATEGIA SAR |---//
+         if(sarnormalizado0 < tick.ask)
+            trade.Buy(volumeoper,_Symbol,tick.ask,puxatpsl("SLC0"),0,"C1");
+         Sleep(100);
+
+         if(sarnormalizado0 > tick.bid)
+            trade.Sell(volumeoper,_Symbol,tick.bid,puxatpsl("SLV0"),0,"V1");
+         Sleep(100);
         }
      }
 
@@ -540,7 +569,8 @@ void OnTick()
 ////////////////////////////////////////////////////////////////////////////////////
    if(ativamartingale)
      {
-      if(PositionsTotal()>=1 && QtsMartingale()<=qtdedemart && ((possuicompra && qtdecandposabertcompra>=qtdecandle) || (possuivenda && qtdecandposabertvenda>=qtdecandle)))
+      if(PositionsTotal()>=1 && QtsMartingale()<=qtdedemart && !PosFechadaTrueFalse("","","COMPRA SAR INVERTIDO") && !PosFechadaTrueFalse("","","VENDA SAR INVERTIDO") && //
+         ((possuicompra && qtdecandposabertcompra>=qtdecandle) || (possuivenda && qtdecandposabertvenda>=qtdecandle)))
         {
          //---| ESTRATEGIA SAR |---//
          ComprasMartingale();
@@ -556,9 +586,9 @@ void OnTick()
       prejudodia = DadosPos("PREJUÍZO DO DIA","");
       if(MathAbs(prejudodia)/capital*100>=percentfull && prejudodia<0 && saldo!=capital)
         {
-         Print("STOP FULL ACIONADO");
-         FechaTodasPosicoesAbertas();
-         Sleep(300);
+         //Print("STOP FULL ACIONADO");
+         FechaTodasPosicoesAbertas("FULL","STOP FULL");
+         Sleep(200);
          return;
         }
      }
@@ -569,7 +599,7 @@ void OnTick()
 //   if((possuicompra && slultimaposcompra==0) || (possuivenda && slultimaposvenda==0))
 //     {
 //      Print("ERRO DA CORRETORA - ORDEM SEM STOP LOSS CRIADA");
-//      FechaTodasPosicoesAbertas();
+//      FechaTodasPosicoesAbertas("FULL","ERRO DA CORRETORA");
 //      Sleep(100);
 //     }
 
@@ -578,11 +608,11 @@ void OnTick()
 ////////////////////////////
    if(ativbreak)
      {
-      if(possuicompra && /*tick.bid>=PMultimacompra+pontosc1*_Point*/(PMCDL1-sarnormalizado1) < (PMCDL2-sarnormalizado2) && qtdecandposabertcompra>=candlesfechamento && tick.bid>precoultimacompra && tpultimaposcompra==0)
+      if(possuicompra && tick.bid>=PMultimacompra+pontosc1*_Point && tpultimaposcompra==0)
         {
          trade.PositionModify(_Symbol,tick.bid-pontosbesl*_Point,tick.ask+5*pontosc1*_Point);
         }
-      if(possuivenda && /*tick.ask<=PMultimavenda-pontosc1*_Point*/(sarnormalizado1-PMCDL1) < (sarnormalizado2-PMCDL2) && qtdecandposabertvenda>=candlesfechamento && tick.ask<precoultimavenda && tpultimaposvenda==0)
+      if(possuivenda && tick.ask<=PMultimavenda-pontosc1*_Point && tpultimaposvenda==0)
         {
          trade.PositionModify(_Symbol,tick.ask+pontosbesl*_Point,tick.bid-5*pontosc1*_Point);
         }
@@ -606,34 +636,6 @@ void OnTick()
 /////////////////////////////////////
 //| INÍCIO DAS FUNÇÕES AUXILIARES |//
 /////////////////////////////////////
-//+--------------------------+
-//| LER ARQUIVOS E PREVISÕES |
-//+--------------------------+
-/*void ReadFileToDictCSV(string FileName)
-  {
-   int h=FileOpen(FileName,FILE_READ|FILE_ANSI|FILE_CSV|FILE_COMMON);
-   string result[];
-   string sep=",";
-   ushort u_sep;
-
-   u_sep=StringGetCharacter(sep,0);
-
-   if(h==INVALID_HANDLE)
-     {
-      Alert("Error opening file",GetLastError());
-      return;
-     }
-   while(!FileIsEnding(h))
-     {
-      //Print(FileReadString(h));
-      StringSplit(FileReadString(h),u_sep,result);
-      dict.Set<string>(result[0],result[3]);
-     }
-
-   FileClose(h);
-  }
-  */
-//+------------------------------------------------------------------------------------------+
 //+--------------------------------------+
 //| REQUISIÇÃO/RECEPÇÃO HTTP DA PREVISÃO |
 //+--------------------------------------+
@@ -697,45 +699,28 @@ int   QtdeCandlesPosAberta(string tipo)
 int   QtdeCandlesPosFechada()
   {
    int qtdebars=0;
-   if(PosFechadaTrueFalse("EXISTE AO MENOS UMA POSIÇÃO FECHADA",""))
+   if(PosFechadaTrueFalse("EXISTE AO MENOS UMA POSIÇÃO FECHADA","",""))
       qtdebars = Bars(_Symbol,_Period,DataHoraUltPosFechada(),TimeCurrent());
    return qtdebars;
   }
 //+------------------------------------------------------------------------------------------+
-//+---------------------------------+
-//| FECHA TODAS AS POSIÇÕES ABERTAS |
-//+---------------------------------+
-void FechaTodasPosicoesAbertas()
+//+------------------------------------------------+
+//| FECHA TODAS AS POSIÇÕES ABERTAS COM COMENTÁRIO |
+//+------------------------------------------------+
+void FechaTodasPosicoesAbertas(string comentario,string comentario1)
   {
    for(int i=PositionsTotal()-1; i >= 0; i--)
      {
       ulong ticket=PositionGetTicket(i);
       string symbol = PositionGetString(POSITION_SYMBOL);
-      //ulong  magic = PositionGetInteger(POSITION_MAGIC);
+      double volume = PositionGetDouble(POSITION_VOLUME);
+      string coment = PositionGetString(POSITION_COMMENT);
       ENUM_POSITION_TYPE TipoPosicao=(ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
-      if((TipoPosicao==POSITION_TYPE_SELL||TipoPosicao==POSITION_TYPE_BUY) && symbol==_Symbol /*&& magic == magicrobo*/)
-         trade.PositionClose(ticket);
+      if(TipoPosicao==POSITION_TYPE_BUY && symbol==_Symbol && (coment == comentario || comentario=="FULL"))
+         trade.Sell(volume,_Symbol,tick.bid,0,0,"FECHAMENTO DE "+comentario1);
+      if(TipoPosicao==POSITION_TYPE_SELL && symbol==_Symbol && (coment == comentario || comentario=="FULL"))
+         trade.Buy(volume,_Symbol,tick.ask,0,0,"FECHAMENTO DE "+comentario1);
      }
-  }
-//+------------------------------------------------------------------------------------------+
-//+-------------------------------------------------------------+
-//| VERIFICA SE HÁ PELO MENOS UMA POSIÇÃO ABERTA EM OUTRO ATIVO |
-//+-------------------------------------------------------------+
-bool PossuiPosAbertaOutroAtivo()
-  {
-   for(int i=PositionsTotal()-1; i >= 0; i--)
-     {
-      ulong ticket=PositionGetTicket(i);
-      string position_symbol = PositionGetString(POSITION_SYMBOL);
-      //ulong  magic = PositionGetInteger(POSITION_MAGIC);
-      ENUM_POSITION_TYPE TipoPosicao=(ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
-      if((TipoPosicao==POSITION_TYPE_BUY||TipoPosicao==POSITION_TYPE_SELL) && position_symbol!=_Symbol /*&& magic == magicrobo*/)
-        {
-         return true;
-         break;
-        }
-     }
-   return false;
   }
 //+------------------------------------------------------------------------------------------+
 //+---------------------------------------+
@@ -1002,7 +987,6 @@ double DadosPosFechada(string acao, string tipo)
    long        type;
    datetime    time;
    datetime    time1=D'2000.01.01 01:00';
-   datetime    tempopos=D'2000.01.01 01:00';
    HistorySelect(0,TimeCurrent());
    uint        dealstotal = HistoryDealsTotal();
    for(uint i=0; i < dealstotal; i++)
@@ -1107,7 +1091,7 @@ double DadosPosFechada(string acao, string tipo)
 //+---------------------------------------------------------------+
 //| RETORNA OS DADOS TRUE/FALSE RELACIONADOS AS POSIÇÕES FECHADAS |
 //+---------------------------------------------------------------+
-bool PosFechadaTrueFalse(string acao,string tipo)
+bool PosFechadaTrueFalse(string acao,string tipo,string comentario)
   {
    bool     condicao=false;
    HistorySelect(0,TimeCurrent());
@@ -1116,6 +1100,7 @@ bool PosFechadaTrueFalse(string acao,string tipo)
    long     reason;
    long     entry;
    long     type;
+   string   coment="FALSE";
    uint     dealstotal=HistoryDealsTotal();
    for(uint i=0; i < dealstotal; i++)
      {
@@ -1124,7 +1109,8 @@ bool PosFechadaTrueFalse(string acao,string tipo)
          symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
          reason=HistoryDealGetInteger(ticket,DEAL_REASON);
          entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
-         type  = HistoryDealGetInteger(ticket,DEAL_TYPE);
+         type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+         coment=HistoryDealGetString(ticket,DEAL_COMMENT);
          if(entry==DEAL_ENTRY_OUT && type==DEAL_TYPE_SELL && symbol==_Symbol)
            {
             if(tipo=="COMPRA")
@@ -1190,10 +1176,50 @@ bool PosFechadaTrueFalse(string acao,string tipo)
             else
                condicao=false;
 
+         if(entry==DEAL_ENTRY_OUT && symbol==_Symbol && comentario=="FECHAMENTO DE AJUSTE DE SL")
+            if(coment==comentario)
+               condicao = true;
+            else
+               condicao = false;
+
         }
      }
 
    return condicao;
+  }
+//+------------------------------------------------------------------------------------------+
+//+---------------------------------------------+
+//| RETORNA OS PONTOS GANHOS APÓS VIRADA DO SAR |
+//+---------------------------------------------+
+double PontosGanhosAposViradaSar(datetime tempo)
+  {
+   ulong       ticket=0;
+   double      profit=0;
+   double      profit1=0;
+   string      symbol;
+   long        reason;
+   long        entry;
+   long        type;
+   HistorySelect(tempo,TimeCurrent());
+   uint        dealstotal = HistoryDealsTotal();
+   for(uint i=0; i < dealstotal; i++)
+     {
+      if((ticket=HistoryDealGetTicket(i))>0)
+        {
+         symbol=HistoryDealGetString(ticket,DEAL_SYMBOL);
+         reason=HistoryDealGetInteger(ticket,DEAL_REASON);
+         entry =HistoryDealGetInteger(ticket,DEAL_ENTRY);
+         type  =HistoryDealGetInteger(ticket,DEAL_TYPE);
+         profit=HistoryDealGetDouble(ticket,DEAL_PROFIT);
+         if(/*profit>0 &&*/ entry==DEAL_ENTRY_OUT && symbol==_Symbol)
+           {
+            profit1 = profit1+profit;
+           }
+        }
+      else
+         break;
+     }
+   return profit1;
   }
 //+------------------------------------------------------------------------------------------+
 //////////////////////////////////////////
@@ -1411,258 +1437,125 @@ double   puxatpsl(string tpsl)
   {
    string str=tpsl;
 
-   if(tipostop==tpstopprct)
-     {
-      if(str=="SLV0")
-         return(tick.bid*(1+percentloss/100));
-      if(str=="SLV1")
-         return(PMV1*(1+percentloss/100));
-      if(str=="SLV2")
-         return(PMV2*(1+percentloss/100));
-      if(str=="SLV3")
-         return(PMV3*(1+percentloss/100));
-      if(str=="SLV4")
-         return(PMV4*(1+percentloss/100));
-      if(str=="SLV5")
-         return(PMV5*(1+percentloss/100));
-      if(str=="SLV6")
-         return(PMV6*(1+percentloss/100));
-      if(str=="SLV7")
-         return(PMV7*(1+percentloss/100));
-      if(str=="SLV8")
-         return(PMV8*(1+percentloss/100));
-      if(str=="SLV9")
-         return(PMV9*(1+percentloss/100));
-      if(str=="SLV10")
-         return(PMV10*(1+percentloss/100));
-      if(str=="SLV11")
-         return(PMV11*(1+percentloss/100));
-      if(str=="SLV12")
-         return(PMV12*(1+percentloss/100));
-      if(str=="SLV13")
-         return(PMV13*(1+percentloss/100));
-      if(str=="SLV14")
-         return(PMV14*(1+percentloss/100));
+   if(str=="SLV0")
+      return(tick.bid+stoppontos*_Point);
+   if(str=="SLV1")
+      return(PMV1+stoppontos*_Point);
+   if(str=="SLV2")
+      return(PMV2+stoppontos*_Point);
+   if(str=="SLV3")
+      return(PMV3+stoppontos*_Point);
+   if(str=="SLV4")
+      return(PMV4+stoppontos*_Point);
+   if(str=="SLV5")
+      return(PMV5+stoppontos*_Point);
+   if(str=="SLV6")
+      return(PMV6+stoppontos*_Point);
+   if(str=="SLV7")
+      return(PMV7+stoppontos*_Point);
+   if(str=="SLV8")
+      return(PMV8+stoppontos*_Point);
+   if(str=="SLV9")
+      return(PMV9+stoppontos*_Point);
+   if(str=="SLV10")
+      return(PMV10+stoppontos*_Point);
+   if(str=="SLV11")
+      return(PMV11+stoppontos*_Point);
+   if(str=="SLV12")
+      return(PMV12+stoppontos*_Point);
+   if(str=="SLV13")
+      return(PMV13+stoppontos*_Point);
+   if(str=="SLV14")
+      return(PMV14+stoppontos*_Point);
 
-      if(str=="SLC0")
-         return(tick.ask*(1-percentloss/100));
-      if(str=="SLC1")
-         return(PMC1*(1-percentloss/100));
-      if(str=="SLC2")
-         return(PMC2*(1-percentloss/100));
-      if(str=="SLC3")
-         return(PMC3*(1-percentloss/100));
-      if(str=="SLC4")
-         return(PMC4*(1-percentloss/100));
-      if(str=="SLC5")
-         return(PMC5*(1-percentloss/100));
-      if(str=="SLC6")
-         return(PMC6*(1-percentloss/100));
-      if(str=="SLC7")
-         return(PMC7*(1-percentloss/100));
-      if(str=="SLC8")
-         return(PMC8*(1-percentloss/100));
-      if(str=="SLC9")
-         return(PMC9*(1-percentloss/100));
-      if(str=="SLC10")
-         return(PMC10*(1-percentloss/100));
-      if(str=="SLC11")
-         return(PMC11*(1-percentloss/100));
-      if(str=="SLC12")
-         return(PMC12*(1-percentloss/100));
-      if(str=="SLC13")
-         return(PMC13*(1-percentloss/100));
-      if(str=="SLC14")
-         return(PMC14*(1-percentloss/100));
-     }
-   if(tipostop==tpstoppontos)
-     {
-      if(str=="SLV0")
-         return(tick.bid+stoppontos*_Point);
-      if(str=="SLV1")
-         return(PMV1+stoppontos*_Point);
-      if(str=="SLV2")
-         return(PMV2+stoppontos*_Point);
-      if(str=="SLV3")
-         return(PMV3+stoppontos*_Point);
-      if(str=="SLV4")
-         return(PMV4+stoppontos*_Point);
-      if(str=="SLV5")
-         return(PMV5+stoppontos*_Point);
-      if(str=="SLV6")
-         return(PMV6+stoppontos*_Point);
-      if(str=="SLV7")
-         return(PMV7+stoppontos*_Point);
-      if(str=="SLV8")
-         return(PMV8+stoppontos*_Point);
-      if(str=="SLV9")
-         return(PMV9+stoppontos*_Point);
-      if(str=="SLV10")
-         return(PMV10+stoppontos*_Point);
-      if(str=="SLV11")
-         return(PMV11+stoppontos*_Point);
-      if(str=="SLV12")
-         return(PMV12+stoppontos*_Point);
-      if(str=="SLV13")
-         return(PMV13+stoppontos*_Point);
-      if(str=="SLV14")
-         return(PMV14+stoppontos*_Point);
+   if(str=="SLC0")
+      return(tick.ask-stoppontos*_Point);
+   if(str=="SLC1")
+      return(PMC1-stoppontos*_Point);
+   if(str=="SLC2")
+      return(PMC2-stoppontos*_Point);
+   if(str=="SLC3")
+      return(PMC3-stoppontos*_Point);
+   if(str=="SLC4")
+      return(PMC4-stoppontos*_Point);
+   if(str=="SLC5")
+      return(PMC5-stoppontos*_Point);
+   if(str=="SLC6")
+      return(PMC6-stoppontos*_Point);
+   if(str=="SLC7")
+      return(PMC7-stoppontos*_Point);
+   if(str=="SLC8")
+      return(PMC8-stoppontos*_Point);
+   if(str=="SLC9")
+      return(PMC9-stoppontos*_Point);
+   if(str=="SLC10")
+      return(PMC10-stoppontos*_Point);
+   if(str=="SLC11")
+      return(PMC11-stoppontos*_Point);
+   if(str=="SLC12")
+      return(PMC12-stoppontos*_Point);
+   if(str=="SLC13")
+      return(PMC13-stoppontos*_Point);
+   if(str=="SLC14")
+      return(PMC14-stoppontos*_Point);
 
-      if(str=="SLC0")
-         return(tick.ask-stoppontos*_Point);
-      if(str=="SLC1")
-         return(PMC1-stoppontos*_Point);
-      if(str=="SLC2")
-         return(PMC2-stoppontos*_Point);
-      if(str=="SLC3")
-         return(PMC3-stoppontos*_Point);
-      if(str=="SLC4")
-         return(PMC4-stoppontos*_Point);
-      if(str=="SLC5")
-         return(PMC5-stoppontos*_Point);
-      if(str=="SLC6")
-         return(PMC6-stoppontos*_Point);
-      if(str=="SLC7")
-         return(PMC7-stoppontos*_Point);
-      if(str=="SLC8")
-         return(PMC8-stoppontos*_Point);
-      if(str=="SLC9")
-         return(PMC9-stoppontos*_Point);
-      if(str=="SLC10")
-         return(PMC10-stoppontos*_Point);
-      if(str=="SLC11")
-         return(PMC11-stoppontos*_Point);
-      if(str=="SLC12")
-         return(PMC12-stoppontos*_Point);
-      if(str=="SLC13")
-         return(PMC13-stoppontos*_Point);
-      if(str=="SLC14")
-         return(PMC14-stoppontos*_Point);
-     }
-   if(tipogain==tpgainprct)
-     {
-      if(str=="TPC0")
-         return(tick.bid*(1+percentgain/100));
-      if(str=="TPC1")
-         return(PMC1*(1+percentgain/100));
-      if(str=="TPC2")
-         return(PMC2*(1+percentgain/100));
-      if(str=="TPC3")
-         return(PMC3*(1+percentgain/100));
-      if(str=="TPC4")
-         return(PMC4*(1+percentgain/100));
-      if(str=="TPC5")
-         return(PMC5*(1+percentgain/100));
-      if(str=="TPC6")
-         return(PMC6*(1+percentgain/100));
-      if(str=="TPC7")
-         return(PMC7*(1+percentgain/100));
-      if(str=="TPC8")
-         return(PMC8*(1+percentgain/100));
-      if(str=="TPC9")
-         return(PMC9*(1+percentgain/100));
-      if(str=="TPC10")
-         return(PMC10*(1+percentgain/100));
-      if(str=="TPC11")
-         return(PMC11*(1+percentgain/100));
-      if(str=="TPC12")
-         return(PMC12*(1+percentgain/100));
-      if(str=="TPC13")
-         return(PMC13*(1+percentgain/100));
-      if(str=="TPC14")
-         return(PMC14*(1+percentgain/100));
+   if(str=="TPC0")
+      return(tick.bid+pontosc1*_Point);
+   if(str=="TPC1")
+      return(PMC1+pontosc2*_Point);
+   if(str=="TPC2")
+      return(PMC2+pontosc3*_Point);
+   if(str=="TPC3")
+      return(PMC3+pontosc4*_Point);
+   if(str=="TPC4")
+      return(PMC4+pontosc5*_Point);
+   if(str=="TPC5")
+      return(PMC5+pontosc6*_Point);
+   if(str=="TPC6")
+      return(PMC6+pontosc7*_Point);
+   if(str=="TPC7")
+      return(PMC7+pontosc8*_Point);
+   if(str=="TPC8")
+      return(PMC8+pontosc9*_Point);
+   if(str=="TPC9")
+      return(PMC9+pontosc10*_Point);
+   if(str=="TPC10")
+      return(PMC10+pontosc11*_Point);
+   if(str=="TPC11")
+      return(PMC11+pontosc12*_Point);
+   if(str=="TPC12")
+      return(PMC12+pontosc13*_Point);
+   if(str=="TPC13")
+      return(PMC13+pontosc14*_Point);
 
-      if(str=="TPV0")
-         return(tick.ask*(1-percentgain/100));
-      if(str=="TPV1")
-         return(PMV1*(1-percentgain/100));
-      if(str=="TPV2")
-         return(PMV2*(1-percentgain/100));
-      if(str=="TPV3")
-         return(PMV3*(1-percentgain/100));
-      if(str=="TPV4")
-         return(PMV4*(1-percentgain/100));
-      if(str=="TPV5")
-         return(PMV5*(1-percentgain/100));
-      if(str=="TPV6")
-         return(PMV6*(1-percentgain/100));
-      if(str=="TPV7")
-         return(PMV7*(1-percentgain/100));
-      if(str=="TPV8")
-         return(PMV8*(1-percentgain/100));
-      if(str=="TPV9")
-         return(PMV9*(1-percentgain/100));
-      if(str=="TPV10")
-         return(PMV10*(1-percentgain/100));
-      if(str=="TPV11")
-         return(PMV11*(1-percentgain/100));
-      if(str=="TPV12")
-         return(PMV12*(1-percentgain/100));
-      if(str=="TPV13")
-         return(PMV13*(1-percentgain/100));
-      if(str=="TPV14")
-         return(PMV14*(1-percentgain/100));
-     }
-   if(tipogain==tpgainpontos)
-     {
-      if(str=="TPC0")
-         return(tick.bid+pontosc1*_Point);
-      if(str=="TPC1")
-         return(PMC1+pontosc2*_Point);
-      if(str=="TPC2")
-         return(PMC2+pontosc3*_Point);
-      if(str=="TPC3")
-         return(PMC3+pontosc4*_Point);
-      if(str=="TPC4")
-         return(PMC4+pontosc5*_Point);
-      if(str=="TPC5")
-         return(PMC5+pontosc6*_Point);
-      if(str=="TPC6")
-         return(PMC6+pontosc7*_Point);
-      if(str=="TPC7")
-         return(PMC7+pontosc8*_Point);
-      if(str=="TPC8")
-         return(PMC8+pontosc9*_Point);
-      if(str=="TPC9")
-         return(PMC9+pontosc10*_Point);
-      if(str=="TPC10")
-         return(PMC10+pontosc11*_Point);
-      if(str=="TPC11")
-         return(PMC11+pontosc12*_Point);
-      if(str=="TPC12")
-         return(PMC12+pontosc13*_Point);
-      if(str=="TPC13")
-         return(PMC13+pontosc14*_Point);
-
-      if(str=="TPV0")
-         return(tick.ask-pontosc1*_Point);
-      if(str=="TPV1")
-         return(PMV1-pontosc2*_Point);
-      if(str=="TPV2")
-         return(PMV2-pontosc3*_Point);
-      if(str=="TPV3")
-         return(PMV3-pontosc4*_Point);
-      if(str=="TPV4")
-         return(PMV4-pontosc5*_Point);
-      if(str=="TPV5")
-         return(PMV5-pontosc6*_Point);
-      if(str=="TPV6")
-         return(PMV6-pontosc7*_Point);
-      if(str=="TPV7")
-         return(PMV7-pontosc8*_Point);
-      if(str=="TPV8")
-         return(PMV8-pontosc9*_Point);
-      if(str=="TPV9")
-         return(PMV9-pontosc10*_Point);
-      if(str=="TPV10")
-         return(PMV10-pontosc11*_Point);
-      if(str=="TPV11")
-         return(PMV11-pontosc12*_Point);
-      if(str=="TPV12")
-         return(PMV12-pontosc13*_Point);
-      if(str=="TPV13")
-         return(PMV13-pontosc14*_Point);
-     }
+   if(str=="TPV0")
+      return(tick.ask-pontosc1*_Point);
+   if(str=="TPV1")
+      return(PMV1-pontosc2*_Point);
+   if(str=="TPV2")
+      return(PMV2-pontosc3*_Point);
+   if(str=="TPV3")
+      return(PMV3-pontosc4*_Point);
+   if(str=="TPV4")
+      return(PMV4-pontosc5*_Point);
+   if(str=="TPV5")
+      return(PMV5-pontosc6*_Point);
+   if(str=="TPV6")
+      return(PMV6-pontosc7*_Point);
+   if(str=="TPV7")
+      return(PMV7-pontosc8*_Point);
+   if(str=="TPV8")
+      return(PMV8-pontosc9*_Point);
+   if(str=="TPV9")
+      return(PMV9-pontosc10*_Point);
+   if(str=="TPV10")
+      return(PMV10-pontosc11*_Point);
+   if(str=="TPV11")
+      return(PMV11-pontosc12*_Point);
+   if(str=="TPV12")
+      return(PMV12-pontosc13*_Point);
+   if(str=="TPV13")
+      return(PMV13-pontosc14*_Point);
 
    return(NULL);
   }
